@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Register New Farm — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Add New Farm Holding" data-te="కొత్త పొలాన్ని నమోదు చేయండి" data-hi="नया खेत पंजीकृत करें">Add New Farm Holding</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Enter your farm's geographical location, acreage, and soil profile" data-te="మీ పొలం యొక్క ప్రాంతం, విస్తీర్ణం మరియు నేల రకం వివరాలను నమోదు చేయండి" data-hi="अपने खेत का स्थान, रकबा और मिट्टी का प्रकार दर्ज करें">Enter your farm's geographical location, acreage, and soil profile</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <div class="card-title">
+            <span>🏡</span> <span class="lang-text" data-en="Farm Details Form" data-te="పొలం వివరాల ఫారం" data-hi="खेत विवरण प्रपत्र">Farm Details Form</span>
+        </div>
+        <a href="{{ url_for('farm_list') }}" class="btn btn-secondary btn-sm">
+            <span class="lang-text" data-en="← Back to Farm List" data-te="← పొలాల జాబితాకు తిరిగి వెళ్లండి" data-hi="← खेत सूची पर वापस जाएं">← Back to Farm List</span>
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('farm_add') }}">
+        <div class="form-group">
+            <label class="form-label" for="farm_name">
+                <span class="lang-text" data-en="Farm / Plot Name" data-te="పొలం / ప్లాట్ పేరు" data-hi="खेत / प्लॉट का नाम">Farm / Plot Name</span> <span class="required">*</span>
+            </label>
+            <input 
+                type="text" 
+                id="farm_name" 
+                name="farm_name" 
+                class="form-control" 
+                placeholder="e.g. Green Valley Plot A" 
+                value="{{ form_data.farm_name if form_data else '' }}" 
+                required
+            >
+        </div>
+
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label class="form-label" for="location">
+                    <span class="lang-text" data-en="Village / Town / Landmark" data-te="గ్రామం / పట్టణం / ల్యాండ్‌మార్క్" data-hi="गांव / कस्बा / स्थल">Village / Town / Landmark</span> <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    class="form-control" 
+                    placeholder="e.g. Kakinada Rural" 
+                    value="{{ form_data.location if form_data else '' }}" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="district">
+                    <span class="lang-text" data-en="District" data-te="జిల్లా" data-hi="जिला">District</span> <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="district" 
+                    name="district" 
+                    class="form-control" 
+                    placeholder="e.g. East Godavari" 
+                    value="{{ form_data.district if form_data else '' }}" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="state">
+                    <span class="lang-text" data-en="State" data-te="రాష్ట్రం" data-hi="राज्य">State</span> <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="state" 
+                    name="state" 
+                    class="form-control" 
+                    placeholder="e.g. Andhra Pradesh" 
+                    value="{{ form_data.state if form_data else '' }}" 
+                    required
+                >
+            </div>
+        </div>
+
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label class="form-label" for="land_area">
+                    <span class="lang-text" data-en="Land Area (Acres)" data-te="భూమి విస్తీర్ణం (ఎకరాలు)" data-hi="खेत का रकबा (एकड़)">Land Area (Acres)</span> <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    step="0.01" 
+                    min="0.1" 
+                    id="land_area" 
+                    name="land_area" 
+                    class="form-control" 
+                    placeholder="e.g. 5.5" 
+                    value="{{ form_data.land_area if form_data else '' }}" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="soil_type">
+                    <span class="lang-text" data-en="Soil Type" data-te="నేల రకం" data-hi="मिट्टी का प्रकार">Soil Type</span> <span class="required">*</span>
+                </label>
+                <select id="soil_type" name="soil_type" class="form-select" required>
+                    <option value="" data-en="-- Select Soil Type --" data-te="-- నేల రకాన్ని ఎంచుకోండి --" data-hi="-- मिट्टी चुनें --">-- Select Soil Type --</option>
+                    {% set selected_soil = form_data.soil_type if form_data else '' %}
+                    <option value="Loamy" data-en="Loamy Soil" data-te="ఒండ్రు నేల" data-hi="दोमट मिट्टी" {% if selected_soil == 'Loamy' %}selected{% endif %}>Loamy Soil</option>
+                    <option value="Clay" data-en="Clay Soil" data-te="జిగురు నేల" data-hi="चिकनी मिट्टी" {% if selected_soil == 'Clay' %}selected{% endif %}>Clay Soil</option>
+                    <option value="Sandy" data-en="Sandy Soil" data-te="ఇసుక నేల" data-hi="बलुई मिट्टी" {% if selected_soil == 'Sandy' %}selected{% endif %}>Sandy Soil</option>
+                    <option value="Silty" data-en="Silty Soil" data-te="సిల్ట్ నేల" data-hi="गाद मिट्टी" {% if selected_soil == 'Silty' %}selected{% endif %}>Silty Soil</option>
+                    <option value="Black" data-en="Black Cotton Soil" data-te="నల్లరేగడి నేల" data-hi="काली मिट्टी" {% if selected_soil == 'Black' %}selected{% endif %}>Black Cotton Soil</option>
+                    <option value="Red" data-en="Red Soil" data-te="ఎర్ర నేల" data-hi="लाल मिट्टी" {% if selected_soil == 'Red' %}selected{% endif %}>Red Soil</option>
+                    <option value="Peaty" data-en="Peaty Soil" data-te="పీట్ నేల" data-hi="पीट मिट्टी" {% if selected_soil == 'Peaty' %}selected{% endif %}>Peaty Soil</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="irrigation_type">
+                    <span class="lang-text" data-en="Irrigation Type" data-te="సాగునీటి విధానం" data-hi="सिंचाई प्रणाली">Irrigation Type</span> <span class="required">*</span>
+                </label>
+                <select id="irrigation_type" name="irrigation_type" class="form-select" required>
+                    <option value="" data-en="-- Select Irrigation --" data-te="-- సాగునీటి విధానాన్ని ఎంచుకోండి --" data-hi="-- सिंचाई प्रणाली चुनें --">-- Select Irrigation --</option>
+                    {% set selected_irri = form_data.irrigation_type if form_data else '' %}
+                    <option value="Drip" data-en="Drip Irrigation" data-te="డ్రిప్ (బిందు సేద్యం)" data-hi="ड्रिप (टपक) सिंचाई" {% if selected_irri == 'Drip' %}selected{% endif %}>Drip Irrigation</option>
+                    <option value="Sprinkler" data-en="Sprinkler Irrigation" data-te="స్ప్రింక్లర్ (తుంపర సేద్యం)" data-hi="स्प्रिंकलर (फव्वारा)" {% if selected_irri == 'Sprinkler' %}selected{% endif %}>Sprinkler Irrigation</option>
+                    <option value="Flood" data-en="Flood / Canal Irrigation" data-te="కాలువ / ముంపు నీరు" data-hi="बाढ़ / नहर सिंचाई" {% if selected_irri == 'Flood' %}selected{% endif %}>Flood / Canal Irrigation</option>
+                    <option value="Rain-fed" data-en="Rain-fed" data-te="వర్షాధారం" data-hi="वर्षा आधारित" {% if selected_irri == 'Rain-fed' %}selected{% endif %}>Rain-fed</option>
+                    <option value="Manual" data-en="Manual / Borewell" data-te="బోర్‌వెల్ / మాన్యువల్" data-hi="बोरवेल / मैनुअल" {% if selected_irri == 'Manual' %}selected{% endif %}>Manual / Borewell</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label class="form-label" for="previous_crop">
+                    <span class="lang-text" data-en="Previous Crop Harvested" data-te="మునుపటి పంట" data-hi="पिछली फसल">Previous Crop Harvested</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="previous_crop" 
+                    name="previous_crop" 
+                    class="form-control" 
+                    placeholder="e.g. Paddy / Rice" 
+                    value="{{ form_data.previous_crop if form_data else '' }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="current_crop">
+                    <span class="lang-text" data-en="Current Standing Crop (if any)" data-te="ప్రస్తుత పంట (ఏదైనా ఉంటే)" data-hi="वर्तमान खड़ी फसल (यदि कोई हो)">Current Standing Crop (if any)</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="current_crop" 
+                    name="current_crop" 
+                    class="form-control" 
+                    placeholder="e.g. Maize / Cotton" 
+                    value="{{ form_data.current_crop if form_data else '' }}"
+                >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">
+                <span class="lang-text" data-en="Farm Notes / Description" data-te="పొలం వివరాలు / వివరణ" data-hi="खेत का विवरण">Farm Notes / Description</span>
+            </label>
+            <textarea 
+                id="description" 
+                name="description" 
+                class="form-control" 
+                rows="3" 
+                placeholder="Optional notes regarding soil testing dates, water source, slope, or microclimate..."
+            >{{ form_data.description if form_data else '' }}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+            <button type="submit" name="action" value="save_and_predict" class="btn btn-primary" style="flex: 2; font-weight: 800; padding: 12px 18px; box-shadow: var(--shadow-md);">
+                ⚡ <span class="lang-text" data-en="Save & Generate 360° Farm Output (Slides)" data-te="భద్రపరచి 360° పూర్తి నివేదికను పొందండి (స్లైడ్స్)" data-hi="सहेजें और 360° संपूर्ण खेत रिपोर्ट प्राप्त करें (स्लाइड्स)">Save & Generate 360° Farm Output (Slides)</span>
+            </button>
+            <button type="submit" name="action" value="save" class="btn btn-secondary" style="flex: 1; font-weight: 600;">
+                💾 <span class="lang-text" data-en="Save Farm Only" data-te="పొలాన్ని మాత్రమే సేవ్ చేయండి" data-hi="केवल खेत सहेजें">Save Farm Only</span>
+            </button>
+            <a href="{{ url_for('farm_list') }}" class="btn btn-outline" style="align-self: center;">
+                <span class="lang-text" data-en="Cancel" data-te="రద్దు చేయండి" data-hi="रद्द करें">Cancel</span>
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

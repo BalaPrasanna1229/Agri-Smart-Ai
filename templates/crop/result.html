@@ -1,0 +1,2081 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Advisory Report — {{ result.recommended_crop|title }} — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Integrated Farm Advisory & Intelligence Report" data-te="సమగ్ర వ్యవసాయ సలహా & ఇంటెలిజెన్స్ నివేదిక" data-hi="एकीकृत कृषि परामर्श व इंटेलिजेंस रिपोर्ट">Integrated Farm Advisory & Intelligence Report</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health" data-te="స్లైడ్ల రూపంలో AI విశ్లేషణ: పంట సిఫార్సు, దిగుబడి, మార్కెట్ రాబడి, తెగుళ్లు, పురుగు మందులు, సాగునీరు & నేల ఆరోగ్యం" data-hi="स्लाइड-दर-स्लाइड AI विश्लेषण: फसल सिफारिश, पैदावार, मंडी भाव, रोग रोकथाम, कीटनाशक, सिंचाई व मिट्टी स्वास्थ्य">Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health</span>
+{% endblock %}
+
+{% block content %}
+<div class="advisory-deck-container" style="max-width: 1020px; margin: 0 auto;">
+
+    <!-- High Market Price Alert Banner (Triggered when price > MSP or surging) -->
+    {% if advisory.market_economics.is_high_price and advisory.market_economics.market_price %}
+    <div class="high-price-banner glass-glow-banner" style="margin-bottom: 22px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-size: 34px; animation: bounceGlow 2s infinite;">🔥</div>
+            <div>
+                <div style="font-size: 15px; font-weight: 800; color: #14532d; display: flex; align-items: center; gap: 8px;">
+                    <span data-i18n="high_price_banner_title">HIGH MARKET PRICE ALERT</span>
+                    <span class="pulse-tag" style="background: #15803d; color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 800;">Live Mandi Surge</span>
+                </div>
+                <div style="font-size: 13px; color: #166534; margin-top: 3px; line-height: 1.4;">
+                    <span class="lang-text" 
+                          data-en="{{ advisory.market_economics.commodity_name }} is trading at ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/Quintal in Mandi{% if advisory.market_economics.msp_spread_rs %} — ₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs or 0) }} above Govt MSP (+{{ advisory.market_economics.msp_spread_pct or 0 }}% profit){% endif %}! Excellent selling window for farmers."
+                          data-te="{{ advisory.market_economics.commodity_te }} మార్కెట్ ధర ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/క్వింటాల్ వద్ద ఉంది.{% if advisory.market_economics.msp_spread_rs %} ఇది ప్రభుత్వ మద్దతు ధర (MSP) కంటే ₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs or 0) }} అధికం (+{{ advisory.market_economics.msp_spread_pct or 0 }}% లాభం)!{% endif %} మండీలో అమ్మడానికి చాలా అనుకూలమైన సమయం."
+                          data-hi="{{ advisory.market_economics.commodity_name }} मंडी में ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/क्विंटल पर बिक रहा है{% if advisory.market_economics.msp_spread_rs %} (MSP से ₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs or 0) }} अधिक){% endif %}। मंडी में बेचने का उत्तम अवसर!">
+                        {{ advisory.market_economics.commodity_name }} is trading at ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/Quintal in Mandi{% if advisory.market_economics.msp_spread_rs %} — ₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs or 0) }} above Govt MSP (+{{ advisory.market_economics.msp_spread_pct or 0 }}% profit){% endif %}! Excellent selling window for farmers.
+                    </span>
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="goToSlide(3)" class="btn btn-primary btn-sm glow-btn" style="white-space: nowrap; margin-left: 12px; cursor: pointer; font-weight: 800; padding: 8px 16px;">
+            📈 <span class="lang-text" data-en="View Revenue (Slide 3) →" data-te="మార్కెట్ రాబడి (స్లైడ్ 3) →" data-hi="मंडी आय (स्लाइड 3) →">View Revenue (Slide 3) →</span>
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- SLIDE PRESENTATION CONTROLLER DECK -->
+    <div class="deck-controller-card" style="margin-bottom: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="deck-icon-badge">📊</div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">
+                            <span class="lang-text" data-en="Interactive 8-Slide Advisory Presentation Deck" data-te="8-స్లైడ్ల సమగ్ర వ్యవసాయ ప్రెజెంటేషన్ డెక్" data-hi="8-स्लाइड इंटरएक्टिव कृषि रिपोर्ट">Interactive 8-Slide Advisory Presentation Deck</span>
+                        </h3>
+                        <span class="deck-status-chip">360° AI Powered</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #64748b; margin-top: 2px; font-weight: 600;">
+                        <span id="slideCounterText">Slide 1 of 8: Crop Recommendation & Suitability</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="btnSlideMode" class="btn btn-primary btn-sm mode-toggle-btn" onclick="setPresentationMode('slide')" style="font-size: 12px; font-weight: 700; border-radius: 8px;">
+                    🖥️ <span class="lang-text" data-en="Slide Mode" data-te="స్లైడ్ విధానం" data-hi="स्लाइड मोड">Slide Mode</span>
+                </button>
+                <button type="button" id="btnAllMode" class="btn btn-secondary btn-sm mode-toggle-btn" onclick="setPresentationMode('all')" style="font-size: 12px; border-radius: 8px;">
+                    📄 <span class="lang-text" data-en="View All" data-te="మొత్తం చూడండి" data-hi="सभी देखें">View All</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleDeckFullscreen()" title="Fullscreen Deck" style="font-size: 12px; border-radius: 8px; padding: 6px 10px;">
+                    ⛶ <span class="lang-text" data-en="Fullscreen" data-te="పూర్తి స్క్రీన్" data-hi="फुलस्क्रीन">Fullscreen</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Glowing Progress Bar Indicator -->
+        <div class="deck-progress-track">
+            <div id="slideProgressBar" class="deck-progress-fill" style="width: 12.5%;"></div>
+        </div>
+
+        <!-- Scrollable Slide Navigation Pills with Modern Glow -->
+        <div class="slide-nav-pills">
+            <button type="button" class="slide-pill active" data-slide="1" onclick="goToSlide(1)">
+                <span class="pill-num">1</span>
+                <span class="pill-icon">🌾</span>
+                <span class="pill-label lang-text" data-en="Crop Suitability" data-te="పంట సిఫార్సు" data-hi="फसल सिफारिश">Crop Suitability</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="2" onclick="goToSlide(2)">
+                <span class="pill-num">2</span>
+                <span class="pill-icon">📊</span>
+                <span class="pill-label lang-text" data-en="Yield Forecast" data-te="దిగుబడి అంచనా" data-hi="उपज अनुमान">Yield Forecast</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="3" onclick="goToSlide(3)">
+                <span class="pill-num">3</span>
+                <span class="pill-icon">💰</span>
+                <span class="pill-label lang-text" data-en="Mandi Economics" data-te="మార్కెట్ ధరలు" data-hi="मंडी भाव">Mandi Economics</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="4" onclick="goToSlide(4)">
+                <span class="pill-num">4</span>
+                <span class="pill-icon">🛡️</span>
+                <span class="pill-label lang-text" data-en="Disease Care" data-te="తెగుళ్ల నివారణ" data-hi="रोग रोकथाम">Disease Care</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="5" onclick="goToSlide(5)">
+                <span class="pill-num">5</span>
+                <span class="pill-icon">🧪</span>
+                <span class="pill-label lang-text" data-en="Pesticide Dosages" data-te="పురుగు మందులు" data-hi="कीटनाशक">Pesticide Dosages</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="6" onclick="goToSlide(6)">
+                <span class="pill-num">6</span>
+                <span class="pill-icon">💧</span>
+                <span class="pill-label lang-text" data-en="Irrigation Plan" data-te="సాగునీరు" data-hi="सिंचाई">Irrigation Plan</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="7" onclick="goToSlide(7)">
+                <span class="pill-num">7</span>
+                <span class="pill-icon">🌍</span>
+                <span class="pill-label lang-text" data-en="Soil Health" data-te="నేల అనుకూలత" data-hi="मिट्टी स्वास्थ्य">Soil Health</span>
+            </button>
+            <button type="button" class="slide-pill" data-slide="8" onclick="goToSlide(8)">
+                <span class="pill-num">8</span>
+                <span class="pill-icon">📋</span>
+                <span class="pill-label lang-text" data-en="Diagnostics" data-te="పరీక్ష వివరాలు" data-hi="परीक्षण डेटा">Diagnostics</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 1: CROP RECOMMENDATION (OPTIMAL CROP & PROBABILITIES) -->
+    <!-- ======================================================== -->
+    <div id="slide-1" class="advisory-slide active">
+        <!-- Ultra Hero Result Card -->
+        <div class="slide-hero slide-hero-crop" style="margin-bottom: 24px;">
+            <div class="slide-hero-badge">
+                ✨ <span data-i18n="optimal_crop_title">Slide 1: Optimal Recommended Crop Match</span>
+            </div>
+            
+            <div class="slide-hero-main-row">
+                <div class="hero-crop-avatar">🌱</div>
+                <div class="hero-crop-meta">
+                    <h1 class="hero-crop-title">
+                        <span class="lang-text" 
+                              data-en="{{ advisory.crop_recommendation.crop_name_en }}" 
+                              data-te="{{ advisory.crop_recommendation.crop_name_te }}" 
+                              data-hi="{{ advisory.crop_recommendation.crop_name_hi }}">
+                            {{ advisory.crop_recommendation.crop_name_en }}
+                        </span>
+                    </h1>
+                    <div class="hero-crop-subtitle">
+                        <span class="lang-text" 
+                              data-en="Highest biological compatibility for your soil nutrients & seasonal climate" 
+                              data-te="మీ నేల పోషకాలు మరియు ప్రస్తుత వాతావరణానికి అత్యంత అనుకూలమైన పంట" 
+                              data-hi="आपकी मिट्टी और जलवायु के लिए सर्वोत्तम उपयुक्त फसल">
+                            Highest biological compatibility for your soil nutrients & seasonal climate
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Circular Confidence Gauge -->
+                <div class="hero-gauge-box">
+                    <div class="gauge-ring">
+                        <div class="gauge-number">{{ result.confidence_pct }}%</div>
+                        <div class="gauge-label">AI Match</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Impact Highlights Floating Strip -->
+            <div class="hero-highlights-strip">
+                <div class="hero-highlight-pill green">
+                    <span class="hi-icon">🎯</span>
+                    <span><strong data-i18n="model_confidence">Confidence</strong>: <strong>{{ result.confidence_pct }}%</strong></span>
+                </div>
+                {% if advisory.market_economics.market_price %}
+                <div class="hero-highlight-pill emerald">
+                    <span class="hi-icon">💰</span>
+                    <span><strong data-i18n="mandi_rate">Mandi Rate</strong>: <strong>₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/Qtl</strong></span>
+                </div>
+                {% endif %}
+                <div class="hero-highlight-pill blue">
+                    <span class="hi-icon">🌾</span>
+                    <span><strong data-i18n="est_yield">Est. Yield</strong>: <strong>{{ advisory.yield_forecast.predicted_yield_tons }} Tons</strong></span>
+                </div>
+                {% if farm %}
+                <div class="hero-highlight-pill purple">
+                    <span class="hi-icon">🏡</span>
+                    <span><strong>{{ farm.farm_name }}</strong> ({{ farm.land_area }} acres • {{ farm.district }})</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Crop Suitability & Top Match Rankings Arena -->
+        <div class="card premium-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title" style="color: var(--forest);">
+                    <span>🏆</span> <span data-i18n="pillar_crop">Multi-Class AI Crop Suitability Rankings</span>
+                </div>
+                <span class="badge-ready">
+                    <span class="lang-text" data-en="Random Forest Ensemble" data-te="ర్యాండమ్ ఫారెస్ట్ ML మోడల్" data-hi="रैंडम फॉरेस्ट मॉडल">Random Forest Ensemble</span>
+                </span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <p style="margin: 0 0 16px 0; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5;">
+                    <span class="lang-text" 
+                          data-en="Machine Learning probability distribution evaluated across 22 major Indian agricultural crop varieties based on your soil N-P-K, pH, temperature, and moisture levels:" 
+                          data-te="మీ నేల N-P-K, pH, ఉష్ణోగ్రత మరియు వర్షపాతం ఆధారంగా 22 రకాల పంటల సంభావ్యత ర్యాంకింగ్స్:" 
+                          data-hi="आपकी मिट्टी और जलवायु डेटा के आधार पर 22 प्रमुख फसलों की मशीन लर्निंग संभाव्यता सूची:">
+                        Machine Learning probability distribution evaluated across 22 major Indian agricultural crop varieties based on your soil N-P-K, pH, temperature, and moisture levels:
+                    </span>
+                </p>
+
+                <!-- Ranked Suitability Cards Grid -->
+                <div class="suitability-arena-grid">
+                    {% for item in advisory.crop_recommendation.top_3_recommendations %}
+                    <div class="suitability-card {% if loop.first %}rank-1{% elif loop.index == 2 %}rank-2{% else %}rank-3{% endif %}">
+                        <div class="suitability-rank-badge">
+                            {% if loop.first %}🥇 Rank 1 (Top Pick){% elif loop.index == 2 %}🥈 Rank 2 (Alternative){% else %}🥉 Rank 3 (Alternative){% endif %}
+                        </div>
+                        <div class="suitability-crop-title">
+                            <span class="lang-text" data-en="{{ item.crop_en }}" data-te="{{ item.crop_te }}" data-hi="{{ item.crop_hi }}">{{ item.crop_en }}</span>
+                        </div>
+                        <div class="suitability-pct-row">
+                            <div class="suitability-bar-track">
+                                <div class="suitability-bar-fill {% if loop.first %}fill-primary{% else %}fill-muted{% endif %}" style="width: {{ item.confidence_pct }}%;"></div>
+                            </div>
+                            <div class="suitability-score">{{ item.confidence_pct }}%</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Evaluated Baseline DNA Chip -->
+                <div class="evaluated-baseline-strip">
+                    <div class="strip-label">
+                        🧬 <strong class="lang-text" data-en="Evaluated Soil DNA Baseline:" data-te="పరీక్షించిన నేల విలువలు:" data-hi="परीक्षित मिट्टी आधार:">Evaluated Soil DNA Baseline:</strong>
+                    </div>
+                    <div class="strip-chips">
+                        <span class="bio-chip">N: <strong>{{ inputs.N }}</strong> kg/ha</span>
+                        <span class="bio-chip">P: <strong>{{ inputs.P }}</strong> kg/ha</span>
+                        <span class="bio-chip">K: <strong>{{ inputs.K }}</strong> kg/ha</span>
+                        <span class="bio-chip">pH: <strong>{{ inputs.ph }}</strong></span>
+                        <span class="bio-chip">Temp: <strong>{{ inputs.temperature }}</strong>°C</span>
+                        <span class="bio-chip">Rain: <strong>{{ inputs.rainfall }}</strong> mm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 2: HARVEST YIELD FORECAST -->
+    <!-- ======================================================== -->
+    <div id="slide-2" class="advisory-slide">
+        <!-- Yield Hero Showcase -->
+        <div class="slide-hero slide-hero-yield" style="margin-bottom: 24px;">
+            <div class="slide-hero-badge amber">
+                🌾 <span data-i18n="pillar_yield">Slide 2: Harvest Yield & Biomass Simulation</span>
+            </div>
+
+            <div class="slide-hero-main-row">
+                <div class="hero-crop-avatar amber">🌾</div>
+                <div class="hero-crop-meta">
+                    <div style="font-size: 13px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 1px;">
+                        <span class="lang-text" data-en="Total Projected Harvest Output" data-te="మొత్తం అంచనా దిగుబడి" data-hi="कुल अनुमानित पैदावार">Total Projected Harvest Output</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 4px;">
+                        <h1 class="hero-yield-big-num">{{ advisory.yield_forecast.predicted_yield_tons }}</h1>
+                        <span class="hero-yield-unit lang-text" data-en="Metric Tons" data-te="మెట్రిక్ టన్నులు" data-hi="मीट्रिक टन">Metric Tons</span>
+                    </div>
+                    <div class="hero-crop-subtitle" style="color: #78350f;">
+                        ⚡ <strong>{{ (advisory.yield_forecast.predicted_yield_tons * 10)|round(1) }}</strong> <span class="lang-text" data-en="Quintals Total Output" data-te="క్వింటాళ్ల మొత్తం పంట" data-hi="क्विंटल कुल पैदावार">Quintals Total Output</span> 
+                        for <strong>{{ advisory.yield_forecast.farm_area_acres }}</strong> <span class="lang-text" data-en="Acres" data-te="ఎకరాలు" data-hi="एकड़">Acres</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-Pillar Yield Metrics Grid -->
+            <div class="form-grid-3" style="gap: 14px; margin-top: 20px;">
+                <div class="metric-glass-card amber">
+                    <div class="m-label" data-i18n="yield_per_acre">Yield Density Per Acre</div>
+                    <div class="m-val">{{ advisory.yield_forecast.yield_per_acre_tons }} <span class="m-unit">t/acre</span></div>
+                    <div class="m-sub">{{ (advisory.yield_forecast.yield_per_acre_tons * 10)|round(1) }} Quintals / acre</div>
+                </div>
+
+                <div class="metric-glass-card green">
+                    <div class="m-label" data-i18n="farm_area">Farm Land Area</div>
+                    <div class="m-val">{{ advisory.yield_forecast.farm_area_acres }} <span class="m-unit lang-text" data-en="Acres" data-te="ఎకరాలు" data-hi="एकड़">Acres</span></div>
+                    <div class="m-sub">{{ (advisory.yield_forecast.farm_area_acres * 0.4047)|round(2) }} Hectares</div>
+                </div>
+
+                <div class="metric-glass-card blue">
+                    <div class="m-label">
+                        <span class="lang-text" data-en="Season & Soil Profile" data-te="సీజన్ & నేల రకం" data-hi="मौसम व मिट्टी">Season & Soil Profile</span>
+                    </div>
+                    <div class="m-val">{{ advisory.season }}</div>
+                    <div class="m-sub">{{ advisory.soil_suitability.registered_soil }} Soil</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calibration Engine Details Card -->
+        <div class="card premium-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title" style="color: #92400e;">
+                    <span>📐</span> <span class="lang-text" data-en="Yield Simulation Methodology & Confidence" data-te="దిగుబడి గణన పద్ధతి & విశ్వసనీయత" data-hi="पैदावार गणना विधि">Yield Simulation Methodology & Confidence</span>
+                </div>
+                <span class="badge-ready" style="background: #fef3c7; color: #92400e;">
+                    ICAR Calibrated
+                </span>
+            </div>
+            <div style="padding: 18px 20px;">
+                <div style="display: flex; align-items: center; gap: 14px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius-md); padding: 14px 18px;">
+                    <span style="font-size: 28px;">🌾</span>
+                    <div style="font-size: 13.5px; color: #78350f; line-height: 1.6;">
+                        <strong><span class="lang-text" data-en="Model Engine:" data-te="మోడల్ ఇంజిన్:" data-hi="मॉडल इंजन:">Model Engine:</span></strong> 
+                        {{ advisory.yield_forecast.yield_source }} calibrated with regional soil texture, water usage efficiency, and farm management practices.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 3: MANDI MARKET ECONOMICS & REVENUE PROJECTIONS -->
+    <!-- ======================================================== -->
+    <div id="slide-3" class="advisory-slide">
+        <!-- Mandi Market Hero Showcase -->
+        <div class="slide-hero slide-hero-mandi" style="margin-bottom: 24px;">
+            <div class="slide-hero-badge emerald">
+                💰 <span data-i18n="pillar_market">Slide 3 of 8: Live Mandi Wholesale Economics & Gross Revenue Forecast</span>
+            </div>
+
+            <div class="slide-hero-main-row">
+                <div class="hero-crop-avatar emerald">📈</div>
+                <div class="hero-crop-meta">
+                    <div style="font-size: 13px; font-weight: 800; color: #065f46; text-transform: uppercase; letter-spacing: 1px;">
+                        <span class="lang-text" data-en="Projected Gross Farm Revenue" data-te="అంచనా వేసిన మొత్తం వ్యవసాయ రాబడి" data-hi="अनुमानित कुल कृषि आय">Projected Gross Farm Revenue</span>
+                    </div>
+                    {% if advisory.market_economics.estimated_gross_revenue %}
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+                        <h1 class="hero-yield-big-num" style="color: #047857;">₹{{ '{:,.0f}'.format(advisory.market_economics.estimated_gross_revenue or 0) }}</h1>
+                    </div>
+                    <div class="hero-crop-subtitle" style="color: #065f46;">
+                        <span class="lang-text" 
+                              data-en="Calculated from {{ advisory.yield_forecast.predicted_yield_tons }} Tons ({{ (advisory.yield_forecast.predicted_yield_tons * 10)|round(1) }} Quintals) on {{ advisory.yield_forecast.farm_area_acres }} Acres @ ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/Qtl"
+                              data-te="{{ advisory.yield_forecast.farm_area_acres }} ఎకరాలలో {{ advisory.yield_forecast.predicted_yield_tons }} టన్నుల ({{ (advisory.yield_forecast.predicted_yield_tons * 10)|round(1) }} క్వింటాళ్ళు) దిగుబడిపై క్వింటాలుకు ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }} చొప్పున లెక్కించబడింది"
+                              data-hi="{{ advisory.yield_forecast.farm_area_acres }} एकड़ पर {{ advisory.yield_forecast.predicted_yield_tons }} टन ({{ (advisory.yield_forecast.predicted_yield_tons * 10)|round(1) }} क्विंटल) उपज पर ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/क्विंटल की दर से">
+                            Calculated from <strong>{{ advisory.yield_forecast.predicted_yield_tons }} Tons</strong> ({{ (advisory.yield_forecast.predicted_yield_tons * 10)|round(1) }} Quintals) on <strong>{{ advisory.yield_forecast.farm_area_acres }} Acres</strong> @ ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}/Qtl
+                        </span>
+                    </div>
+                    {% elif advisory.market_economics.market_price %}
+                    <div style="font-size: 24px; font-weight: 900; color: #047857; margin-top: 6px;">
+                        ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }} <span style="font-size: 14px; font-weight: 600; color: #065f46;">/ Quintal</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Selling Action Recommendation Chip -->
+                <div class="mandi-action-box">
+                    <div class="mandi-action-chip {% if advisory.market_economics.advisory_color == 'green' %}chip-green{% elif advisory.market_economics.advisory_color == 'red' %}chip-red{% else %}chip-blue{% endif %}">
+                        <span class="lang-text" data-en="{{ advisory.market_economics.advisory_action }}" data-te="{{ advisory.market_economics.advisory_te }}" data-hi="{{ advisory.market_economics.advisory_action }}">{{ advisory.market_economics.advisory_action }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-Pillar Benchmark Ribbon -->
+            {% if advisory.market_economics.has_market_data %}
+            <div class="form-grid-3" style="gap: 14px; margin-top: 20px;">
+                <!-- Live Mandi Rate -->
+                <div class="metric-glass-card green">
+                    <div class="m-label">
+                        <span class="lang-text" data-en="Live Mandi Price (01 Oct)" data-te="లైవ్ మార్కెట్ ధర (01 అక్టోబర్)" data-hi="लाइव मंडी भाव">Live Mandi Price (01 Oct)</span>
+                    </div>
+                    <div class="m-val" style="color: #15803d;">
+                        ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }} <span class="m-unit">/ Qtl</span>
+                    </div>
+                    <div class="m-sub">
+                        ≈ ₹{{ ((advisory.market_economics.market_price or 0) / 100)|round(2) }} / kg • 
+                        <span class="lang-text" data-en="{{ advisory.market_economics.commodity_name }}" data-te="{{ advisory.market_economics.commodity_te }}" data-hi="{{ advisory.market_economics.commodity_name }}">{{ advisory.market_economics.commodity_name }}</span>
+                    </div>
+                </div>
+
+                <!-- Govt MSP Benchmark -->
+                <div class="metric-glass-card amber">
+                    <div class="m-label">
+                        <span class="lang-text" data-en="Govt MSP Benchmark (2026-27)" data-te="ప్రభుత్వ మద్దతు ధర (MSP)" data-hi="सरकारी समर्थन मूल्य">Govt MSP Benchmark (2026-27)</span>
+                    </div>
+                    <div class="m-val" style="color: #b45309;">
+                        {% if advisory.market_economics.msp_price %}
+                        ₹{{ '{:,.0f}'.format(advisory.market_economics.msp_price or 0) }} <span class="m-unit">/ Qtl</span>
+                        {% else %}
+                        ₹{{ '{:,.0f}'.format((advisory.market_economics.market_price or 2500) * 0.85) }} <span class="m-unit">/ Qtl (Fair Floor)</span>
+                        {% endif %}
+                    </div>
+                    <div class="m-sub">
+                        {% if advisory.market_economics.msp_spread_rs and advisory.market_economics.msp_spread_rs > 0 %}
+                        <span style="color: #15803d; font-weight: 700;">+₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs or 0) }} (+{{ advisory.market_economics.msp_spread_pct or 0 }}%) Above Govt MSP</span>
+                        {% elif advisory.market_economics.msp_spread_rs and advisory.market_economics.msp_spread_rs < 0 %}
+                        <span style="color: #dc2626; font-weight: 700;">-₹{{ '{:,.0f}'.format(advisory.market_economics.msp_spread_rs|abs) }} Below MSP (Sell to Govt)</span>
+                        {% else %}
+                        <span style="color: #0284c7; font-weight: 700;">Standard Market Fair Floor</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 3-Day Momentum & Revenue -->
+                <div class="metric-glass-card blue">
+                    <div class="m-label">
+                        <span class="lang-text" data-en="3-Day Price Momentum" data-te="గత 3 రోజుల ధరల సరళి" data-hi="3 दिनों का भाव रुझान">3-Day Price Momentum</span>
+                    </div>
+                    <div class="m-val" style="color: #0369a1;">
+                        {% if advisory.market_economics.price_delta_3d and advisory.market_economics.price_delta_3d >= 0 %}
+                        <span style="color: #15803d;">+₹{{ '{:,.0f}'.format(advisory.market_economics.price_delta_3d) }} ↗</span>
+                        {% elif advisory.market_economics.price_delta_3d %}
+                        <span style="color: #dc2626;">-₹{{ '{:,.0f}'.format(advisory.market_economics.price_delta_3d|abs) }} ↘</span>
+                        {% else %}
+                        <span>Stable ➔</span>
+                        {% endif %}
+                    </div>
+                    <div class="m-sub">
+                        {% if advisory.market_economics.price_change_pct_3d %}
+                        {{ '+' if advisory.market_economics.price_change_pct_3d >= 0 else '' }}{{ advisory.market_economics.price_change_pct_3d }}% net 3-day change
+                        {% else %}
+                        Market arrival stable
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- LAST 3 DAYS MANDI PRICE TIMELINE SECTION -->
+        <!-- ======================================================== -->
+        <div class="card premium-card" style="margin-bottom: 24px;">
+            <div class="card-header" style="background: linear-gradient(135deg, #f0fdf4, #ffffff); border-bottom-color: #dcfce7;">
+                <div class="card-title" style="color: #166534;">
+                    <span>📅</span> 
+                    <span class="lang-text" 
+                          data-en="Last 3 Days Mandi Price History & Arrival Volume (29 Sep – 01 Oct 2026)" 
+                          data-te="గత 3 రోజుల మార్కెట్ (Mandi) ధరలు మరియు చేరికల వివరాలు (29 సెప్టెంబర్ - 01 అక్టోబర్ 2026)" 
+                          data-hi="पिछले 3 दिनों का मंडी भाव इतिहास व दैनिक आवक">
+                        Last 3 Days Mandi Price History & Arrival Volume (29 Sep – 01 Oct 2026)
+                    </span>
+                </div>
+                <span class="badge-ready">
+                    <span class="lang-text" data-en="APMC Bulletin Recorded" data-te="APMC మార్కెట్ రికార్డు" data-hi="मंडी रिकॉर्ड">APMC Bulletin Recorded</span>
+                </span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <p style="margin: 0 0 16px 0; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5;">
+                    <span class="lang-text" 
+                          data-en="Day-by-day wholesale auction prices recorded across regional agricultural market yards (APMCs) for {{ advisory.market_economics.commodity_name }}:" 
+                          data-te="{{ advisory.market_economics.commodity_te or advisory.crop_recommendation.crop_name_te }} పంటకు సంబంధించి గత 3 రోజులలో వ్యవసాయ మార్కెట్ యార్డులలో (APMC Mandis) నమోదైన అధికారిక ధరలు మరియు చేరికలు:" 
+                          data-hi="{{ advisory.market_economics.commodity_name }} के लिए पिछले 3 दिनों में कृषि मंडी में दर्ज थोक भाव:">
+                        Day-by-day wholesale auction prices recorded across regional agricultural market yards (APMCs) for {{ advisory.market_economics.commodity_name }}:
+                    </span>
+                </p>
+
+                <!-- 3-Day Cards Timeline Grid -->
+                <div class="mandi-timeline-grid">
+                    <!-- Day 1 Card: 29 Sep 2026 -->
+                    <div class="timeline-day-card">
+                        <div class="day-header-badge">
+                            <span>🗓️ Day 1</span>
+                            <span class="day-delta-tag day-delta-stable">Base Rate</span>
+                        </div>
+                        <div class="day-date-title">
+                            <span class="lang-text" data-en="29 Sep 2026" data-te="29 సెప్టెంబర్ 2026" data-hi="29 सितम्बर 2026">29 Sep 2026</span>
+                        </div>
+                        <div class="day-price-val">
+                            ₹{{ '{:,.0f}'.format(advisory.market_economics.price_29_sep or advisory.market_economics.market_price or 0) }}
+                            <span class="sub-unit">/ Quintal</span>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                            (₹{{ ((advisory.market_economics.price_29_sep or advisory.market_economics.market_price or 0) / 100)|round(2) }} / kg)
+                        </div>
+                        <div class="day-arrival-stat">
+                            🚛 <span class="lang-text" data-en="Arrivals:" data-te="చేరికలు:" data-hi="आवक:">Arrivals:</span> 
+                            <strong>{{ '{:,.1f}'.format(advisory.market_economics.arrival_29_sep or 0) }} Tons</strong>
+                        </div>
+                    </div>
+
+                    <!-- Day 2 Card: 30 Sep 2026 -->
+                    <div class="timeline-day-card">
+                        <div class="day-header-badge">
+                            <span>🗓️ Day 2</span>
+                            {% if advisory.market_economics.price_30_sep and advisory.market_economics.price_29_sep %}
+                                {% set day2_diff = advisory.market_economics.price_30_sep - advisory.market_economics.price_29_sep %}
+                                {% if day2_diff > 0 %}
+                                <span class="day-delta-tag day-delta-up">+₹{{ '{:,.0f}'.format(day2_diff) }} ↗</span>
+                                {% elif day2_diff < 0 %}
+                                <span class="day-delta-tag day-delta-down">-₹{{ '{:,.0f}'.format(day2_diff|abs) }} ↘</span>
+                                {% else %}
+                                <span class="day-delta-tag day-delta-stable">Unchanged</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="day-delta-tag day-delta-stable">Mid Rate</span>
+                            {% endif %}
+                        </div>
+                        <div class="day-date-title">
+                            <span class="lang-text" data-en="30 Sep 2026" data-te="30 సెప్టెంబర్ 2026" data-hi="30 सितम्बर 2026">30 Sep 2026</span>
+                        </div>
+                        <div class="day-price-val">
+                            ₹{{ '{:,.0f}'.format(advisory.market_economics.price_30_sep or advisory.market_economics.market_price or 0) }}
+                            <span class="sub-unit">/ Quintal</span>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                            (₹{{ ((advisory.market_economics.price_30_sep or advisory.market_economics.market_price or 0) / 100)|round(2) }} / kg)
+                        </div>
+                        <div class="day-arrival-stat">
+                            🚛 <span class="lang-text" data-en="Arrivals:" data-te="చేరికలు:" data-hi="आवक:">Arrivals:</span> 
+                            <strong>{{ '{:,.1f}'.format(advisory.market_economics.arrival_30_sep or 0) }} Tons</strong>
+                        </div>
+                    </div>
+
+                    <!-- Day 3 Card: 01 Oct 2026 (Latest) -->
+                    <div class="timeline-day-card highlight-latest">
+                        <div class="day-header-badge">
+                            <span style="color: #15803d; font-weight: 900;">🔥 Day 3 (Latest)</span>
+                            {% if advisory.market_economics.price_delta_3d and advisory.market_economics.price_delta_3d > 0 %}
+                            <span class="day-delta-tag day-delta-up">+{{ advisory.market_economics.price_change_pct_3d }}% 3D Gain</span>
+                            {% elif advisory.market_economics.price_delta_3d and advisory.market_economics.price_delta_3d < 0 %}
+                            <span class="day-delta-tag day-delta-down">{{ advisory.market_economics.price_change_pct_3d }}% 3D</span>
+                            {% else %}
+                            <span class="day-delta-tag day-delta-up">Active Peak</span>
+                            {% endif %}
+                        </div>
+                        <div class="day-date-title" style="color: #15803d;">
+                            <span class="lang-text" data-en="01 Oct 2026 (Today's Benchmark)" data-te="01 అక్టోబర్ 2026 (తాజా ధర)" data-hi="01 अक्टूबर 2026 (ताजा भाव)">01 Oct 2026 (Today's Benchmark)</span>
+                        </div>
+                        <div class="day-price-val" style="color: #15803d;">
+                            ₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }}
+                            <span class="sub-unit">/ Quintal</span>
+                        </div>
+                        <div style="font-size: 12px; color: #15803d; font-weight: 700; margin-top: 2px;">
+                            (₹{{ ((advisory.market_economics.market_price or 0) / 100)|round(2) }} / kg)
+                        </div>
+                        <div class="day-arrival-stat">
+                            🚛 <span class="lang-text" data-en="Arrivals:" data-te="చేరికలు:" data-hi="आवक:">Arrivals:</span> 
+                            <strong>{{ '{:,.1f}'.format(advisory.market_economics.arrival_01_oct or 0) }} Tons</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Day Trend Summary Banner -->
+                <div style="margin-top: 18px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 12px); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">📊</span>
+                        <div>
+                            <div style="font-size: 13.5px; font-weight: 800; color: #0f172a;">
+                                <span class="lang-text" 
+                                      data-en="3-Day Net Price Movement:" 
+                                      data-te="గత 3 రోజుల నికర ధర మార్పు:" 
+                                      data-hi="3 दिनों का कुल भाव परिवर्तन:">
+                                    3-Day Net Price Movement:
+                                </span>
+                                {% if advisory.market_economics.price_delta_3d and advisory.market_economics.price_delta_3d >= 0 %}
+                                <strong style="color: #15803d;">+₹{{ '{:,.0f}'.format(advisory.market_economics.price_delta_3d) }} (+{{ advisory.market_economics.price_change_pct_3d }}%) ↗ Upward Momentum</strong>
+                                {% elif advisory.market_economics.price_delta_3d %}
+                                <strong style="color: #dc2626;">-₹{{ '{:,.0f}'.format(advisory.market_economics.price_delta_3d|abs) }} ({{ advisory.market_economics.price_change_pct_3d }}%) ↘ Softening</strong>
+                                {% else %}
+                                <strong style="color: #0369a1;">Stable Trajectory</strong>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                29 Sep (₹{{ '{:,.0f}'.format(advisory.market_economics.price_29_sep or advisory.market_economics.market_price or 0) }}) ➔ 30 Sep (₹{{ '{:,.0f}'.format(advisory.market_economics.price_30_sep or advisory.market_economics.market_price or 0) }}) ➔ 01 Oct (₹{{ '{:,.0f}'.format(advisory.market_economics.market_price or 0) }})
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="mandi-action-chip {% if advisory.market_economics.advisory_color == 'green' %}chip-green{% elif advisory.market_economics.advisory_color == 'red' %}chip-red{% else %}chip-blue{% endif %}">
+                            <span class="lang-text" data-en="{{ advisory.market_economics.advisory_action }}" data-te="{{ advisory.market_economics.advisory_te }}" data-hi="{{ advisory.market_economics.advisory_action }}">{{ advisory.market_economics.advisory_action }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- ACTIONABLE FARMER SELLING STRATEGY & REVENUE BREAKDOWN -->
+        <!-- ======================================================== -->
+        <div class="card premium-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title" style="color: #166534;">
+                    <span>💡</span> 
+                    <span class="lang-text" 
+                          data-en="Farmer Mandi Selling Strategy & Market Advisory" 
+                          data-te="రైతులకు మార్కెట్ విక్రయ వ్యూహం & సలహాలు" 
+                          data-hi="किसान विक्रय रणनीति व मंडी सलाह">
+                        Farmer Mandi Selling Strategy & Market Advisory
+                    </span>
+                </div>
+                <span class="badge-ready">APMC Real-Time</span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <!-- Main Tip Callout -->
+                <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-md, 12px); padding: 16px 20px; font-size: 14px; color: #14532d; line-height: 1.7; margin-bottom: 18px;">
+                    <div style="font-weight: 800; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span>✅</span>
+                        <span class="lang-text" 
+                              data-en="Strategic Selling Recommendation for {{ advisory.market_economics.commodity_name }}:" 
+                              data-te="{{ advisory.market_economics.commodity_te or advisory.crop_recommendation.crop_name_te }} విక్రయానికి రైతులకు ముఖ్య సూచన:" 
+                              data-hi="{{ advisory.market_economics.commodity_name }} के लिए मुख्य विक्रय सलाह:">
+                            Strategic Selling Recommendation for {{ advisory.market_economics.commodity_name }}:
+                        </span>
+                    </div>
+                    <span class="lang-text" 
+                          data-en="{{ advisory.market_economics.advisory_tip }}" 
+                          data-te="{{ advisory.market_economics.advisory_tip_te or advisory.market_economics.advisory_tip }}" 
+                          data-hi="{{ advisory.market_economics.advisory_tip_hi or advisory.market_economics.advisory_tip }}">
+                        {{ advisory.market_economics.advisory_tip }}
+                    </span>
+                </div>
+
+                <!-- 3 Action Step Cards -->
+                <div class="form-grid-3" style="gap: 14px;">
+                    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 12px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 4px;">
+                            🏛️ <span class="lang-text" data-en="1. Selling Channel" data-te="1. విక్రయించే స్థలం" data-hi="1. विक्रय स्थान">1. Selling Channel</span>
+                        </div>
+                        <div style="font-size: 13px; color: #334155; line-height: 1.5;">
+                            {% if advisory.market_economics.advisory_color == 'green' %}
+                            <span class="lang-text" data-en="Wholesale APMC Mandi Auction" data-te="సమీప వ్యవసాయ మార్కెట్ యార్డ్ (APMC మండీ)" data-hi="कृषि उपज मंडी (APMC)">Wholesale APMC Mandi Auction</span>
+                            {% elif advisory.market_economics.advisory_color == 'red' %}
+                            <span class="lang-text" data-en="Govt MSP Procurement Center" data-te="ప్రభుత్వ కొనుగోలు కేంద్రం (MSP వద్ద)" data-hi="सरकारी खरीद केंद्र (MSP पर)">Govt MSP Procurement Center</span>
+                            {% else %}
+                            <span class="lang-text" data-en="Direct Mandi / Bulk Buyer" data-te="నేరుగా మండీ లేదా టోకు వ్యాపారులకు" data-hi="थोक व्यापारी या मंडी">Direct Mandi / Bulk Buyer</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 12px; font-weight: 800; color: #b45309; text-transform: uppercase; margin-bottom: 4px;">
+                            📦 <span class="lang-text" data-en="2. Quality & Moisture" data-te="2. నాణ్యత & తేమ శాతం" data-hi="2. गुणवत्ता व नमी">2. Quality & Moisture</span>
+                        </div>
+                        <div style="font-size: 13px; color: #334155; line-height: 1.5;">
+                            <span class="lang-text" 
+                                  data-en="Dry grains/produce to <14% moisture before dispatch to prevent deductions." 
+                                  data-te="కోత తర్వాత తేమ 14% కంటే తక్కువగా ఉండేలా ఆరబెట్టి మార్కెట్‌కు తీసుకెళ్లండి." 
+                                  data-hi="फसल को 14% से कम नमी तक सुखाएं ताकि कटौती न हो।">
+                                Dry produce to &lt;14% moisture before dispatch to prevent deductions.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 4px;">
+                            ⏰ <span class="lang-text" data-en="3. Best Selling Timing" data-te="3. సరైన సమయం" data-hi="3. सही समय">3. Best Selling Timing</span>
+                        </div>
+                        <div style="font-size: 13px; color: #334155; line-height: 1.5;">
+                            <span class="lang-text" 
+                                  data-en="Sell within 7–10 days of harvest to capitalize on high price momentum." 
+                                  data-te="ధరలు అనుకూలంగా ఉన్నందున కోత పూర్తయిన 7-10 రోజుల్లో విక్రయించండి." 
+                                  data-hi="फसल कटाई के 7-10 दिनों के भीतर बेचें।">
+                                Sell within 7–10 days of harvest to capitalize on high price momentum.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 4: DISEASE PRECAUTIONS & STEP-BY-STEP REMEDIES -->
+    <!-- ======================================================== -->
+    <div id="slide-4" class="advisory-slide">
+        <div class="card premium-card" style="margin-bottom: 24px; border-color: #d8b4fe;">
+            <div class="card-header" style="background: linear-gradient(135deg, #faf5ff, #ffffff); border-bottom-color: #f3e8ff;">
+                <div class="card-title" style="color: #581c87;">
+                    <span>🛡️</span> <span data-i18n="disease_precautions_title">Slide 4: Disease Identification & 3-Tier Precautions</span>
+                </div>
+                <span style="font-size: 12px; color: #7e22ce; font-weight: 700;">
+                    <span class="lang-text" 
+                          data-en="Tailored for {{ advisory.crop_recommendation.crop_name_en }}" 
+                          data-te="{{ advisory.crop_recommendation.crop_name_te }} కొరకు ప్రత్యేక రక్షణ" 
+                          data-hi="{{ advisory.crop_recommendation.crop_name_hi }} के लिए सुरक्षा">
+                        Tailored for {{ advisory.crop_recommendation.crop_name_en }}
+                    </span>
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 20px; padding: 18px 20px;">
+                {% for disease in advisory.disease_management.diseases %}
+                <div class="pathology-card">
+                    <!-- Disease Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <h3 style="font-size: 17px; font-weight: 800; color: #581c87; margin: 0;">
+                                🦠 <span class="lang-text" data-en="{{ disease.disease_name_en }}" data-te="{{ disease.disease_name_te }}" data-hi="{{ disease.disease_name_hi }}">{{ disease.disease_name_en }}</span>
+                            </h3>
+                            <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">
+                                <em>Pathogen:</em> <strong>{{ disease.pathogen }}</strong>
+                            </div>
+                        </div>
+                        <span class="threat-badge {% if disease.badge_color == 'danger' %}threat-high{% else %}threat-mod{% endif %}">
+                            <span class="lang-text" data-en="{{ disease.threat_level_en or disease.threat_level }}" data-te="{{ disease.threat_level_te or disease.threat_level }}" data-hi="{{ disease.threat_level_hi or disease.threat_level }}">{{ disease.threat_level_en or disease.threat_level }}</span>
+                        </span>
+                    </div>
+
+                    <!-- Symptoms Box -->
+                    <div class="symptom-highlight-box">
+                        <div style="font-size: 11.5px; font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 3px;">
+                            🔍 <span data-i18n="symptoms_label">Disease Symptoms</span>:
+                        </div>
+                        <div style="font-size: 13.5px; color: #1e293b; line-height: 1.5;">
+                            <span class="lang-text" data-en="{{ disease.symptoms_en }}" data-te="{{ disease.symptoms_te }}" data-hi="{{ disease.symptoms_en }}">
+                                {{ disease.symptoms_en }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 3-Tier Precaution Deck -->
+                    <div class="precaution-grid">
+                        <!-- 1. Organic Remedies -->
+                        <div class="precaution-block organic">
+                            <div class="precaution-label organic">
+                                <span>🌿</span> <span data-i18n="organic_label">Organic & Bio-Control</span>
+                            </div>
+                            <div style="font-size: 13px; color: #14532d; line-height: 1.5;">
+                                <span class="lang-text" data-en="{{ disease.organic_precautions_en }}" data-te="{{ disease.organic_precautions_te }}" data-hi="{{ disease.organic_precautions_en }}">
+                                    {{ disease.organic_precautions_en }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Chemical Controls & Dosage -->
+                        <div class="precaution-block chemical">
+                            <div class="precaution-label chemical">
+                                <span>🧪</span> <span data-i18n="chemical_label">Chemical Dosage</span>
+                            </div>
+                            <div style="font-size: 13px; color: #1e3a8a; line-height: 1.5; font-weight: 500;">
+                                <span class="lang-text" data-en="{{ disease.chemical_precautions_en }}" data-te="{{ disease.chemical_precautions_te }}" data-hi="{{ disease.chemical_precautions_en }}">
+                                    {{ disease.chemical_precautions_en }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Preventive Farm Management -->
+                        <div class="precaution-block cultural">
+                            <div class="precaution-label cultural">
+                                <span>🛡️</span> <span data-i18n="preventive_label">Cultural Care</span>
+                            </div>
+                            <div style="font-size: 13px; color: #78350f; line-height: 1.5;">
+                                <span class="lang-text" data-en="{{ disease.preventive_measures_en }}" data-te="{{ disease.preventive_measures_te }}" data-hi="{{ disease.preventive_measures_en }}">
+                                    {{ disease.preventive_measures_en }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 5: TARGETED PESTICIDES & EXACT SPRAY DOSAGES -->
+    <!-- ======================================================== -->
+    <div id="slide-5" class="advisory-slide">
+        <div class="card premium-card" style="margin-bottom: 24px; border-color: #93c5fd;">
+            <div class="card-header" style="background: linear-gradient(135deg, #eff6ff, #ffffff); border-bottom-color: #dbeafe;">
+                <div class="card-title" style="color: #1e40af;">
+                    <span>🧪</span> 
+                    <span class="lang-text" data-en="Slide 5: Targeted Pesticide Spray & Dosage Schedule" data-te="స్లైడ్ 5: పురుగు మందుల పిచికారీ & ఖచ్చితమైన మోతాదులు" data-hi="स्लाइड 5: कीटनाशक छिड़काव व सटीक खुराक">
+                        Slide 5: Targeted Pesticide Spray & Dosage Schedule
+                    </span>
+                </div>
+                <span style="font-size: 12px; color: #1d4ed8; font-weight: 700;">
+                    Targeted Crop Protection
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 18px; padding: 18px 20px;">
+                {% for pest in advisory.pesticide_advisory.pesticides %}
+                <div class="pesticide-prescription-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 16px; font-weight: 800; color: #1e3a8a;">
+                            🐛 <span class="lang-text" data-en="{{ pest.pest_name_en }}" data-te="{{ pest.pest_name_te }}" data-hi="{{ pest.pest_name_hi }}">{{ pest.pest_name_en }}</span>
+                        </div>
+                        <span class="spray-badge">
+                            <span class="lang-text" data-en="Chemical + Bio Spray" data-te="రసాయన + జీవ మందులు" data-hi="रासायनिक + जैविक">Chemical + Bio Spray</span>
+                        </span>
+                    </div>
+
+                    <div class="form-grid-2" style="gap: 14px; margin-bottom: 12px;">
+                        <!-- Chemical Pesticide & Exact Dosage Spotlight -->
+                        <div class="dosage-spotlight-box">
+                            <div class="dosage-box-label">
+                                🧪 <span class="lang-text" data-en="Recommended Formulation & Exact Dosage" data-te="రసాయన పురుగు మందు & ఖచ్చితమైన మోతాదు" data-hi="अनुशंसित कीटनाशक व खुराक">Recommended Formulation & Exact Dosage</span>
+                            </div>
+                            <div class="dosage-chem-name">
+                                {{ pest.chemical_pesticide }}
+                            </div>
+                            <div class="dosage-highlight-pill">
+                                📏 <span class="lang-text" data-en="Prescribed Dosage: {{ pest.dosage }}" data-te="మోతాదు: {{ pest.dosage_te or pest.dosage }}" data-hi="खुराक: {{ pest.dosage }}">Prescribed Dosage: {{ pest.dosage }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Bio-Pesticide & Organic Alternative -->
+                        <div class="bio-spotlight-box">
+                            <div class="bio-box-label">
+                                🌿 <span class="lang-text" data-en="Eco & Bio-Pesticide Substitute" data-te="సేంద్రీయ & జీవ ప్రత్యామ్నాయం" data-hi="जैविक विकल्प">Eco & Bio-Pesticide Substitute</span>
+                            </div>
+                            <div style="font-size: 13.5px; color: #14532d; line-height: 1.5; font-weight: 500;">
+                                <span class="lang-text" data-en="{{ pest.bio_pesticide_en }}" data-te="{{ pest.bio_pesticide_te }}" data-hi="{{ pest.bio_pesticide_en }}">
+                                    {{ pest.bio_pesticide_en }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timing of Application -->
+                    <div class="timing-watch-strip">
+                        ⏰ <strong><span class="lang-text" data-en="Optimal Application Window:" data-te="పిచికారీ చేయవలసిన సమయం:" data-hi="छिड़काव का सही समय:">Optimal Application Window:</span></strong> 
+                        <span class="lang-text" data-en="{{ pest.timing_en }}" data-te="{{ pest.timing_te }}" data-hi="{{ pest.timing_en }}">{{ pest.timing_en }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 6: FARM LAND IRRIGATION & WATER MANAGEMENT PLAN -->
+    <!-- ======================================================== -->
+    <div id="slide-6" class="advisory-slide">
+        <div class="card premium-card" style="margin-bottom: 24px; border-color: #7dd3fc;">
+            <div class="card-header" style="background: linear-gradient(135deg, #f0f9ff, #ffffff); border-bottom-color: #e0f2fe;">
+                <div class="card-title" style="color: #0369a1;">
+                    <span>💧</span> 
+                    <span class="lang-text" data-en="Slide 6: Precision Irrigation & Water Hydration Schedule" data-te="స్లైడ్ 6: సాగునీటి పారుదల & నీటి యాజమాన్య ప్రణాళిక" data-hi="स्लाइड 6: सिंचाई व जल प्रबंधन योजना">
+                        Slide 6: Precision Irrigation & Water Hydration Schedule
+                    </span>
+                </div>
+                <span style="font-size: 12px; color: #0284c7; font-weight: 800; background: #e0f2fe; padding: 4px 10px; border-radius: 12px;">
+                    {{ advisory.irrigation_advisory.irrigation_type }} System
+                </span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <!-- 3 Hydro Metric Cards -->
+                <div class="form-grid-3" style="gap: 14px; margin-bottom: 20px;">
+                    <div class="hydro-metric-card blue">
+                        <div class="h-label">
+                            <span class="lang-text" data-en="Watering Interval" data-te="నీటి తడుల విరామం" data-hi="सिंचाई अंतराल">Watering Interval</span>
+                        </div>
+                        <div class="h-val">
+                            <span class="lang-text" data-en="Every {{ advisory.irrigation_advisory.interval_days }} Days" data-te="ప్రతి {{ advisory.irrigation_advisory.interval_days }} రోజులకు" data-hi="प्रत्येक {{ advisory.irrigation_advisory.interval_days }} दिन">Every {{ advisory.irrigation_advisory.interval_days }} Days</span>
+                        </div>
+                        <div class="h-sub">
+                            <span class="lang-text" data-en="{{ advisory.irrigation_advisory.schedule_text_en }}" data-te="{{ advisory.irrigation_advisory.schedule_text_te }}" data-hi="{{ advisory.irrigation_advisory.schedule_text_hi }}">{{ advisory.irrigation_advisory.schedule_text_en }}</span>
+                        </div>
+                    </div>
+
+                    <div class="hydro-metric-card green">
+                        <div class="h-label">
+                            <span class="lang-text" data-en="Water Volume Per Cycle" data-te="ఒక తడికి అవసరమైన నీరు" data-hi="प्रति चक्र पानी की मात्रा">Water Volume Per Cycle</span>
+                        </div>
+                        <div class="h-val">
+                            {{ '{:,.0f}'.format(advisory.irrigation_advisory.liters_per_cycle or 0) }} <span style="font-size: 14px; font-weight: normal;">Liters</span>
+                        </div>
+                        <div class="h-sub">
+                            {{ advisory.irrigation_advisory.m3_per_cycle }} m³ (for {{ advisory.yield_forecast.farm_area_acres }} acres land)
+                        </div>
+                    </div>
+
+                    <div class="hydro-metric-card cyan">
+                        <div class="h-label">
+                            <span class="lang-text" data-en="System Efficiency" data-te="సాగునీటి సామర్థ్యం" data-hi="सिंचाई दक्षता">System Efficiency</span>
+                        </div>
+                        <div class="h-val" style="font-size: 16px; margin-top: 4px;">
+                            {{ advisory.irrigation_advisory.irrigation_type }}
+                        </div>
+                        <div class="h-sub">
+                            <span class="lang-text" data-en="{{ advisory.irrigation_advisory.efficiency_note_en }}" data-te="{{ advisory.irrigation_advisory.efficiency_note_te }}" data-hi="{{ advisory.irrigation_advisory.efficiency_note_en }}">{{ advisory.irrigation_advisory.efficiency_note_en }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Crop Moisture Stages Timeline -->
+                <div class="card-timeline-box">
+                    <div style="font-size: 14px; font-weight: 800; color: #0369a1; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>🌱</span>
+                        <span class="lang-text" data-en="Critical Crop Hydration Windows for {{ advisory.crop_recommendation.crop_name_en }}" data-te="{{ advisory.crop_recommendation.crop_name_te }} పంటలో నీరు తప్పనిసరిగా ఉండాల్సిన కీలక దశలు" data-hi="{{ advisory.crop_recommendation.crop_name_hi }} फसल के लिए महत्वपूर्ण सिंचाई चरण">Critical Crop Hydration Windows for {{ advisory.crop_recommendation.crop_name_en }}</span>
+                    </div>
+                    <div class="timeline-stages-grid">
+                        {% for stg in advisory.irrigation_advisory.critical_stages %}
+                        <div class="timeline-stage-chip">
+                            <div class="stage-num-badge">{{ loop.index }}</div>
+                            <div class="stage-content">
+                                <strong class="stage-name"><span class="lang-text" data-en="{{ stg.stage_en }}" data-te="{{ stg.stage_te }}" data-hi="{{ stg.stage_en }}">{{ stg.stage_en }}</span></strong>
+                                <span class="stage-depth">💧 {{ stg.depth }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 7: SOIL-TO-CROP SUITABILITY & HEALTH PROFILE -->
+    <!-- ======================================================== -->
+    <div id="slide-7" class="advisory-slide">
+        <div class="card premium-card" style="margin-bottom: 24px; border-color: #fcd34d;">
+            <div class="card-header" style="background: linear-gradient(135deg, #fffbeb, #ffffff); border-bottom-color: #fef3c7;">
+                <div class="card-title" style="color: #92400e;">
+                    <span>🌍</span> 
+                    <span class="lang-text" data-en="Slide 7: Soil-to-Crop Suitability & Land Fertility Profile" data-te="స్లైడ్ 7: నేల రకం & పంట అనుకూలత విశ్లేషణ" data-hi="स्लाइड 7: मिट्टी व फसल अनुकूलता विश्लेषण">
+                        Slide 7: Soil-to-Crop Suitability & Land Fertility Profile
+                    </span>
+                </div>
+                <span class="badge-ready" style="background: #fef3c7; color: #92400e; font-weight: 800;">
+                    {{ advisory.soil_suitability.registered_soil }} Soil
+                </span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div style="font-size: 18px; font-weight: 800; color: #78350f;">
+                        <span class="lang-text" data-en="{{ advisory.soil_suitability.soil_profile.soil_name_en }}" data-te="{{ advisory.soil_suitability.soil_profile.soil_name_en }}" data-hi="{{ advisory.soil_suitability.soil_profile.soil_name_en }}">{{ advisory.soil_suitability.soil_profile.soil_name_en }}</span>
+                    </div>
+                    {% if advisory.soil_suitability.is_highly_compatible %}
+                    <span class="compatibility-stamp">
+                        <span class="lang-text" data-en="✓ Highly Compatible Biological Soil Match" data-te="✓ ఈ నేలకు అత్యంత అనుకూలమైన పంట" data-hi="✓ अत्यधिक अनुकूल मिट्टी">✓ Highly Compatible Biological Soil Match</span>
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="soil-characteristics-box">
+                    <p style="margin: 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
+                        <span class="lang-text" data-en="{{ advisory.soil_suitability.soil_profile.characteristics_en }}" data-te="{{ advisory.soil_suitability.soil_profile.characteristics_te }}" data-hi="{{ advisory.soil_suitability.soil_profile.characteristics_en }}">{{ advisory.soil_suitability.soil_profile.characteristics_en }}</span>
+                    </p>
+                </div>
+
+                <!-- Soil Health Boost Tips -->
+                <div class="soil-action-checklist">
+                    <div class="checklist-header">
+                        🌱 <span class="lang-text" data-en="Agronomic Soil Health & Nutrient Improvement Actions" data-te="మీ నేల ఆరోగ్యం & సారం పెంచడానికి రైతుకు సూచనలు" data-hi="मिट्टी स्वास्थ्य व उर्वरता सुधारने के सुझाव">Agronomic Soil Health & Nutrient Improvement Actions</span>
+                    </div>
+                    <div style="font-size: 13.5px; color: #78350f; line-height: 1.6;">
+                        <span class="lang-text" data-en="{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}" data-te="{{ advisory.soil_suitability.soil_profile.soil_health_tips_te }}" data-hi="{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}">{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SLIDE 8: TESTED SOIL & ENVIRONMENTAL PARAMETERS -->
+    <!-- ======================================================== -->
+    <div id="slide-8" class="advisory-slide">
+        <div class="card premium-card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📋</span> <span data-i18n="tested_params_title">Slide 8: Tested Soil & Climate Lab Diagnostics</span>
+                </div>
+                <span class="advisory-id-chip">Advisory Reference #{{ pred_id }}</span>
+            </div>
+
+            <div style="padding: 18px 20px;">
+                <!-- Modern Visual Parameters Table -->
+                <div class="table-responsive">
+                    <table class="table lab-diagnostics-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="soil_param">Nutrient / Parameter</th>
+                                <th data-i18n="soil_value">Tested Value</th>
+                                <th data-i18n="soil_status">Agronomic Classification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nitrogen (N)</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.N }} kg/ha</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Primary Macronutrient (Leaf & Canopy Growth)" data-te="ప్రధాన పోషకం (ఆకుల పెరుగుదలకు)" data-hi="प्रमुख पोषक तत्व (पत्ती वृद्धि)">Primary Macronutrient (Leaf & Canopy Growth)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phosphorus (P)</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.P }} kg/ha</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Root Architecture & Blossom Nutrient" data-te="వేర్లు మరియు పూత అభివృద్ధి పోషకం" data-hi="जड़ व फूल विकास पोषक तत्व">Root Architecture & Blossom Nutrient</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Potassium (K)</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.K }} kg/ha</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Cell Wall Vigor & Disease Resistance" data-te="రోగనిరోధక శక్తి & దిగుబడి నాణ్యత" data-hi="रोग प्रतिरोधक क्षमता व दाना गुणवत्ता">Cell Wall Vigor & Disease Resistance</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Soil pH Level</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.ph }}</span></td>
+                                <td>
+                                    {% if inputs.ph < 6.0 %}
+                                    <span class="status-pill status-acidic"><span class="lang-text" data-en="Acidic Soil (Apply Agricultural Lime)" data-te="ఆమ్ల నేల (వ్యవసాయ సున్నం వేయండి)" data-hi="अम्लीय मिट्टी (चूना डालें)">Acidic Soil (Apply Agricultural Lime)</span></span>
+                                    {% elif inputs.ph > 7.5 %}
+                                    <span class="status-pill status-alkaline"><span class="lang-text" data-en="Alkaline Soil (Apply Gypsum)" data-te="క్షార నేల (జిప్సం వాడండి)" data-hi="क्षारीय मिट्टी (जिप्सम डालें)">Alkaline Soil (Apply Gypsum)</span></span>
+                                    {% else %}
+                                    <span class="status-pill status-optimal"><span class="lang-text" data-en="Optimal Neutral pH" data-te="అనుకూలమైన సమతుల్య నేల" data-hi="उत्तम संतुलित मिट्टी">Optimal Neutral pH</span></span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ambient Temperature</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.temperature }} °C</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Atmospheric Climate Baseline" data-te="వాతావరణ ఉష్ణోగ్రత" data-hi="वातावरण का तापमान">Atmospheric Climate Baseline</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Relative Humidity</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.humidity }} %</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Atmospheric Moisture Index" data-te="వాతావరణ తేమ" data-hi="वायुमंडलीय आर्द्रता">Atmospheric Moisture Index</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Seasonal Rainfall</strong></td>
+                                <td><span class="param-value-tag">{{ inputs.rainfall }} mm</span></td>
+                                <td>
+                                    <span class="lang-text" data-en="Hydrological Precipitation Total" data-te="వర్షపాత పరిమాణం" data-hi="वर्षा सूचकांक">Hydrological Precipitation Total</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="disclaimer-box" style="margin-top: 18px;">
+                    <strong data-i18n="advisory_notice_title">ℹ️ Agronomic Certification Notice:</strong>
+                    <span class="lang-text" 
+                          data-en="This comprehensive 8-slide report combines AI Machine Learning models trained on ICAR & agricultural research data, live Mandi pricing bulletins, and pathology databases. Cross-check soil microbial health with local Krishi Vigyan Kendra (KVK) agronomists for major seasonal input investments."
+                          data-te="ఈ సమగ్ర 8-స్లైడ్ల నివేదిక ICAR మరియు వ్యవసాయ పరిశోధన డేటా, మండీ ధరలు మరియు పాథాలజీ డేటాబేస్‌ల ఆధారంగా రూపొందించబడింది. పెద్ద మొత్తంలో ఎరువులు లేదా రసాయనాలు వాడేముందు స్థానిక కృషి విజ్ఞాన కేంద్రం (KVK) నిపుణులను సంప్రదించండి."
+                          data-hi="यह विस्तृत 8-स्लाइड रिपोर्ट कृषि अनुसंधान डेटा, मंडी भाव और रोग निदान डेटाबेस पर आधारित है। बड़े पैमाने पर खाद या रसायनों के प्रयोग से पहले स्थानीय कृषि विज्ञान केंद्र (KVK) से परामर्श लें।">
+                        This comprehensive 8-slide report combines AI Machine Learning models trained on ICAR & agricultural research data, live Mandi pricing bulletins, and pathology databases. Cross-check soil microbial health with local Krishi Vigyan Kendra (KVK) agronomists for major seasonal input investments.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE STEPPER FOOTER BUTTONS -->
+    <div id="slideStepperControls" class="slide-stepper-floating">
+        <button type="button" id="btnPrevSlide" class="btn btn-secondary stepper-btn" onclick="prevSlide()">
+            ← <span class="lang-text" data-en="Previous Slide" data-te="మునుపటి స్లైడ్" data-hi="पिछली स्लाइड">Previous Slide</span>
+        </button>
+
+        <div class="stepper-center-info">
+            <span id="footerSlideNumber" class="stepper-indicator">Slide 1 / 8</span>
+            <div class="stepper-hint">⌨️ Use ← → Arrow Keys</div>
+        </div>
+
+        <button type="button" id="btnNextSlide" class="btn btn-primary stepper-btn glow-btn" onclick="nextSlide()">
+            <span class="lang-text" data-en="Next Slide" data-te="తర్వాతి స్లైడ్" data-hi="अगली स्लाइड">Next Slide</span> →
+        </button>
+    </div>
+
+    <!-- Navigation & Action Buttons -->
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
+        <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary" data-i18n="test_another">
+            🌱 Test Another Sample
+        </a>
+        <a href="{{ url_for('disease_page') }}" class="btn btn-secondary">
+            📸 <span class="lang-text" data-en="Plant Disease Scanner" data-te="వ్యాధి స్కానర్" data-hi="रोग स्कैनर">Plant Disease Scanner</span>
+        </a>
+        <a href="{{ url_for('assistant_page') }}" class="btn btn-secondary" data-i18n="ask_ai">
+            🤖 Ask AI Agronomist
+        </a>
+        <a href="{{ url_for('unified_history') }}" class="btn btn-secondary" data-i18n="view_history">
+            📜 View History Logs
+        </a>
+        <button type="button" onclick="printReport()" class="btn btn-secondary" data-i18n="btn_print">
+            🖨️ Print / Save PDF
+        </button>
+    </div>
+
+</div>
+
+<style>
+/* ========================================================
+   PREMIUM 8-SLIDE PRESENTATION DECK STYLES
+   ======================================================== */
+
+.advisory-deck-container {
+    animation: fadeInDeck 0.4s ease-out;
+}
+
+@keyframes fadeInDeck {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Deck Controller Card */
+.deck-controller-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 253, 244, 0.95));
+    border: 1.5px solid #86efac;
+    border-radius: var(--radius-lg, 16px);
+    padding: 16px 20px;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+.deck-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border: 1px solid #86efac;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.deck-status-chip {
+    background: #10b981;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+}
+
+.deck-progress-track {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 12px 0 14px 0;
+}
+
+.deck-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669, #0284c7);
+    border-radius: 6px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+/* Nav Pills */
+.slide-nav-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+}
+
+.slide-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #334155;
+    border: 1.5px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 24px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.slide-pill .pill-num {
+    background: #e2e8f0;
+    color: #475569;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 800;
+}
+
+.slide-pill:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.slide-pill.active {
+    background: linear-gradient(135deg, #166534, #15803d);
+    color: white;
+    border-color: #15803d;
+    box-shadow: 0 4px 12px rgba(22, 101, 52, 0.3);
+    transform: translateY(-1px);
+}
+
+.slide-pill.active .pill-num {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+/* Slide Transition */
+.advisory-slide {
+    display: none;
+    animation: slideInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.advisory-slide.active {
+    display: block;
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(12px) scale(0.995); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Premium Card Base */
+.premium-card {
+    border-radius: var(--radius-lg, 16px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease;
+}
+
+/* ========================================================
+   SLIDE 1 HERO (CROP MATCH)
+   ======================================================== */
+.slide-hero {
+    border-radius: var(--radius-lg, 16px);
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.slide-hero-crop {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #eff6ff 100%);
+    border: 2px solid #86efac;
+}
+
+.slide-hero-yield {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%);
+    border: 2px solid #fcd34d;
+}
+
+.slide-hero-mandi {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0fdfa 100%);
+    border: 2px solid #6ee7b7;
+}
+
+.slide-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid #bbf7d0;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.slide-hero-badge.amber {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.slide-hero-badge.emerald {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.slide-hero-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.hero-crop-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
+    background: white;
+    border: 2px solid #86efac;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.hero-crop-avatar.amber {
+    border-color: #fcd34d;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.hero-crop-avatar.emerald {
+    border-color: #6ee7b7;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.hero-crop-meta {
+    flex: 1;
+    min-width: 260px;
+}
+
+.hero-crop-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #14532d;
+    margin: 0;
+    text-transform: capitalize;
+    line-height: 1.15;
+}
+
+.hero-yield-big-num {
+    font-size: 46px;
+    font-weight: 900;
+    color: #78350f;
+    margin: 0;
+    line-height: 1;
+}
+
+.hero-yield-unit {
+    font-size: 20px;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.hero-crop-subtitle {
+    font-size: 13.5px;
+    color: #334155;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Gauge Box */
+.hero-gauge-box {
+    text-align: center;
+}
+
+.gauge-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid #10b981;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+.gauge-number {
+    font-size: 18px;
+    font-weight: 900;
+    color: #166534;
+    line-height: 1;
+}
+
+.gauge-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #059669;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Highlights Floating Strip */
+.hero-highlights-strip {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(16, 185, 129, 0.3);
+}
+
+.hero-highlight-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.hero-highlight-pill.green { color: #166534; border-color: #bbf7d0; background: #f0fdf4; }
+.hero-highlight-pill.emerald { color: #065f46; border-color: #a7f3d0; background: #ecfdf5; }
+.hero-highlight-pill.blue { color: #1e40af; border-color: #bfdbfe; background: #eff6ff; }
+.hero-highlight-pill.purple { color: #6b21a8; border-color: #e9d5ff; background: #faf5ff; }
+
+/* Suitability Arena */
+.suitability-arena-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.suitability-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--radius-md, 12px);
+    padding: 14px;
+    transition: all 0.2s ease;
+}
+
+.suitability-card.rank-1 {
+    border-color: #86efac;
+    background: linear-gradient(135deg, #ffffff, #f0fdf4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.suitability-rank-badge {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #166534;
+    margin-bottom: 6px;
+}
+
+.suitability-crop-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    text-transform: capitalize;
+    margin-bottom: 8px;
+}
+
+.suitability-pct-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suitability-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.suitability-bar-fill.fill-primary {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 6px;
+}
+
+.suitability-bar-fill.fill-muted {
+    height: 100%;
+    background: #94a3b8;
+    border-radius: 6px;
+}
+
+.suitability-score {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* DNA Strip */
+.evaluated-baseline-strip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md, 12px);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.strip-label {
+    font-size: 12.5px;
+    color: #334155;
+}
+
+.strip-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.bio-chip {
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+}
+
+/* Glass Metric Cards */
+.metric-glass-card {
+    background: white;
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    border: 1.5px solid transparent;
+}
+
+.metric-glass-card.amber { border-color: #fde68a; background: #fffdf5; }
+.metric-glass-card.green { border-color: #86efac; background: #f6fdf8; }
+.metric-glass-card.blue { border-color: #bae6fd; background: #f5faff; }
+
+.m-label {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.m-val {
+    font-size: 24px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.1;
+}
+
+.m-unit {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.m-sub {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* Mandi Action Box */
+.mandi-action-chip {
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 13.5px;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.chip-green { background: #dcfce7; color: #166534; border: 1.5px solid #86efac; }
+.chip-red { background: #fee2e2; color: #991b1b; border: 1.5px solid #fca5a5; }
+.chip-blue { background: #e0f2fe; color: #0369a1; border: 1.5px solid #7dd3fc; }
+
+/* 3-Day Mandi Price Timeline Cards */
+.mandi-timeline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+}
+
+@media (max-width: 768px) {
+    .mandi-timeline-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.timeline-day-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+    transition: all 0.25s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.timeline-day-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.timeline-day-card.highlight-latest {
+    background: linear-gradient(135deg, #f0fdf4, #ffffff);
+    border-color: #86efac;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.12);
+}
+
+.day-header-badge {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.day-date-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.day-price-val {
+    font-size: 24px;
+    font-weight: 900;
+    color: #15803d;
+    line-height: 1.2;
+}
+
+.day-price-val .sub-unit {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.day-arrival-stat {
+    font-size: 12.5px;
+    color: #475569;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.day-delta-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.day-delta-up { background: #dcfce7; color: #166534; }
+.day-delta-down { background: #fee2e2; color: #991b1b; }
+.day-delta-stable { background: #f1f5f9; color: #475569; }
+
+/* Pathology & Disease Cards */
+.pathology-card {
+    border: 1.5px solid #e9d5ff;
+    background: #ffffff;
+    border-radius: var(--radius-md, 12px);
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(147, 51, 234, 0.04);
+}
+
+.threat-badge {
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 800;
+}
+
+.threat-high { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.threat-mod { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+.symptom-highlight-box {
+    background: #faf5ff;
+    border-left: 4px solid #9333ea;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 14px;
+}
+
+/* Pesticides Dosage Cards */
+.pesticide-prescription-card {
+    background: #f8fafc;
+    border: 1.5px solid #bfdbfe;
+    border-radius: var(--radius-md, 12px);
+    padding: 16px 18px;
+}
+
+.spray-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 12px;
+}
+
+.dosage-spotlight-box {
+    background: #ffffff;
+    border: 1.5px solid #93c5fd;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.dosage-box-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1d4ed8;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.dosage-chem-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.dosage-highlight-pill {
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid #bfdbfe;
+}
+
+.bio-spotlight-box {
+    background: #ffffff;
+    border: 1.5px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.bio-box-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #15803d;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.timing-watch-strip {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+    color: #92400e;
+}
+
+/* Hydro Irrigation Cards */
+.hydro-metric-card {
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+    background: white;
+    border: 1.5px solid transparent;
+}
+
+.hydro-metric-card.blue { border-color: #7dd3fc; background: #f0f9ff; }
+.hydro-metric-card.green { border-color: #6ee7b7; background: #ecfdf5; }
+.hydro-metric-card.cyan { border-color: #cbd5e1; background: #f8fafc; }
+
+.h-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; color: #475569; }
+.h-val { font-size: 20px; font-weight: 900; color: #0369a1; margin-top: 2px; }
+.h-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+.card-timeline-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+}
+
+.timeline-stages-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.timeline-stage-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.stage-num-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stage-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.stage-depth {
+    color: #0284c7;
+    font-weight: 700;
+}
+
+/* Soil Characteristics Box */
+.soil-characteristics-box {
+    background: #f8fafc;
+    border-left: 4px solid #b45309;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 16px;
+}
+
+.compatibility-stamp {
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid #86efac;
+}
+
+.soil-action-checklist {
+    background: #fffbeb;
+    border: 1.5px solid #fde68a;
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+}
+
+.checklist-header {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #92400e;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+/* Lab Diagnostics Table */
+.lab-diagnostics-table th {
+    background: #f8fafc;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.param-value-tag {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 12.5px;
+}
+
+.status-pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 800;
+}
+
+.status-optimal { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.status-acidic { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.status-alkaline { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+.advisory-id-chip {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* Floating Stepper Bar */
+.slide-stepper-floating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1.5px solid #cbd5e1;
+    border-radius: var(--radius-lg, 16px);
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.stepper-btn {
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    transition: all 0.2s ease;
+}
+
+.glow-btn {
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.glow-btn:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    transform: translateY(-1px);
+}
+
+.stepper-center-info {
+    text-align: center;
+}
+
+.stepper-indicator {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--forest, #166534);
+    letter-spacing: 0.5px;
+}
+
+.stepper-hint {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+/* Fullscreen Mode */
+body.deck-fullscreen {
+    background: #f8fafc;
+}
+
+body.deck-fullscreen .sidebar,
+body.deck-fullscreen .top-header {
+    display: none !important;
+}
+
+body.deck-fullscreen .main-wrapper {
+    margin-left: 0 !important;
+    padding: 20px !important;
+}
+
+/* All Slides View Mode */
+.presentation-all .advisory-slide {
+    display: block !important;
+    margin-bottom: 28px;
+}
+
+.presentation-all #slideStepperControls {
+    display: none !important;
+}
+
+@keyframes bounceGlow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+@media print {
+    .advisory-slide { display: block !important; }
+    .slide-nav-pills, #slideStepperControls, .deck-controller-card, .btn { display: none !important; }
+}
+</style>
+
+<script>
+let currentSlide = 1;
+const totalSlides = 8;
+const slideTitles = [
+    "Crop Suitability & AI Recommendation",
+    "Harvest Yield & Biomass Simulation",
+    "Mandi Market Economics & Projected Revenue",
+    "Crop Disease Precautions & 3-Tier Management",
+    "Targeted Pesticides & Exact Spray Dosages",
+    "Farmer Land Irrigation & Hydration Schedule",
+    "Soil-to-Crop Suitability & Land Health",
+    "Tested Soil & Environmental Diagnostics"
+];
+
+function goToSlide(slideNum) {
+    if (slideNum < 1 || slideNum > totalSlides) return;
+    currentSlide = slideNum;
+
+    // 1. Update slides visibility
+    document.querySelectorAll('.advisory-slide').forEach(el => el.classList.remove('active'));
+    const targetSlide = document.getElementById('slide-' + slideNum);
+    if (targetSlide) targetSlide.classList.add('active');
+
+    // 2. Update nav pills
+    document.querySelectorAll('.slide-pill').forEach(pill => {
+        if (parseInt(pill.getAttribute('data-slide')) === slideNum) {
+            pill.classList.add('active');
+            pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } else {
+            pill.classList.remove('active');
+        }
+    });
+
+    // 3. Update Progress Bar
+    const pct = (slideNum / totalSlides) * 100;
+    const bar = document.getElementById('slideProgressBar');
+    if (bar) bar.style.width = pct + '%';
+
+    // 4. Update Text Indicators
+    const counterText = document.getElementById('slideCounterText');
+    if (counterText) counterText.innerText = `Slide ${slideNum} of ${totalSlides}: ${slideTitles[slideNum - 1]}`;
+
+    const footerNum = document.getElementById('footerSlideNumber');
+    if (footerNum) footerNum.innerText = `Slide ${slideNum} / ${totalSlides}`;
+
+    // 5. Update Prev / Next buttons state
+    const btnPrev = document.getElementById('btnPrevSlide');
+    const btnNext = document.getElementById('btnNextSlide');
+    if (btnPrev) btnPrev.disabled = (slideNum === 1);
+    if (btnNext) btnNext.disabled = (slideNum === totalSlides);
+}
+
+function nextSlide() {
+    if (currentSlide < totalSlides) {
+        goToSlide(currentSlide + 1);
+    }
+}
+
+function prevSlide() {
+    if (currentSlide > 1) {
+        goToSlide(currentSlide - 1);
+    }
+}
+
+function setPresentationMode(mode) {
+    const btnSlide = document.getElementById('btnSlideMode');
+    const btnAll = document.getElementById('btnAllMode');
+
+    if (mode === 'all') {
+        document.body.classList.add('presentation-all');
+        if (btnAll) btnAll.className = 'btn btn-primary btn-sm mode-toggle-btn';
+        if (btnSlide) btnSlide.className = 'btn btn-secondary btn-sm mode-toggle-btn';
+    } else {
+        document.body.classList.remove('presentation-all');
+        if (btnSlide) btnSlide.className = 'btn btn-primary btn-sm mode-toggle-btn';
+        if (btnAll) btnAll.className = 'btn btn-secondary btn-sm mode-toggle-btn';
+        goToSlide(currentSlide);
+    }
+}
+
+function toggleDeckFullscreen() {
+    document.body.classList.toggle('deck-fullscreen');
+}
+
+function printReport() {
+    setPresentationMode('all');
+    setTimeout(() => {
+        window.print();
+    }, 250);
+}
+
+// Keyboard Navigation (Arrow Keys & Space)
+document.addEventListener('keydown', (e) => {
+    if (document.body.classList.contains('presentation-all')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && e.target === document.body)) {
+        nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    goToSlide(1);
+});
+</script>
+{% endblock %}

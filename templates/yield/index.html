@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Farm Crop Yield Prediction — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Harvest Yield Estimation Engine" data-te="దిగుబడి అంచనా ఇంజిన్" data-hi="फसल उपज अनुमान इंजन">Harvest Yield Estimation Engine</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Estimate total harvest output (tons) based on farm acreage, soil type, irrigation, and seasonal inputs" data-te="విస్తీర్ణం, నేల రకం, సాగునీరు మరియు ఎరువుల ఆధారంగా మొత్తం దిగుబడిని (టన్నులు) అంచనా వేయండి" data-hi="रकबा, मिट्टी के प्रकार, सिंचाई और मौसमी इनपुट के आधार पर कुल पैदावार (टन) का अनुमान लगाएं">Estimate total harvest output (tons) based on farm acreage, soil type, irrigation, and seasonal inputs</span>
+{% endblock %}
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+
+    <!-- 360 Advisory Integration Notice -->
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #eff6ff, #f0fdf4); border: 1.5px solid #93c5fd; box-shadow: var(--shadow-sm); padding: 14px 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">💡</span>
+                <div>
+                    <div style="font-weight: 800; color: #1e40af; font-size: 13.5px;">
+                        <span class="lang-text" data-en="Yield & Mandi Market are Integrated in 360° Smart Advisory" data-te="దిగుబడి & మార్కెట్ రాబడి 360° సమగ్ర సలహాలో చేర్చబడ్డాయి" data-hi="पैदावार व मंडी आय 360° रिपोर्ट में एकीकृत हैं">Yield & Mandi Market are Integrated in 360° Smart Advisory</span>
+                    </div>
+                    <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">
+                        <span class="lang-text" data-en="Get complete 8-slide farm intelligence including yield, mandi rates, disease protection & fertilizer dosages in 1 click." data-te="ఒకే క్లిక్‌తో దిగుబడి, మార్కెట్ ధరలు, తెగుళ్ల నివారణ మరియు ఎరువుల మోతాదులతో కూడిన 8-స్లైడ్ల పూర్తి నివేదికను పొందండి." data-hi="1-क्लिक में पैदावार, मंडी भाव, रोग रोकथाम और उर्वरक खुराक सहित संपूर्ण 8-स्लाइड रिपोर्ट प्राप्त करें।">Get complete 8-slide farm intelligence including yield, mandi rates, disease protection & fertilizer dosages in 1 click.</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm" style="font-weight: 700;">
+                🚀 <span class="lang-text" data-en="Launch 360° Advisory →" data-te="360° సలహా ప్రారంభించండి →" data-hi="360° रिपोर्ट शुरू करें →">Launch 360° Advisory →</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Prediction Result Display (if calculated) -->
+    {% if prediction_result %}
+    <div class="result-hero" style="background: linear-gradient(135deg, #fef3c7, #dbeafe); border-color: #fcd34d; margin-bottom: 28px;">
+        <div class="result-hero-icon">🌾</div>
+        <h2 style="font-size: 15px; color: #78350f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+            <span class="lang-text" data-en="Estimated Harvest Output" data-te="అంచనా వేసిన మొత్తం దిగుబడి" data-hi="अनुमानित कुल पैदावार">Estimated Harvest Output</span>
+        </h2>
+        <div class="result-crop-name" style="color: #78350f;">
+            {{ prediction_result.predicted_yield_tons }} <span style="font-size: 26px; font-weight: 600;" class="lang-text" data-en="Tons" data-te="టన్నులు" data-hi="टन">Tons</span>
+        </div>
+        <div style="margin-top: 6px;">
+            <span class="result-confidence-pill" style="border-color: #fcd34d; color: #78350f;">
+                📐 <span class="lang-text" data-en="Yield Density:" data-te="ఎకరా దిగుబడి:" data-hi="प्रति एकड़ पैदावार:">Yield Density:</span> <strong>{{ prediction_result.yield_per_acre_tons }} <span class="lang-text" data-en="tons/acre" data-te="టన్నులు/ఎకరా" data-hi="टन/एकड़">tons/acre</span></strong> ({{ prediction_result.farm_area_acres }} <span class="lang-text" data-en="acres" data-te="ఎకరాలు" data-hi="एकड़">acres</span>)
+            </span>
+        </div>
+        {% if selected_farm %}
+        <div style="margin-top: 12px; font-size: 13.5px; color: #78350f;">
+            🏡 <span class="lang-text" data-en="Linked Farm Holding:" data-te="ఎంచుకున్న పొలం:" data-hi="संबद्ध खेत:">Linked Farm Holding:</span> <strong>{{ selected_farm.farm_name }}</strong> ({{ selected_farm.district }}, {{ selected_farm.state }})
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Yield Prediction Form -->
+    <div class="card" style="margin-bottom: 28px;">
+        <div class="card-header">
+            <div class="card-title">
+                <span>📋</span> <span class="lang-text" data-en="Farm Parameters & Input Data" data-te="పొలం వివరాలు & సాగు సమాచారం" data-hi="खेत पैरामीटर और इनपुट डेटा">Farm Parameters & Input Data</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="badge-ready" style="padding: 4px 10px; font-size: 12px; border-radius: 10px;">
+                    🌱 <span class="lang-text" data-en="Farm-Profile Calibrated" data-te="పొలం వివరాల ఆధారితం" data-hi="खेत प्रोफ़ाइल आधारित">Farm-Profile Calibrated</span>
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('yield_page') }}">
+            <input type="hidden" name="farm_id" value="{{ selected_farm_id or '' }}">
+
+            <h4 style="font-size: 14px; text-transform: uppercase; color: var(--forest); letter-spacing: 0.5px; margin: 20px 0 12px 0;">
+                <span class="lang-text" data-en="1. Crop & Field Profile" data-te="1. పంట & పొలం వివరాలు" data-hi="1. फसल और खेत प्रोफ़ाइल">1. Crop & Field Profile</span>
+            </h4>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="Crop_Type">
+                        <span class="lang-text" data-en="Crop Variety" data-te="పంట రకం" data-hi="फसल की किस्म">Crop Variety</span> <span class="required">*</span>
+                    </label>
+                    <select id="Crop_Type" name="Crop_Type" class="form-select" required>
+                        <option value="" data-en="-- Select Crop --" data-te="-- పంటను ఎంచుకోండి --" data-hi="-- फसल चुनें --">-- Select Crop --</option>
+                        {% set cur_crop = form_data.Crop_Type if form_data else '' %}
+                        <option value="Cotton" data-en="Cotton" data-te="పత్తి" data-hi="कपास" {% if cur_crop == 'Cotton' %}selected{% endif %}>Cotton</option>
+                        <option value="Carrot" data-en="Carrot" data-te="క్యారెట్" data-hi="गाजर" {% if cur_crop == 'Carrot' %}selected{% endif %}>Carrot</option>
+                        <option value="Sugarcane" data-en="Sugarcane" data-te="చెరకు" data-hi="गन्ना" {% if cur_crop == 'Sugarcane' %}selected{% endif %}>Sugarcane</option>
+                        <option value="Tomato" data-en="Tomato" data-te="టమోటా" data-hi="टमाटर" {% if cur_crop == 'Tomato' %}selected{% endif %}>Tomato</option>
+                        <option value="Soybean" data-en="Soybean" data-te="సోయాబీన్" data-hi="सोयाबीन" {% if cur_crop == 'Soybean' %}selected{% endif %}>Soybean</option>
+                        <option value="Rice" data-en="Rice" data-te="వరి" data-hi="धान" {% if cur_crop == 'Rice' %}selected{% endif %}>Rice</option>
+                        <option value="Maize" data-en="Maize" data-te="మొక్కజొన్న" data-hi="मक्का" {% if cur_crop == 'Maize' %}selected{% endif %}>Maize</option>
+                        <option value="Wheat" data-en="Wheat" data-te="గోధుమలు" data-hi="गेहूं" {% if cur_crop == 'Wheat' %}selected{% endif %}>Wheat</option>
+                        <option value="Barley" data-en="Barley" data-te="బార్లీ" data-hi="जौ" {% if cur_crop == 'Barley' %}selected{% endif %}>Barley</option>
+                        <option value="Potato" data-en="Potato" data-te="బంగాళాదుంప" data-hi="आलू" {% if cur_crop == 'Potato' %}selected{% endif %}>Potato</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Farm_Area_acres">
+                        <span class="lang-text" data-en="Farm Land Area (Acres)" data-te="పొలం విస్తీర్ణం (ఎకరాలు)" data-hi="खेत का रकबा (एकड़)">Farm Land Area (Acres)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0.1" 
+                        id="Farm_Area_acres" 
+                        name="Farm_Area(acres)" 
+                        class="form-control" 
+                        placeholder="e.g. 50.0" 
+                        data-en-placeholder="e.g. 50.0"
+                        data-te-placeholder="ఉదా: 5.0"
+                        data-hi-placeholder="उदा: 5.0"
+                        value="{{ form_data.get('Farm_Area(acres)', '') if form_data else '' }}" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="Soil_Type">
+                        <span class="lang-text" data-en="Soil Type" data-te="నేల రకం" data-hi="मिट्टी का प्रकार">Soil Type</span> <span class="required">*</span>
+                    </label>
+                    <select id="Soil_Type" name="Soil_Type" class="form-select" required>
+                        <option value="" data-en="-- Select Soil --" data-te="-- నేల రకాన్ని ఎంచుకోండి --" data-hi="-- मिट्टी चुनें --">-- Select Soil --</option>
+                        {% set cur_soil = form_data.Soil_Type if form_data else '' %}
+                        <option value="Loamy" data-en="Loamy Soil" data-te="ఒండ్రు నేల" data-hi="दोमट मिट्टी" {% if cur_soil == 'Loamy' %}selected{% endif %}>Loamy Soil</option>
+                        <option value="Clay" data-en="Clay Soil" data-te="జిగురు నేల (నల్లరేగడి)" data-hi="चिकनी मिट्टी" {% if cur_soil == 'Clay' %}selected{% endif %}>Clay Soil</option>
+                        <option value="Sandy" data-en="Sandy Soil" data-te="ఇసుక నేల" data-hi="बलुई मिट्टी" {% if cur_soil == 'Sandy' %}selected{% endif %}>Sandy Soil</option>
+                        <option value="Silty" data-en="Silty Soil" data-te="సిల్ట్ నేల" data-hi="गाद मिट्टी" {% if cur_soil == 'Silty' %}selected{% endif %}>Silty Soil</option>
+                        <option value="Peaty" data-en="Peaty Soil" data-te="పీట్ నేల" data-hi="पीट मिट्टी" {% if cur_soil == 'Peaty' %}selected{% endif %}>Peaty Soil</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Irrigation_Type">
+                        <span class="lang-text" data-en="Irrigation System" data-te="సాగునీటి విధానం" data-hi="सिंचाई प्रणाली">Irrigation System</span> <span class="required">*</span>
+                    </label>
+                    <select id="Irrigation_Type" name="Irrigation_Type" class="form-select" required>
+                        <option value="" data-en="-- Select Irrigation --" data-te="-- సాగునీటి విధానాన్ని ఎంచుకోండి --" data-hi="-- सिंचाई प्रणाली चुनें --">-- Select Irrigation --</option>
+                        {% set cur_irri = form_data.Irrigation_Type if form_data else '' %}
+                        <option value="Sprinkler" data-en="Sprinkler" data-te="స్ప్రింక్లర్ (తుంపర సేద్యం)" data-hi="स्प्रिंकलर (फव्वारा)" {% if cur_irri == 'Sprinkler' %}selected{% endif %}>Sprinkler</option>
+                        <option value="Manual" data-en="Manual" data-te="మాన్యువల్" data-hi="मैनुअल (हाथ से)" {% if cur_irri == 'Manual' %}selected{% endif %}>Manual</option>
+                        <option value="Flood" data-en="Flood Irrigation" data-te="కాలువ / ముంపు నీరు" data-hi="बाढ़ सिंचाई" {% if cur_irri == 'Flood' %}selected{% endif %}>Flood Irrigation</option>
+                        <option value="Rain-fed" data-en="Rain-fed" data-te="వర్షాధారం" data-hi="वर्षा आधारित" {% if cur_irri == 'Rain-fed' %}selected{% endif %}>Rain-fed</option>
+                        <option value="Drip" data-en="Drip Irrigation" data-te="డ్రిప్ (బిందు సేద్యం)" data-hi="ड्रिप (टपक) सिंचाई" {% if cur_irri == 'Drip' %}selected{% endif %}>Drip Irrigation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Season">
+                        <span class="lang-text" data-en="Agricultural Season" data-te="వ్యవసాయ సీజన్" data-hi="कृषि मौसम">Agricultural Season</span> <span class="required">*</span>
+                    </label>
+                    <select id="Season" name="Season" class="form-select" required>
+                        <option value="" data-en="-- Select Season --" data-te="-- సీజన్‌ని ఎంచుకోండి --" data-hi="-- मौसम चुनें --">-- Select Season --</option>
+                        {% set cur_seas = form_data.Season if form_data else '' %}
+                        <option value="Kharif" data-en="Kharif (Monsoon)" data-te="ఖరీఫ్ (వానాకాలం)" data-hi="खरीफ (मानसून)" {% if cur_seas == 'Kharif' %}selected{% endif %}>Kharif</option>
+                        <option value="Rabi" data-en="Rabi (Winter)" data-te="రబీ (యాసంగి)" data-hi="रबी (सर्दियां)" {% if cur_seas == 'Rabi' %}selected{% endif %}>Rabi</option>
+                        <option value="Zaid" data-en="Zaid (Summer)" data-te="జైద్ (వేసవి)" data-hi="जायद (गर्मी)" {% if cur_seas == 'Zaid' %}selected{% endif %}>Zaid</option>
+                    </select>
+                </div>
+            </div>
+
+            <h4 style="font-size: 14px; text-transform: uppercase; color: var(--forest); letter-spacing: 0.5px; margin: 24px 0 12px 0;">
+                <span class="lang-text" data-en="2. Agricultural Inputs & Resource Application" data-te="2. ఎరువులు & వనరుల వినియోగం" data-hi="2. कृषि इनपुट और संसाधन अनुप्रयोग">2. Agricultural Inputs & Resource Application</span>
+            </h4>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="Fertilizer_Used_tons">
+                        <span class="lang-text" data-en="Fertilizer Used (Tons)" data-te="వాడిన ఎరువులు (టన్నులు)" data-hi="उर्वरक उपयोग (टन)">Fertilizer Used (Tons)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        id="Fertilizer_Used_tons" 
+                        name="Fertilizer_Used(tons)" 
+                        class="form-control" 
+                        placeholder="e.g. 5.5" 
+                        value="{{ form_data.get('Fertilizer_Used(tons)', '') if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help lang-text" data-en="Total fertilizer quantity in metric tons" data-te="మొత్తం ఎరువుల పరిమాణం టన్నులలో" data-hi="मीट्रिक टन में कुल उर्वरक मात्रा">Total fertilizer quantity in metric tons</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Pesticide_Used_kg">
+                        <span class="lang-text" data-en="Pesticide Used (kg)" data-te="వాడిన పురుగు మందులు (కిలోలు)" data-hi="कीटनाशक उपयोग (किग्रा)">Pesticide Used (kg)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        id="Pesticide_Used_kg" 
+                        name="Pesticide_Used(kg)" 
+                        class="form-control" 
+                        placeholder="e.g. 2.5" 
+                        value="{{ form_data.get('Pesticide_Used(kg)', '') if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help lang-text" data-en="Total plant protection chemicals in kg" data-te="రక్షణ మందుల పరిమాణం కిలోలలో" data-hi="किलोग्राम में कुल कीटनाशक मात्रा">Total plant protection chemicals in kg</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Water_Usage_cubic_meters">
+                        <span class="lang-text" data-en="Water Usage (m³)" data-te="నీటి వినియోగం (క్యూబిక్ మీటర్లు)" data-hi="जल उपयोग (घन मीटर)">Water Usage (m³)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        id="Water_Usage_cubic_meters" 
+                        name="Water_Usage(cubic meters)" 
+                        class="form-control" 
+                        placeholder="e.g. 50000" 
+                        value="{{ form_data.get('Water_Usage(cubic meters)', '') if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help lang-text" data-en="Total irrigation volume in cubic meters" data-te="మొత్తం సాగునీటి పరిమాణం ఘనపు మీటర్లలో" data-hi="घन मीटर में कुल सिंचाई मात्रा">Total irrigation volume in cubic meters</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 14px;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 14px; font-size: 16px; flex: 2;">
+                    <span class="lang-text" data-en="🌾 Calculate Estimated Harvest Yield" data-te="🌾 అంచనా దిగుబడిని లెక్కించండి" data-hi="🌾 अनुमानित फसल पैदावार की गणना करें">🌾 Calculate Estimated Harvest Yield</span>
+                </button>
+                <a href="{{ url_for('yield_history') }}" class="btn btn-secondary" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center;">
+                    <span class="lang-text" data-en="📜 View Yield History" data-te="📜 దిగుబడి చరిత్ర చూడండి" data-hi="📜 उपज इतिहास देखें">📜 View Yield History</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function autofillFarm(selectEl) {
+    if (!selectEl) return;
+    const selected = selectEl.options[selectEl.selectedIndex];
+    if (selected && selected.value) {
+        const area = parseFloat(selected.getAttribute('data-area')) || 5.0;
+        const soil = (selected.getAttribute('data-soil') || '').toLowerCase();
+        const irri = (selected.getAttribute('data-irri') || '').toLowerCase();
+        const crop = selected.getAttribute('data-crop');
+
+        document.getElementById('Farm_Area_acres').value = area;
+
+        // Soil type matching
+        const soilEl = document.getElementById('Soil_Type');
+        for (let i = 0; i < soilEl.options.length; i++) {
+            if (soil && (soilEl.options[i].value.toLowerCase().includes(soil) || soil.includes(soilEl.options[i].value.toLowerCase()))) {
+                soilEl.selectedIndex = i;
+                break;
+            }
+        }
+
+        // Irrigation type matching
+        const irriEl = document.getElementById('Irrigation_Type');
+        for (let i = 0; i < irriEl.options.length; i++) {
+            if (irri && (irriEl.options[i].value.toLowerCase().includes(irri) || irri.includes(irriEl.options[i].value.toLowerCase()))) {
+                irriEl.selectedIndex = i;
+                break;
+            }
+        }
+
+        // Crop matching
+        if (crop) {
+            const cropEl = document.getElementById('Crop_Type');
+            for (let i = 0; i < cropEl.options.length; i++) {
+                if (cropEl.options[i].value.toLowerCase() === crop.toLowerCase()) {
+                    cropEl.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Auto-scale inputs proportional to acreage if currently empty
+        if (!document.getElementById('Fertilizer_Used_tons').value) {
+            document.getElementById('Fertilizer_Used_tons').value = (area * 0.15).toFixed(2);
+        }
+        if (!document.getElementById('Pesticide_Used_kg').value) {
+            document.getElementById('Pesticide_Used_kg').value = (area * 0.5).toFixed(2);
+        }
+        if (!document.getElementById('Water_Usage_cubic_meters').value) {
+            document.getElementById('Water_Usage_cubic_meters').value = (area * 1200).toFixed(1);
+        }
+        if (!document.getElementById('Season').value) {
+            document.getElementById('Season').value = 'Kharif';
+        }
+    }
+}
+
+
+function generateYieldFarmAdvisoryDirect() {
+    const farmSelect = document.getElementById('farm_id');
+    const farmId = farmSelect ? farmSelect.value : '';
+    if (farmId) {
+        window.location.href = '/farm/' + farmId + '/advisory';
+    } else {
+        document.querySelector('form').submit();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const farmSelect = document.getElementById('farm_id');
+    if (farmSelect && farmSelect.value) {
+        autofillFarm(farmSelect);
+    }
+});
+</script>
+{% endblock %}

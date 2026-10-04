@@ -1,0 +1,1148 @@
+{% extends "base.html" %}
+
+{% block title %}Plant Disease Diagnosis & Treatment Hub — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Plant Disease Detection & Precautions Hub" data-te="మొక్కల వ్యాధి గుర్తింపు & నివారణల విభాగం" data-hi="पादप रोग पहचान और सावधानियां">Plant Disease Detection & Precautions Hub</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Snap or upload a leaf photo for instant AI pathology diagnosis, chemical spray dosage, and organic precautions" data-te="ఆకు ఫోటో తీయండి లేదా అప్‌లోడ్ చేయండి — తక్షణ AI రోగ నిర్ధారణ, రసాయన మందుల మోతాదు మరియు సేంద్రీయ నివారణలను పొందండి" data-hi="पत्ती की फोटो खींचें या अपलोड करें — तत्काल AI रोग निदान, कीटनाशक खुराक और जैविक सावधानियां प्राप्त करें">Snap or upload a leaf photo for instant AI pathology diagnosis, chemical spray dosage, and organic precautions</span>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+
+    <!-- ==========================================
+         HERO SECTION: LIVE CAMERA & FILE UPLOAD SCANNER
+         ========================================== -->
+    <div class="card" style="border: 2px solid #86efac; background: #ffffff; margin-bottom: 28px; box-shadow: var(--shadow-md); overflow: hidden; position: relative;">
+        <!-- Card Header Banner -->
+        <div class="card-header" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); margin: -24px -24px 20px -24px; padding: 18px 24px; border-bottom: 1px solid #bbf7d0;">
+            <div class="card-title" style="color: var(--forest); font-size: 17.5px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">🌿</span> 
+                <span class="lang-text" data-en="Leaf Photo Scanner & Disease Diagnostics" data-te="ఆకు ఫోటో స్కానర్ & వ్యాధి నిర్ధారణ" data-hi="पत्ती फोटो स्कैनर और रोग निदान">
+                    Leaf Photo Scanner & Disease Diagnostics
+                </span>
+            </div>
+            <span class="badge-ready" style="padding: 5px 14px; border-radius: 16px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulseDot 1.5s infinite;"></span>
+                <span class="lang-text" data-en="ICAR Certified Model" data-te="ICAR ధృవీకృత మోడల్" data-hi="ICAR प्रमाणित मॉडल">ICAR Certified Model</span>
+            </span>
+        </div>
+
+        <!-- Mode Selector Navigation Tabs (Camera vs File Upload vs Sample Gallery) -->
+        <div class="scanner-nav-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; flex-wrap: wrap;">
+            <button type="button" class="btn mode-tab-btn btn-primary" id="tabModeCamera" onclick="switchScanMode('camera')" style="display: flex; align-items: center; gap: 8px; font-weight: 700; border-radius: 20px; padding: 8px 18px; font-size: 13.5px;">
+                <span>📷</span>
+                <span class="lang-text" data-en="Live Camera Access" data-te="లైవ్ కెమెరా స్కానర్" data-hi="लाइव कैमरा स्कैनर">Live Camera Access</span>
+            </button>
+            <button type="button" class="btn mode-tab-btn btn-secondary" id="tabModeUpload" onclick="switchScanMode('upload')" style="display: flex; align-items: center; gap: 8px; font-weight: 700; border-radius: 20px; padding: 8px 18px; font-size: 13.5px;">
+                <span>📁</span>
+                <span class="lang-text" data-en="Upload Leaf Photo" data-te="ఆకు ఫోటో అప్‌లోడ్" data-hi="पत्ती फोटो अपलोड">Upload Leaf Photo</span>
+            </button>
+            <button type="button" class="btn mode-tab-btn btn-secondary" id="tabModeGallery" onclick="switchScanMode('gallery')" style="display: flex; align-items: center; gap: 8px; font-weight: 700; border-radius: 20px; padding: 8px 18px; font-size: 13.5px;">
+                <span>🔬</span>
+                <span class="lang-text" data-en="Sample Diseased Leaves" data-te="నమూనా వ్యాధి ఆకులు (టెస్ట్)" data-hi="नमूना पत्तियां (टेस्ट)">Sample Diseased Leaves</span>
+            </button>
+        </div>
+
+        <!-- ==========================================
+             MODE 1: LIVE CAMERA ACCESS & SCANNER
+             ========================================== -->
+        <div id="modeCameraSection" class="scan-mode-content">
+            <!-- Camera Start Screen -->
+            <div id="cameraStartBox" style="text-align: center; padding: 24px 16px; background: linear-gradient(135deg, #f8fafc, #f0fdf4); border: 1.5px dashed #86efac; border-radius: var(--radius-md); margin-bottom: 14px;">
+                <div style="font-size: 48px; margin-bottom: 12px; animation: floatIcon 3s ease-in-out infinite;">📸</div>
+                <h3 style="font-size: 17px; font-weight: 800; color: var(--forest); margin-bottom: 6px;">
+                    <span class="lang-text" data-en="Scan Crop Leaf with Device Camera" data-te="మీ ఫోన్ లేదా కంప్యూటర్ కెమెరాతో ఆకును స్కాన్ చేయండి" data-hi="डिवाइस कैमरे से फसल की पत्ती को स्कैन करें">
+                        Scan Crop Leaf with Device Camera
+                    </span>
+                </h3>
+                <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 480px; margin: 0 auto 18px auto; line-height: 1.5;">
+                    <span class="lang-text" data-en="Point your rear or front camera directly at the diseased leaf. Our real-time AI will scan lesions, detect pathogens, and recommend exact remedies." data-te="కెమెరాను వ్యాధి సోకిన ఆకు వైపు ఉంచండి. మా లైవ్ AI ఆకు మచ్చలను గుర్తించి తగిన నివారణ మందులను సూచిస్తుంది." data-hi="कैमरे को रोगग्रस्त पत्ती की ओर रखें। AI तुरंत रोग का पता लगाकर उपचार बताएगा।">
+                        Point your rear or front camera directly at the diseased leaf. Our real-time AI will scan lesions, detect pathogens, and recommend exact remedies.
+                    </span>
+                </p>
+                <button type="button" class="btn btn-primary" onclick="startCameraStream()" style="padding: 12px 28px; font-size: 15px; font-weight: 800; box-shadow: var(--shadow-md); border-radius: 24px;">
+                    📷 <span class="lang-text" data-en="Open Live Camera Scanner" data-te="లైవ్ కెమెరా ఆన్ చేయండి" data-hi="लाइव कैमरा खोलें">Open Live Camera Scanner</span>
+                </button>
+            </div>
+
+            <!-- Live Camera Viewfinder (Active when stream is running) -->
+            <div id="cameraLiveBox" style="display: none; margin-bottom: 20px; text-align: center;">
+                <div class="viewfinder-wrapper" style="position: relative; max-width: 480px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-lg); border: 2px solid var(--forest); background: #000;">
+                    <!-- Video Feed -->
+                    <video id="videoElement" autoplay playsinline muted style="width: 100%; height: 320px; object-fit: cover; background: #0f172a; display: block;"></video>
+                    
+                    <!-- Scanner Laser Overlay -->
+                    <div class="scanner-laser"></div>
+
+                    <!-- Viewfinder Reticle Corners -->
+                    <div class="viewfinder-reticle">
+                        <div class="corner top-left"></div>
+                        <div class="corner top-right"></div>
+                        <div class="corner bottom-left"></div>
+                        <div class="corner bottom-right"></div>
+                        <div class="aim-center">➕</div>
+                    </div>
+
+                    <!-- Live Indicator Pill -->
+                    <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #34d399; font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 12px; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(52, 211, 153, 0.4);">
+                        <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; animation: pulseDot 1s infinite;"></span> 
+                        <span>LIVE CAMERA VIEW</span>
+                    </div>
+
+                    <!-- Alignment Guide Note -->
+                    <div style="position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; pointer-events: none;">
+                        <span style="background: rgba(0, 0, 0, 0.7); color: #f8fafc; font-size: 11.5px; padding: 3px 12px; border-radius: 10px;">
+                            🌿 Align leaf inside the green frame
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Camera Controls Buttons -->
+                <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-primary" onclick="capturePhoto()" style="padding: 10px 24px; font-size: 14.5px; font-weight: 800; border-radius: 20px; box-shadow: var(--shadow-sm);">
+                        📸 <span class="lang-text" data-en="Snap & Diagnose Leaf" data-te="ఫోటో తీసి వ్యాధి గుర్తించండి" data-hi="फोटो खींचकर निदान करें">Snap & Diagnose Leaf</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleCameraFacing()" style="padding: 10px 16px; font-size: 13.5px; border-radius: 20px;">
+                        🔄 <span class="lang-text" data-en="Flip Camera" data-te="కెమెరా మార్చండి" data-hi="कैमरा बदलें">Flip Camera</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="stopCameraStream()" style="padding: 10px 16px; font-size: 13.5px; border-radius: 20px;">
+                        ❌ <span class="lang-text" data-en="Close Camera" data-te="కెమెరా మూసివేయండి" data-hi="कैमरा बंद करें">Close Camera</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Captured Image Freeze Preview (Before AI Submission) -->
+            <div id="capturedPreviewContainer" style="display: none; margin-bottom: 20px; text-align: center; background: #f0fdf4; padding: 20px; border-radius: var(--radius-md); border: 2px solid #86efac;">
+                <canvas id="photoCanvas" style="display: none;"></canvas>
+                <div style="max-width: 380px; margin: 0 auto;">
+                    <img id="capturedImage" style="width: 100%; height: 240px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 12px; display: block; box-shadow: var(--shadow-md); border: 2px solid #10b981;" alt="Captured Leaf Preview">
+                </div>
+                
+                <div style="font-size: 14.5px; color: var(--forest); font-weight: 800; margin-bottom: 14px;">
+                    ✅ <span class="lang-text" data-en="Leaf Snapshot Captured & Ready for Diagnosis" data-te="ఆకు ఫోటో సిద్ధంగా ఉంది — AI విశ్లేషణ ప్రారంభించండి" data-hi="पत्ती फोटो तैयार है — AI विश्लेषण शुरू करें">Leaf Snapshot Captured & Ready for Diagnosis</span>
+                </div>
+
+                <form id="cameraSubmitForm" method="POST" action="{{ url_for('disease_upload_image') }}" enctype="multipart/form-data" onsubmit="showAiLoading()">
+                    <input type="file" id="cameraFileInput" name="leaf_image" style="display: none;">
+                    <input type="hidden" id="cameraImageBase64" name="camera_image_base64" value="">
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitCameraPhoto" style="padding: 11px 26px; font-size: 15px; font-weight: 800; border-radius: 20px; box-shadow: var(--shadow-sm);">
+                            🔍 <span class="lang-text" data-en="Identify Disease & Precautions" data-te="వ్యాధి & నివారణలను గుర్తించండి" data-hi="रोग व सावधानियां पहचानें">Identify Disease & Precautions</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="retakePhoto()" style="padding: 11px 18px; font-size: 13.5px; border-radius: 20px;">
+                            🔄 <span class="lang-text" data-en="Retake Photo" data-te="మరోసారి తీయండి" data-hi="पुनः फोटो लें">Retake Photo</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Camera Permission Error Banner (Fallback Helper) -->
+            <div id="cameraErrorBox" style="display: none; background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px; color: #9f1239;">
+                <div style="font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span>⚠️</span> <span data-en="Camera Access Notice" data-te="కెమెరా యాక్సెస్ సమాచారం" data-hi="कैमरा एक्सेस सूचना">Camera Access Notice</span>
+                </div>
+                <div style="font-size: 13px; line-height: 1.5;" id="cameraErrorMessage">
+                    Could not access camera. Please allow camera permissions in your browser or switch to the <strong>Upload Leaf Photo</strong> tab.
+                </div>
+                <div style="margin-top: 10px;">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="switchScanMode('upload')" style="font-size: 12px; font-weight: 700;">
+                        📁 Switch to File Upload →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             MODE 2: DRAG & DROP / FILE UPLOAD
+             ========================================== -->
+        <div id="modeUploadSection" class="scan-mode-content" style="display: none;">
+            <form id="fileUploadForm" method="POST" action="{{ url_for('disease_upload_image') }}" enctype="multipart/form-data" onsubmit="showAiLoading()">
+                <!-- Interactive Drag & Drop Area -->
+                <div id="dropZone" class="upload-dropzone" onclick="document.getElementById('leafFileInput').click()">
+                    <div style="font-size: 42px; margin-bottom: 8px; color: var(--forest);">📤</div>
+                    <div style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">
+                        <span class="lang-text" data-en="Drag & Drop Leaf Photo Here or Browse" data-te="ఆకు ఫోటోను ఇక్కడ లాగి వదలండి లేదా ఎంచుకోండి" data-hi="पत्ती की फोटो यहां खींचकर छोड़ें या चुनें">
+                            Drag & Drop Leaf Photo Here or Browse
+                        </span>
+                    </div>
+                    <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
+                        <span class="lang-text" data-en="Supports PNG, JPG, JPEG, WEBP (Max 10MB)" data-te="PNG, JPG, JPEG, WEBP ఫైళ్లను సపోర్ట్ చేస్తుంది" data-hi="PNG, JPG, JPEG, WEBP फॉर्मेट समर्थित">
+                            Supports PNG, JPG, JPEG, WEBP (Max 10MB)
+                        </span>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" style="font-weight: 700; border-radius: 16px; padding: 6px 16px;">
+                        📂 <span class="lang-text" data-en="Choose File" data-te="ఫైల్ ఎంచుకోండి" data-hi="फाइल चुनें">Choose File</span>
+                    </button>
+                    <!-- Actual hidden input with camera capture support on mobile -->
+                    <input type="file" id="leafFileInput" name="leaf_image" accept="image/png,image/jpeg,image/jpg,image/webp" capture="environment" style="display: none;" onchange="handleFileSelect(this)">
+                </div>
+
+                <!-- Selected File Thumbnail Preview Box -->
+                <div id="uploadPreviewBox" style="display: none; margin: 18px 0; padding: 16px; background: #f0fdf4; border-radius: var(--radius-md); border: 1.5px solid #86efac; text-align: center;">
+                    <img id="uploadPreviewImg" style="width: 100%; max-width: 260px; height: 180px; object-fit: cover; border-radius: var(--radius-sm); border: 2px solid var(--forest); margin: 0 auto 10px auto; display: block; box-shadow: var(--shadow-sm);" alt="Upload Preview">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);" id="uploadPreviewName"></div>
+                    <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;" id="uploadPreviewSize"></div>
+                    <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="clearUploadSelection()">
+                            ❌ <span class="lang-text" data-en="Remove / Choose Different" data-te="తొలగించండి / మరొకటి ఎంచుకోండి" data-hi="हटाएं / दूसरी चुनें">Remove / Choose Different</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 18px;">
+                    <button type="submit" id="btnSubmitUpload" class="btn btn-forest btn-block" style="max-width: 380px; margin: 0 auto; padding: 12px 24px; font-size: 15px; font-weight: 800; border-radius: 24px; box-shadow: var(--shadow-sm);">
+                        📤 <span class="lang-text" data-en="Diagnose Disease & Spray Dosage" data-te="వ్యాధి & పిచికారీ మందులను గుర్తించండి" data-hi="रोग व कीटनाशक खुराक पहचानें">Diagnose Disease & Spray Dosage</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ==========================================
+             MODE 3: SAMPLE DISEASED LEAVES GALLERY (1-CLICK TRY)
+             ========================================== -->
+        <div id="modeGallerySection" class="scan-mode-content" style="display: none;">
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px; text-align: center;">
+                <span class="lang-text" data-en="Don't have a leaf photo right now? Click any sample leaf below to run an instant demonstration test:" data-te="ప్రస్తుతం మీ వద్ద ఆకు ఫోటో లేదా? డెమో కోసం క్రింది నమూనా ఆకులలో ఒకదాన్ని ఎంచుకోండి:" data-hi="क्या आपके पास अभी पत्ती की फोटो नहीं है? डेमो के लिए नीचे दी गई नमूना पत्तियों में से किसी एक पर क्लिक करें:">
+                    Don't have a leaf photo right now? Click any sample leaf below to run an instant demonstration test:
+                </span>
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;">
+                {% for sample in sample_gallery %}
+                <a href="{{ url_for('disease_page', selected_class=sample.class_name) }}" style="text-decoration: none; color: inherit;">
+                    <div class="sample-card" style="background: white; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; transition: all 0.2s ease; box-shadow: var(--shadow-sm);">
+                        <div style="position: relative; height: 130px; background: #0f172a;">
+                            <img src="{{ sample.image_url }}" alt="{{ sample.title_en }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">
+                                {{ sample.icon }} {{ sample.plant }}
+                            </span>
+                        </div>
+                        <div style="padding: 10px 12px;">
+                            <h4 style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0;">
+                                <span class="lang-text" data-en="{{ sample.title_en }}" data-te="{{ sample.title_te }}" data-hi="{{ sample.title_hi }}">
+                                    {{ sample.title_en }}
+                                </span>
+                            </h4>
+                            <div style="font-size: 11.5px; color: var(--forest); font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+                                <span>{{ sample.tag }}</span>
+                                <span>Test ➔</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================
+         DIAGNOSED DISEASE & PRECAUTIONS RESULT CARD
+         ========================================== -->
+    {% if selected_disease %}
+    <div class="card" id="diseaseDetailCard" style="margin-bottom: 28px; border: 2px solid #34d399; box-shadow: var(--shadow-lg);">
+        
+        <!-- Header of Detail Card -->
+        <div class="card-header" style="background: linear-gradient(135deg, #ecfdf5, #f0fdf4); margin: -24px -24px 20px -24px; padding: 20px 24px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; flex-wrap: wrap; gap: 14px; border-bottom: 2px solid #a7f3d0;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span class="badge-ready" style="padding: 3px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700;">
+                        <span class="lang-text" data-en="Diagnosis Specimen" data-te="వ్యాధి నిర్ధారణ నమూనా" data-hi="निदान नमूना">Diagnosis Specimen</span>
+                    </span>
+                    {% if selected_disease.confidence_pct %}
+                    <span style="background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700;">
+                        🎯 <span class="lang-text" data-en="Confidence" data-te="ఖచ్చితత్వం" data-hi="सटीकता">Confidence</span>: {{ selected_disease.confidence_pct }}%
+                    </span>
+                    {% endif %}
+                </div>
+                <h2 id="cardTitleDisplay" style="font-size: 24px; color: var(--forest); margin-top: 6px; margin-bottom: 2px; font-weight: 800;">
+                    <span class="lang-text"
+                          data-en="{{ selected_disease.translations.en.plant_name if selected_disease.translations else selected_disease.plant_name }} — {{ selected_disease.translations.en.disease_name if selected_disease.translations else selected_disease.disease_name }}"
+                          data-te="{{ selected_disease.translations.te.plant_name if selected_disease.translations else selected_disease.plant_name }} — {{ selected_disease.translations.te.disease_name if selected_disease.translations else selected_disease.disease_name }}"
+                          data-hi="{{ selected_disease.translations.hi.plant_name if selected_disease.translations else selected_disease.plant_name }} — {{ selected_disease.translations.hi.disease_name if selected_disease.translations else selected_disease.disease_name }}">
+                        {{ selected_disease.plant_name }} — {{ selected_disease.disease_name }}
+                    </span>
+                </h2>
+                <div style="font-size: 13px; color: var(--text-secondary);">
+                    <span class="lang-text" data-en="Pathogen:" data-te="జీవకారణం:" data-hi="रोगजनक:">Pathogen:</span> <strong>{{ selected_disease.pathogen }}</strong> | 
+                    <span class="lang-text" data-en="Classification:" data-te="రకం:" data-hi="ప్రकार:">Classification:</span> <strong>{{ selected_disease.disease_type }}</strong>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                {% if selected_disease.is_healthy %}
+                <span class="badge-ready" id="statusBadgeDisplay" style="font-size: 14.5px; padding: 8px 20px; border-radius: 20px; font-weight: 800;">
+                    <span class="lang-text" data-en="✅ Healthy Crop Status" data-te="✅ ఆరోగ్యకరమైన పంట" data-hi="✅ स्वस्थ फसल">✅ Healthy Crop Status</span>
+                </span>
+                {% else %}
+                <span id="statusBadgeDisplay" style="background: #fef2f2; color: #991b1b; border: 2px solid #f87171; font-size: 14.5px; padding: 8px 20px; border-radius: 20px; font-weight: 800;">
+                    <span class="lang-text" data-en="⚠️ Active Infection Detected" data-te="⚠️ తెగులు సోకినట్లు నిర్ధారణ అయింది" data-hi="⚠️ सक्रिय संक्रमण पाया गया">⚠️ Active Infection Detected</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- VOICE NARRATOR AUDIO PLAYER -->
+        <div style="background: linear-gradient(135deg, #f0fdf4, #e0f2fe); border: 1px solid #7dd3fc; border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="font-size: 30px; background: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);">
+                    🔊
+                </div>
+                <div>
+                    <strong style="color: var(--forest); font-size: 14.5px; display: block;">
+                        <span class="lang-text" data-en="Voice Audio Narration (Telugu / Hindi / English)" data-te="వాయిస్ అసిస్టెంట్ — ఆడియో ద్వారా నివారణలు వినండి" data-hi="आवाज सहायक — सावधानियां व उपचार बोलकर सुनें">
+                            Voice Audio Narration (Telugu / Hindi / English)
+                        </span>
+                    </strong>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                        <span class="lang-text" data-en="Listen to symptoms and exact chemical / organic spray remedies read aloud" data-te="లక్షణాలు మరియు సేంద్రీయ/రసాయన మందుల పిచికారీ వివరాలను ఆడియో ద్వారా వినండి" data-hi="लक्षण और कीटनाशक छिड़काव की सही मात्रा को अपनी भाषा में सुनें">
+                            Listen to symptoms and exact chemical / organic spray remedies read aloud
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Buttons -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="btn btn-primary" id="btnPlayVoice" onclick="playVoiceNarration()" style="display: flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 14px; font-weight: 700;">
+                    ▶️ <span class="lang-text" data-en="Listen Now" data-te="వినండి (Play)" data-hi="सुनें (Play)">Listen Now</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnPauseVoice" onclick="pauseVoiceNarration()" style="display: none; padding: 8px 14px; font-size: 13px;">
+                    ⏸️ Pause
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnStopVoice" onclick="stopVoiceNarration()" style="display: none; padding: 8px 14px; font-size: 13px;">
+                    ⏹️ Stop
+                </button>
+            </div>
+        </div>
+
+        <!-- PHOTO DISPLAY -->
+        {% if selected_disease.uploaded_image_url %}
+        <div style="background: #f0fdf4; padding: 14px; border-radius: var(--radius-md); border: 2px solid #86efac; text-align: center; margin-bottom: 22px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: var(--forest); text-transform: uppercase; margin-bottom: 8px;">
+                📸 <span class="lang-text" data-en="Your Analyzed Leaf Photo" data-te="మీరు స్కాన్ / అప్‌లోడ్ చేసిన ఆకు చిత్రం" data-hi="आपकी विश्लेषित पत्ती की फोटो">Your Analyzed Leaf Photo</span>
+            </div>
+            <img src="{{ selected_disease.uploaded_image_url }}" alt="Uploaded Leaf" style="width: 100%; max-width: 400px; max-height: 240px; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); border: 1px solid #bbf7d0; margin: 0 auto; display: block;">
+        </div>
+        {% elif selected_disease.sample_image %}
+        <div style="background: #f8fafc; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; margin-bottom: 22px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">
+                🔬 <span class="lang-text" data-en="Reference Pathology Specimen" data-te="లాబొరేటరీ నమూనా చిత్రం" data-hi="संदर्भ प्रयोगशाला नमूना">Reference Pathology Specimen</span>
+            </div>
+            <img src="{{ selected_disease.sample_image }}" alt="{{ selected_disease.disease_name }}" style="width: 100%; max-width: 400px; max-height: 240px; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin: 0 auto; display: block;">
+        </div>
+        {% endif %}
+
+        <!-- 1. SYMPTOMS SECTION -->
+        <div style="margin-bottom: 22px;">
+            <h4 style="font-size: 15.5px; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <span>🔍</span> 
+                <span class="lang-text" data-en="Visual Symptoms & Disease Indicators" data-te="స్పష్టమైన వ్యాధి లక్షణాలు" data-hi="दृश्य लक्षण और रोग के संकेत">
+                    Visual Symptoms & Disease Indicators
+                </span>
+            </h4>
+            <div id="symptomsTextDisplay" style="background: #fffbeb; border-left: 5px solid #f59e0b; padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 14px; color: #78350f; line-height: 1.6; font-weight: 500;">
+                <span class="lang-text"
+                      data-en="{{ selected_disease.translations.en.symptoms if selected_disease.translations else selected_disease.symptoms }}"
+                      data-te="{{ selected_disease.translations.te.symptoms if selected_disease.translations else selected_disease.symptoms }}"
+                      data-hi="{{ selected_disease.translations.hi.symptoms if selected_disease.translations else selected_disease.symptoms }}">
+                    {{ selected_disease.symptoms }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 2. TREATMENT & PRECAUTIONS PROTOCOLS (ORGANIC & CHEMICAL) -->
+        <div class="form-grid-2" style="gap: 20px; margin-bottom: 22px;">
+            <!-- Organic Remedies -->
+            <div style="background: #ecfdf5; border: 2px solid #86efac; border-radius: var(--radius-md); padding: 18px;">
+                <h4 style="font-size: 15px; color: var(--forest); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                    <span>🌿</span> 
+                    <span class="lang-text" data-en="Organic & Biological Remedies" data-te="సేంద్రీయ & సహజ నివారణ మందులు" data-hi="जैविक व प्राकृतिक उपचार">
+                        Organic & Biological Remedies
+                    </span>
+                </h4>
+                <p id="organicTextDisplay" style="font-size: 13.5px; color: #065f46; line-height: 1.6; margin: 0; font-weight: 500;">
+                    <span class="lang-text"
+                          data-en="{{ selected_disease.translations.en.organic_remedies if selected_disease.translations else selected_disease.organic_remedies }}"
+                          data-te="{{ selected_disease.translations.te.organic_remedies if selected_disease.translations else selected_disease.organic_remedies }}"
+                          data-hi="{{ selected_disease.translations.hi.organic_remedies if selected_disease.translations else selected_disease.organic_remedies }}">
+                        {{ selected_disease.organic_remedies }}
+                    </span>
+                </p>
+            </div>
+
+            <!-- Chemical Controls -->
+            <div style="background: #eff6ff; border: 2px solid #93c5fd; border-radius: var(--radius-md); padding: 18px;">
+                <h4 style="font-size: 15px; color: #1e40af; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                    <span>🧪</span> 
+                    <span class="lang-text" data-en="Chemical Spray & Exact Dosage" data-te="రసాయన మందులు & పిచికారీ మోతాదు" data-hi="कीटनाशक छिड़काव व सटीक खुराक">
+                        Chemical Spray & Exact Dosage
+                    </span>
+                </h4>
+                <p id="chemicalTextDisplay" style="font-size: 13.5px; color: #1e3a8a; line-height: 1.6; margin: 0; font-weight: 500;">
+                    <span class="lang-text"
+                          data-en="{{ selected_disease.translations.en.chemical_controls if selected_disease.translations else selected_disease.chemical_controls }}"
+                          data-te="{{ selected_disease.translations.te.chemical_controls if selected_disease.translations else selected_disease.chemical_controls }}"
+                          data-hi="{{ selected_disease.translations.hi.chemical_controls if selected_disease.translations else selected_disease.chemical_controls }}">
+                        {{ selected_disease.chemical_controls }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. PREVENTIVE FARM PRACTICES -->
+        <div style="margin-bottom: 20px;">
+            <h4 style="font-size: 15px; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <span>🛡️</span> 
+                <span class="lang-text" data-en="Preventive Farm Care & Practices" data-te="ముందస్తు జాగ్రత్తలు & సాగు పద్ధతులు" data-hi="निवारक कृषि देखभाल व सावधानियां">
+                    Preventive Farm Care & Practices
+                </span>
+            </h4>
+            <div id="preventionTextDisplay" style="background: #f8fafc; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: var(--radius-md); font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+                <span class="lang-text"
+                      data-en="{{ selected_disease.translations.en.prevention if selected_disease.translations else selected_disease.prevention }}"
+                      data-te="{{ selected_disease.translations.te.prevention if selected_disease.translations else selected_disease.prevention }}"
+                      data-hi="{{ selected_disease.translations.hi.prevention if selected_disease.translations else selected_disease.prevention }}">
+                    {{ selected_disease.prevention }}
+                </span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+            <a href="{{ url_for('assistant_page') }}?prompt=What+are+the+best+treatment+precautions+for+{{ selected_disease.plant_name }}+{{ selected_disease.disease_name }}?" class="btn btn-primary btn-sm">
+                🤖 <span class="lang-text" data-en="Ask AI Assistant about this Disease" data-te="AI అసిస్టెంట్‌ను మరింత సమాచారం అడగండి" data-hi="AI सहायक से इस रोग के बारे में पूछें">Ask AI Assistant about this Disease</span>
+            </a>
+            <a href="{{ url_for('disease_page') }}" class="btn btn-secondary btn-sm">
+                🔄 <span class="lang-text" data-en="Scan Another Leaf" data-te="మరో ఆకును స్కాన్ చేయండి" data-hi="दूसरी पत्ती स्कैन करें">Scan Another Leaf</span>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ==========================================
+         FARMER REGISTERED CROPS DISEASE & PESTICIDE INTELLIGENCE SECTION
+         ========================================== -->
+    <div class="card" style="margin-bottom: 28px; border: 1.5px solid #86efac; background: linear-gradient(135deg, #f0fdf4, #ffffff); box-shadow: var(--shadow-sm);">
+        <div class="card-header" style="border-bottom-color: #dcfce7; background: transparent; padding-bottom: 12px;">
+            <div class="card-title" style="color: var(--forest); font-size: 16px;">
+                <span>🌾</span> 
+                <span class="lang-text" 
+                      data-en="Your Farm Standing Crops — Disease Threats & Spray Dosages" 
+                      data-te="మీ పొలంలో సాగుచేస్తున్న పంటల రక్షణ & నివారణ మందులు" 
+                      data-hi="आपकी फसलों के रोग व कीटनाशक सुरक्षा">
+                    Your Farm Standing Crops — Disease Threats & Spray Dosages
+                </span>
+            </div>
+            <span class="badge-ready" style="padding: 3px 12px; font-size: 11.5px; border-radius: 12px;">
+                {% if farms %}🏡 {{ farms|length }} Active Farm(s){% else %}🌱 Common Crops{% endif %}
+            </span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            <span class="lang-text"
+                  data-en="Select any crop below to view potential field pathogens, symptoms, exact chemical spray dosages (ml/L), and biological treatments calibrated to ICAR standards."
+                  data-te="మీ పంటను ఎంచుకుని వ్యాధి లక్షణాలు, రసాయన మందుల పిచికారీ మోతాదు (మి.లీ/లీ) మరియు సేంద్రీయ నివారణలను తక్షణమే తెలుసుకోండి."
+                  data-hi="अपनी फसल का चयन करें और रोग लक्षण, कीटनाशक छिड़काव की सही मात्रा व जैविक उपचार देखें।">
+                Select any crop below to view potential field pathogens, symptoms, exact chemical spray dosages (ml/L), and biological treatments calibrated to ICAR standards.
+            </span>
+        </p>
+
+        <!-- Crop Filter Tab Pills -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;">
+            {% for crop in farmer_crops %}
+            <button type="button" class="btn btn-sm crop-tab-btn {% if loop.first %}btn-primary{% else %}btn-secondary{% endif %}" 
+                    onclick="switchCropTab('{{ crop|lower }}', this)" 
+                    id="tab-{{ crop|lower }}"
+                    style="font-weight: 700; border-radius: 20px; padding: 6px 16px; font-size: 13px;">
+                🌱 {{ crop }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Crop Disease Accordions / Cards -->
+        {% for crop, diseases in crop_advisories.items() %}
+        <div class="crop-disease-panel" id="panel-{{ crop|lower }}" style="{% if not loop.first %}display: none;{% endif %}">
+            <h4 style="font-size: 14.5px; color: var(--forest); margin-bottom: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span>🛡️</span> {{ crop }} — Common Field Pathogens & Protection Protocols
+            </h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                {% for d in diseases %}
+                <div style="background: #ffffff; border: 1.5px solid {% if d.badge_color == 'danger' %}#fca5a5{% else %}#fde047{% endif %}; border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                        <div>
+                            <h4 style="font-size: 15.5px; font-weight: 800; color: #1e293b; margin: 0;">
+                                <span class="lang-text"
+                                      data-en="{{ d.disease_name_en }}"
+                                      data-te="{{ d.disease_name_te }}"
+                                      data-hi="{{ d.disease_name_hi }}">
+                                    {{ d.disease_name_en }}
+                                </span>
+                            </h4>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                                Pathogen: <strong>{{ d.pathogen }}</strong>
+                            </div>
+                        </div>
+                        <span style="background: {% if d.badge_color == 'danger' %}#fee2e2; color: #991b1b; border: 1px solid #f87171;{% else %}#fef9c3; color: #854d0e; border: 1px solid #facc15;{% endif %} padding: 3px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700;">
+                            ⚠️ {{ d.threat_level }}
+                        </span>
+                    </div>
+
+                    <!-- Symptoms -->
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 13px; color: #78350f; margin-bottom: 12px; line-height: 1.5;">
+                        <strong>🔍 <span class="lang-text" data-en="Diagnostic Symptoms:" data-te="వ్యాధి లక్షణాలు:" data-hi="లక్షణ:">Diagnostic Symptoms:</span></strong>
+                        <span class="lang-text"
+                              data-en="{{ d.symptoms_en }}"
+                              data-te="{{ d.symptoms_te }}"
+                              data-hi="{{ d.symptoms_hi }}">
+                            {{ d.symptoms_en }}
+                        </span>
+                    </div>
+
+                    <div class="form-grid-2" style="gap: 12px; margin-bottom: 10px;">
+                        <!-- Chemical Spray Dosage -->
+                        <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: var(--radius-sm); padding: 12px;">
+                            <div style="font-size: 13px; font-weight: 800; color: #1e40af; margin-bottom: 4px;">
+                                🧪 <span class="lang-text" data-en="Chemical Spray Dosage" data-te="రసాయన మందుల పిచికారీ మోతాదు" data-hi="कीटनाशक छिड़काव व खुराक">Chemical Spray Dosage</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: #1e3a8a; line-height: 1.5;">
+                                <span class="lang-text"
+                                      data-en="{{ d.chemical_precautions_en }}"
+                                      data-te="{{ d.chemical_precautions_te }}"
+                                      data-hi="{{ d.chemical_precautions_hi }}">
+                                    {{ d.chemical_precautions_en }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Organic Remedies -->
+                        <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: var(--radius-sm); padding: 12px;">
+                            <div style="font-size: 13px; font-weight: 800; color: #065f46; margin-bottom: 4px;">
+                                🌿 <span class="lang-text" data-en="Organic & Biological Remedies" data-te="సేంద్రీయ & సహజ నివారణలు" data-hi="जैविक व प्राकृतिक उपचार">Organic & Biological Remedies</span>
+                            </div>
+                            <div style="font-size: 12.5px; color: #064e3b; line-height: 1.5;">
+                                <span class="lang-text"
+                                      data-en="{{ d.organic_precautions_en }}"
+                                      data-te="{{ d.organic_precautions_te }}"
+                                      data-hi="{{ d.organic_precautions_hi }}">
+                                    {{ d.organic_precautions_en }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prevention -->
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                        <strong>🛡️ <span class="lang-text" data-en="Field Prevention:" data-te="ముందస్తు జాగ్రత్తలు:" data-hi="సాवधानियां:">Field Prevention:</span></strong>
+                        <span class="lang-text"
+                              data-en="{{ d.preventive_measures_en }}"
+                              data-te="{{ d.preventive_measures_te }}"
+                              data-hi="{{ d.preventive_measures_hi }}">
+                            {{ d.preventive_measures_en }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ==========================================
+         USER RECENT SCAN HISTORY
+         ========================================== -->
+    {% if lookup_history %}
+    <div class="card" style="margin-bottom: 28px;">
+        <div class="card-header">
+            <div class="card-title">
+                <span>📜</span> 
+                <span class="lang-text" data-en="Your Recent Leaf Scans & Lookups" data-te="మీ ఇటీవలి ఆకు స్కాన్‌లు & ఫలితాలు" data-hi="आपके हालिया स्कैन और परिणाम">
+                    Your Recent Leaf Scans & Lookups
+                </span>
+            </div>
+            <span style="font-size: 12px; color: var(--text-secondary);">Logged User History</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><span class="lang-text" data-en="Timestamp" data-te="తేదీ & సమయం" data-hi="समय">Timestamp</span></th>
+                        <th><span class="lang-text" data-en="Crop" data-te="పంట" data-hi="फसल">Crop</span></th>
+                        <th><span class="lang-text" data-en="Diagnosed Disease" data-te="గుర్తించిన వ్యాధి" data-hi="पहचाना गया रोग">Diagnosed Disease</span></th>
+                        <th><span class="lang-text" data-en="Action" data-te="చర్య" data-hi="कार्य">Action</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lookup_history %}
+                    <tr>
+                        <td style="font-size: 12.5px; color: var(--text-secondary);">{{ item.created_at[:16] }}</td>
+                        <td><strong>{{ item.plant_name }}</strong></td>
+                        <td>{{ item.disease_name }}</td>
+                        <td>
+                            <a href="{{ url_for('disease_page', selected_class=item.class_name) }}" class="btn btn-secondary btn-sm" style="padding: 3px 10px; font-size: 12px;">
+                                <span class="lang-text" data-en="View Precautions →" data-te="నివారణలు చూడండి →" data-hi="సాवधानियां देखें →">View Precautions →</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- ==========================================
+     AI DIAGNOSIS PROCESSING LOADING OVERLAY
+     ========================================== -->
+<div id="aiLoadingOverlay" class="ai-loading-overlay" style="display: none;">
+    <div class="ai-loading-card">
+        <div class="ai-loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-icon">🔬</div>
+        </div>
+        <h3 style="font-size: 18px; font-weight: 800; color: #1e293b; margin: 16px 0 6px 0;">
+            <span class="lang-text" data-en="AI Leaf Pathology Analysis in Progress..." data-te="AI ఆకు వ్యాధి విశ్లేషణ జరుగుతోంది..." data-hi="AI पत्ती रोग विश्लेषण प्रगति पर है...">
+                AI Leaf Pathology Analysis in Progress...
+            </span>
+        </h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">
+            <span class="lang-text" data-en="Scanning cellular lesion patterns, matching with 38 ICAR disease classes & calculating chemical spray dosage..." data-te="ఆకు కణజాల లక్షణాలను స్కాన్ చేసి, 38 ICAR వ్యాధులతో సరిపోల్చి పిచికారీ మోతాదును లెక్కిస్తోంది..." data-hi="पत्ती के घावों को स्कैन कर 38 ICAR रोग वर्गों से मिलान और कीटनाशक खुराक की गणना की जा रही है...">
+                Scanning cellular lesion patterns, matching with 38 ICAR disease classes & calculating chemical spray dosage...
+            </span>
+        </p>
+        <div class="loading-progress-bar">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     CSS STYLES & ANIMATIONS
+     ========================================== -->
+<style>
+/* Animations */
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes laserSweep {
+    0% { top: 0%; opacity: 0.8; }
+    50% { top: 92%; opacity: 1; }
+    100% { top: 0%; opacity: 0.8; }
+}
+
+@keyframes progressMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+
+/* Viewfinder & Laser Overlay */
+.scanner-laser {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
+    box-shadow: 0 0 12px 3px rgba(16, 185, 129, 0.8);
+    animation: laserSweep 2.5s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.viewfinder-reticle {
+    position: absolute;
+    inset: 20px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.viewfinder-reticle .corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: #34d399;
+    border-style: solid;
+    border-width: 0;
+}
+
+.viewfinder-reticle .top-left {
+    top: 0;
+    left: 0;
+    border-top-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 6px;
+}
+
+.viewfinder-reticle .top-right {
+    top: 0;
+    right: 0;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-top-right-radius: 6px;
+}
+
+.viewfinder-reticle .bottom-left {
+    bottom: 0;
+    left: 0;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-bottom-left-radius: 6px;
+}
+
+.viewfinder-reticle .bottom-right {
+    bottom: 0;
+    right: 0;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-bottom-right-radius: 6px;
+}
+
+.viewfinder-reticle .aim-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: rgba(52, 211, 153, 0.4);
+}
+
+/* Upload Dropzone */
+.upload-dropzone {
+    border: 2px dashed #86efac;
+    background: linear-gradient(135deg, #f0fdf4, #ffffff);
+    border-radius: var(--radius-md);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--forest);
+    background: #ecfdf5;
+    transform: scale(1.01);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+
+/* Sample cards */
+.sample-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--forest);
+    box-shadow: var(--shadow-md);
+}
+
+/* AI Loading Overlay */
+.ai-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.ai-loading-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    border: 2px solid #86efac;
+}
+
+.ai-loading-spinner {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+}
+
+.spinner-ring {
+    position: absolute;
+    inset: 0;
+    border: 4px solid #dcfce7;
+    border-top-color: var(--forest);
+    border-radius: 50%;
+    animation: spinRing 1s linear infinite;
+}
+
+.spinner-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+@keyframes spinRing {
+    to { transform: rotate(360deg); }
+}
+
+.loading-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loading-progress-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 45%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 3px;
+    animation: progressMove 1.5s infinite ease-in-out;
+}
+</style>
+
+<!-- ==========================================
+     JAVASCRIPT: CAMERA, UPLOAD, AUDIO & TABS
+     ========================================== -->
+<script>
+let cameraStream = null;
+let currentFacingMode = 'environment';
+let synth = window.speechSynthesis;
+let currentUtterance = null;
+
+const audioScripts = {% if selected_disease and selected_disease.audio_text %}{{ selected_disease.audio_text|tojson }}{% else %}null{% endif %};
+
+// 1. Switch Scanner Mode (Camera vs File Upload vs Gallery)
+function switchScanMode(mode) {
+    // Buttons
+    document.querySelectorAll('.mode-tab-btn').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+    });
+
+    // Content sections
+    document.querySelectorAll('.scan-mode-content').forEach(sec => sec.style.display = 'none');
+
+    if (mode === 'camera') {
+        const btn = document.getElementById('tabModeCamera');
+        if (btn) { btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+        const sec = document.getElementById('modeCameraSection');
+        if (sec) sec.style.display = 'block';
+    } else if (mode === 'upload') {
+        stopCameraStream();
+        const btn = document.getElementById('tabModeUpload');
+        if (btn) { btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+        const sec = document.getElementById('modeUploadSection');
+        if (sec) sec.style.display = 'block';
+    } else if (mode === 'gallery') {
+        stopCameraStream();
+        const btn = document.getElementById('tabModeGallery');
+        if (btn) { btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+        const sec = document.getElementById('modeGallerySection');
+        if (sec) sec.style.display = 'block';
+    }
+}
+
+// 2. Camera Stream Management
+async function startCameraStream() {
+    const video = document.getElementById('videoElement');
+    const startBox = document.getElementById('cameraStartBox');
+    const liveBox = document.getElementById('cameraLiveBox');
+    const previewContainer = document.getElementById('capturedPreviewContainer');
+    const errorBox = document.getElementById('cameraErrorBox');
+
+    if (errorBox) errorBox.style.display = 'none';
+    if (previewContainer) previewContainer.style.display = 'none';
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showCameraError("Camera access is not supported by your current browser or device.");
+        return;
+    }
+
+    try {
+        if (cameraStream) {
+            stopCameraStream();
+        }
+
+        const constraints = {
+            video: {
+                facingMode: { ideal: currentFacingMode },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        };
+
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = cameraStream;
+        await video.play();
+
+        if (startBox) startBox.style.display = 'none';
+        if (liveBox) liveBox.style.display = 'block';
+    } catch (err) {
+        console.error("Camera access error:", err);
+        let msg = "Could not access camera. Please allow camera permissions in your browser address bar.";
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            msg = "Camera permission was denied. Please click the camera/lock icon in your browser URL bar and allow Camera access.";
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            msg = "No camera hardware detected on this device. You can upload a photo from your gallery instead.";
+        }
+        showCameraError(msg);
+    }
+}
+
+function showCameraError(msg) {
+    const errorBox = document.getElementById('cameraErrorBox');
+    const errorMsg = document.getElementById('cameraErrorMessage');
+    if (errorMsg) errorMsg.innerText = msg;
+    if (errorBox) errorBox.style.display = 'block';
+    const startBox = document.getElementById('cameraStartBox');
+    if (startBox) startBox.style.display = 'block';
+    const liveBox = document.getElementById('cameraLiveBox');
+    if (liveBox) liveBox.style.display = 'none';
+}
+
+function stopCameraStream() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    const startBox = document.getElementById('cameraStartBox');
+    const liveBox = document.getElementById('cameraLiveBox');
+    if (startBox) startBox.style.display = 'block';
+    if (liveBox) liveBox.style.display = 'none';
+}
+
+function toggleCameraFacing() {
+    currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+    startCameraStream();
+}
+
+// 3. Photo Snapshot Capture
+function capturePhoto() {
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('photoCanvas');
+    const capturedImg = document.getElementById('capturedImage');
+    const previewContainer = document.getElementById('capturedPreviewContainer');
+    const liveBox = document.getElementById('cameraLiveBox');
+    const fileInput = document.getElementById('cameraFileInput');
+    const base64Input = document.getElementById('cameraImageBase64');
+
+    if (!video || !canvas) return;
+
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    if (capturedImg) capturedImg.src = dataUrl;
+    if (base64Input) base64Input.value = dataUrl;
+
+    // Also populate standard File Object via DataTransfer if supported
+    try {
+        canvas.toBlob((blob) => {
+            if (blob && fileInput) {
+                const file = new File([blob], "camera_leaf_scan.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            }
+        }, 'image/jpeg', 0.92);
+    } catch (e) {
+        console.warn("DataTransfer not supported, base64 payload will be used.", e);
+    }
+
+    stopCameraStream();
+    if (liveBox) liveBox.style.display = 'none';
+    if (previewContainer) previewContainer.style.display = 'block';
+}
+
+function retakePhoto() {
+    const previewContainer = document.getElementById('capturedPreviewContainer');
+    if (previewContainer) previewContainer.style.display = 'none';
+    const base64Input = document.getElementById('cameraImageBase64');
+    if (base64Input) base64Input.value = '';
+    startCameraStream();
+}
+
+// 4. File Upload & Drag-and-Drop Handling
+const dropZone = document.getElementById('dropZone');
+if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('dragover');
+        }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+            const fileInput = document.getElementById('leafFileInput');
+            if (fileInput) {
+                fileInput.files = files;
+                handleFileSelect(fileInput);
+            }
+        }
+    }, false);
+}
+
+function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const previewBox = document.getElementById('uploadPreviewBox');
+            const previewImg = document.getElementById('uploadPreviewImg');
+            const previewName = document.getElementById('uploadPreviewName');
+            const previewSize = document.getElementById('uploadPreviewSize');
+            if (previewImg) previewImg.src = e.target.result;
+            if (previewName) previewName.textContent = file.name;
+            const sizeStr = file.size > 1024 * 1024 
+                ? (file.size / (1024 * 1024)).toFixed(2) + " MB" 
+                : (file.size / 1024).toFixed(1) + " KB";
+            if (previewSize) previewSize.textContent = "Size: " + sizeStr;
+            if (previewBox) previewBox.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function clearUploadSelection() {
+    const fileInput = document.getElementById('leafFileInput');
+    if (fileInput) fileInput.value = "";
+    const previewBox = document.getElementById('uploadPreviewBox');
+    if (previewBox) previewBox.style.display = 'none';
+}
+
+function showAiLoading() {
+    const overlay = document.getElementById('aiLoadingOverlay');
+    if (overlay) overlay.style.display = 'flex';
+}
+
+// 5. Speech Synthesis (Audio Narration)
+function playVoiceNarration() {
+    if (!synth) {
+        alert("Speech synthesis is not supported on your browser.");
+        return;
+    }
+    if (synth.speaking) {
+        synth.resume();
+        showVoicePlayingUI();
+        return;
+    }
+
+    const currentLang = localStorage.getItem('agri_lang') || 'en';
+    let textToSpeak = "";
+
+    if (audioScripts && audioScripts[currentLang]) {
+        textToSpeak = audioScripts[currentLang];
+    } else {
+        const symptoms = document.getElementById('symptomsTextDisplay')?.innerText || "";
+        const organic = document.getElementById('organicTextDisplay')?.innerText || "";
+        const chemical = document.getElementById('chemicalTextDisplay')?.innerText || "";
+        textToSpeak = `Symptoms: ${symptoms}. Organic remedies: ${organic}. Chemical controls: ${chemical}.`;
+    }
+
+    currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
+    if (currentLang === 'te') {
+        currentUtterance.lang = 'te-IN';
+    } else if (currentLang === 'hi') {
+        currentUtterance.lang = 'hi-IN';
+    } else {
+        currentUtterance.lang = 'en-US';
+    }
+    currentUtterance.rate = 0.9;
+
+    currentUtterance.onend = () => resetVoiceUI();
+    currentUtterance.onerror = () => resetVoiceUI();
+
+    synth.speak(currentUtterance);
+    showVoicePlayingUI();
+}
+
+function pauseVoiceNarration() {
+    if (synth && synth.speaking) {
+        synth.pause();
+        const btnPlay = document.getElementById('btnPlayVoice');
+        const btnPause = document.getElementById('btnPauseVoice');
+        if (btnPlay) btnPlay.style.display = 'inline-flex';
+        if (btnPause) btnPause.style.display = 'none';
+    }
+}
+
+function stopVoiceNarration() {
+    if (synth) {
+        synth.cancel();
+        resetVoiceUI();
+    }
+}
+
+function showVoicePlayingUI() {
+    const btnPlay = document.getElementById('btnPlayVoice');
+    const btnPause = document.getElementById('btnPauseVoice');
+    const btnStop = document.getElementById('btnStopVoice');
+    if (btnPlay) btnPlay.style.display = 'none';
+    if (btnPause) btnPause.style.display = 'inline-flex';
+    if (btnStop) btnStop.style.display = 'inline-flex';
+}
+
+function resetVoiceUI() {
+    const btnPlay = document.getElementById('btnPlayVoice');
+    const btnPause = document.getElementById('btnPauseVoice');
+    const btnStop = document.getElementById('btnStopVoice');
+    if (btnPlay) btnPlay.style.display = 'inline-flex';
+    if (btnPause) btnPause.style.display = 'none';
+    if (btnStop) btnStop.style.display = 'none';
+}
+
+function switchCropTab(crop, btn) {
+    document.querySelectorAll('.crop-tab-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-secondary');
+    });
+    if (btn) {
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+    }
+    document.querySelectorAll('.crop-disease-panel').forEach(p => p.style.display = 'none');
+    const panel = document.getElementById('panel-' + crop);
+    if (panel) panel.style.display = 'block';
+}
+
+// Auto-scroll to results if specimen is diagnosed
+document.addEventListener('DOMContentLoaded', () => {
+    const detailCard = document.getElementById('diseaseDetailCard');
+    if (detailCard) {
+        setTimeout(() => {
+            detailCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+    }
+});
+</script>
+{% endblock %}

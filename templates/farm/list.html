@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}My Farms & Agricultural Holdings — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Farm Holdings & Intelligence Hub" data-te="నా పొలాలు & వ్యవసాయ ఇంటెలిజెన్స్ హబ్" data-hi="खेत प्रबंधन व इंटेलिजेंस हब">Farm Holdings & Intelligence Hub</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Your registered land parcels automatically power AI crop recommendations, harvest yields, local weather, and mandi revenue" data-te="మీ నమోదిత పొలాల వివరాల ఆధారంగా AI పంట సిఫార్సులు, దిగుబడి, స్థానిక వాతావరణం మరియు మార్కెట్ ధరలు ఆటోమేటిక్‌గా రూపొందుతాయి" data-hi="आपके पंजीकृत खेतों के आधार पर AI फसल सिफारिश, उपज, स्थानीय मौसम और मंडी आय स्वतः तैयार होती है">Your registered land parcels automatically power AI crop recommendations, harvest yields, local weather, and mandi revenue</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-title">
+            <span>🏡</span> <span class="lang-text" data-en="Registered Farm Holdings" data-te="నమోదైన పొలాలు" data-hi="पंजीकृत खेत">Registered Farm Holdings</span> ({{ farms|length }})
+        </div>
+        <a href="{{ url_for('farm_add') }}" class="btn btn-primary btn-sm" style="font-weight: 700;">
+            <span class="lang-text" data-en="➕ Add New Farm" data-te="➕ కొత్త పొలాన్ని చేర్చండి" data-hi="➕ नया खेत जोड़ें">➕ Add New Farm</span>
+        </a>
+    </div>
+
+    {% if farms %}
+    <!-- Farm Cards Grid: 1-Click Intelligence Actionable View -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; padding: 4px 0 20px 0;">
+        {% for f in farms %}
+        <div style="background: #ffffff; border: 1.5px solid #bfdbfe; border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+            <div>
+                <!-- Top Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #1e3a8a; margin: 0;">
+                            {{ f.farm_name }}
+                        </h3>
+                        <div style="font-size: 13px; color: #475569; margin-top: 3px;">
+                            📍 {{ f.location }}, <strong>{{ f.district }}, {{ f.state }}</strong>
+                        </div>
+                    </div>
+                    <span style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 12px; border: 1px solid #bfdbfe;">
+                        {{ f.land_area }} <span class="lang-text" data-en="Acres" data-te="ఎకరాలు" data-hi="एकड़">Acres</span>
+                    </span>
+                </div>
+
+                <!-- Farm Specs Chips -->
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px 0;">
+                    <span style="background: #f1f5f9; color: #334155; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        🌱 <span class="lang-text" data-en="Soil:" data-te="నేల:" data-hi="मिट्टी:">Soil:</span> <strong>{{ f.soil_type }}</strong>
+                    </span>
+                    <span style="background: #f1f5f9; color: #334155; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        💧 <span class="lang-text" data-en="Irrigation:" data-te="సాగునీరు:" data-hi="सिंचाई:">Irrigation:</span> <strong>{{ f.irrigation_type }}</strong>
+                    </span>
+                    {% if f.current_crop %}
+                    <span style="background: #dcfce7; color: #166534; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                        🌾 <span class="lang-text" data-en="Current Crop:" data-te="ప్రస్తుత పంట:" data-hi="वर्तमान फसल:">Current Crop:</span> <strong>{{ f.current_crop }}</strong>
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if f.description %}
+                <p style="font-size: 12.5px; color: #64748b; margin-bottom: 16px; line-height: 1.4;">
+                    {{ f.description }}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- 1-Click Farm Intelligence Actions -->
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 14px; margin-top: 6px;">
+                <!-- Main 1-Click Full Advisory Deck Button -->
+                <a href="{{ url_for('farm_advisory_direct', farm_id=f.id) }}" class="btn btn-primary btn-block" style="font-weight: 800; padding: 9px 12px; margin-bottom: 8px; text-align: center; box-shadow: var(--shadow-sm); display: block;">
+                    ⚡ <span class="lang-text" data-en="1-Click Complete Farm Output (Slides)" data-te="1-క్లిక్ పూర్తి వ్యవసాయ నివేదిక (స్లైడ్స్)" data-hi="1-क्लिक संपूर्ण खेत रिपोर्ट (स्लाइड्स)">1-Click Complete Farm Output (Slides)</span>
+                </a>
+
+                <!-- Quick Individual Module Shortcuts -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+                    <a href="{{ url_for('weather_page', farm_id=f.id) }}" class="btn btn-secondary btn-sm" style="font-size: 12px; text-align: center; padding: 5px 6px;">
+                        🌤️ <span class="lang-text" data-en="Local Weather" data-te="వాతావరణం" data-hi="मौसम">Local Weather</span>
+                    </a>
+                    <a href="{{ url_for('disease_page') }}" class="btn btn-secondary btn-sm" style="font-size: 12px; text-align: center; padding: 5px 6px;">
+                        📸 <span class="lang-text" data-en="Disease Scanner" data-te="వ్యాధి స్కానర్" data-hi="रोग स्कैनर">Disease Scanner</span>
+                    </a>
+                </div>
+
+                <!-- Edit / Delete Controls -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <a href="{{ url_for('farm_edit', farm_id=f.id) }}" class="btn btn-outline btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                        ✏️ <span class="lang-text" data-en="Edit Details" data-te="సవరించు" data-hi="संपादित करें">Edit Details</span>
+                    </a>
+                    <a href="{{ url_for('farm_delete', farm_id=f.id) }}" class="btn btn-danger btn-sm confirm-delete" data-farm-name="{{ f.farm_name }}" style="font-size: 11.5px; padding: 3px 8px;">
+                        🗑️ <span class="lang-text" data-en="Delete" data-te="తొలగించు" data-hi="हटाएं">Delete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Collapsible Table View for Quick Overview -->
+    <details style="margin-top: 10px;">
+        <summary style="cursor: pointer; font-size: 13.5px; font-weight: 700; color: #1e40af; padding: 8px 0;">
+            📋 <span class="lang-text" data-en="View Tabular Comparison Summary" data-te="పట్టిక రూపంలో అన్ని పొలాల సారాంశం" data-hi="तालिका रूप में सभी खेतों का विवरण">View Tabular Comparison Summary</span>
+        </summary>
+        <div class="table-responsive" style="margin-top: 10px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><span class="lang-text" data-en="Farm Name" data-te="పొలం పేరు" data-hi="खेत का नाम">Farm Name</span></th>
+                        <th><span class="lang-text" data-en="Location" data-te="ప్రాంతం" data-hi="स्थान">Location</span></th>
+                        <th><span class="lang-text" data-en="State / District" data-te="రాష్ట్రం / జిల్లా" data-hi="राज्य / जिला">State / District</span></th>
+                        <th><span class="lang-text" data-en="Land Area" data-te="విస్తీర్ణం" data-hi="क्षेत्रफल">Land Area</span></th>
+                        <th><span class="lang-text" data-en="Soil Type" data-te="నేల రకం" data-hi="मिट्टी का प्रकार">Soil Type</span></th>
+                        <th><span class="lang-text" data-en="Irrigation" data-te="సాగునీరు" data-hi="सिंचाई">Irrigation</span></th>
+                        <th><span class="lang-text" data-en="Current Crop" data-te="ప్రస్తుత పంట" data-hi="वर्तमान फसल">Current Crop</span></th>
+                        <th><span class="lang-text" data-en="Quick Output" data-te="త్వరిత నివేదిక" data-hi="त्वरित रिपोर्ट">Quick Output</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in farms %}
+                    <tr>
+                        <td><strong>{{ f.farm_name }}</strong></td>
+                        <td>{{ f.location }}</td>
+                        <td>{{ f.district }}, {{ f.state }}</td>
+                        <td>{{ f.land_area }} <span class="lang-text" data-en="acres" data-te="ఎకరాలు" data-hi="एकड़">acres</span></td>
+                        <td><span class="badge-ready" style="padding: 2px 8px; border-radius: 10px;">{{ f.soil_type }}</span></td>
+                        <td>{{ f.irrigation_type }}</td>
+                        <td>{{ f.current_crop or '—' }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="{{ url_for('farm_advisory_direct', farm_id=f.id) }}" class="btn btn-primary btn-sm" style="padding: 4px 10px; font-weight: 700;">
+                                ⚡ <span class="lang-text" data-en="360° Output" data-te="పూర్తి నివేదిక" data-hi="पूर्ण रिपोर्ट">360° Output</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </details>
+
+    {% else %}
+    <div style="text-align: center; padding: 48px; color: var(--text-secondary);">
+        <div style="font-size: 42px; margin-bottom: 12px;">🏡</div>
+        <h3 class="lang-text" data-en="No Farms Registered Yet" data-te="ఇంకా ఎలాంటి పొలాలు నమోదు కాలేదు" data-hi="अभी तक कोई खेत पंजीकृत नहीं है">No Farms Registered Yet</h3>
+        <p style="font-size: 14px; margin-top: 6px; margin-bottom: 20px;" class="lang-text" data-en="Add your agricultural land parcels to track soil types, irrigation, and tailor crop recommendations." data-te="నేల రకాలు, సాగునీరు మరియు పంట సిఫార్సుల కోసం మీ పొలాలను నమోదు చేయండి." data-hi="मिट्टी के प्रकार, सिंचाई और सटीक फसल सिफारिशों के लिए अपने खेतों को पंजीकृत करें।">
+            Add your agricultural land parcels to track soil types, irrigation, and tailor crop recommendations.
+        </p>
+        <a href="{{ url_for('farm_add') }}" class="btn btn-primary">
+            <span class="lang-text" data-en="➕ Register Your First Farm" data-te="➕ మీ మొదటి పొలాన్ని నమోదు చేయండి" data-hi="➕ अपना पहला खेत पंजीकृत करें">➕ Register Your First Farm</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

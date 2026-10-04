@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}Unified Activity & Prediction History Hub — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Unified Farm History & Analytics Hub" data-te="సమగ్ర వ్యవసాయ రికార్డులు & చరిత్ర" data-hi="एकीकृत कृषि इतिहास और विश्लेषण केंद्र">Unified Farm History & Analytics Hub</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Comprehensive single-page record of all your Crop Recommendations, Yield Projections, and Disease Lookups" data-te="మీ పంట సిఫార్సులు, దిగుబడి అంచనాలు మరియు వ్యాధి పరిశోధనల సమగ్ర రికార్డులు" data-hi="आपकी सभी फसल सिफारिशों, उपज अनुमानों और रोग निदान का संपूर्ण रिकॉर्ड">Comprehensive single-page record of all your Crop Recommendations, Yield Projections, and Disease Lookups</span>
+{% endblock %}
+
+{% block content %}
+<!-- KPI Stats Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">🌱</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ crop_history|length }}</div>
+            <div class="stat-label">
+                <span class="lang-text" data-en="Crop Recommendations" data-te="పంట సిఫార్సు రికార్డులు" data-hi="फसल सिफारिश रिकॉर्ड्स">Crop Recommendations</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon amber">🌾</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ yield_history|length }}</div>
+            <div class="stat-label">
+                <span class="lang-text" data-en="Yield Simulations" data-te="దిగుబడి అంచనా రికార్డులు" data-hi="उपज सिमुलेशन रिकॉर्ड्स">Yield Simulations</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon blue">🔬</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ disease_history|length }}</div>
+            <div class="stat-label">
+                <span class="lang-text" data-en="Disease Lookups" data-te="వ్యాధి నిర్ధారణ శోధనలు" data-hi="रोग निदान खोजें">Disease Lookups</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">🏡</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ farms|length }}</div>
+            <div class="stat-label">
+                <span class="lang-text" data-en="Registered Farms" data-te="నమోదైన పొలాలు" data-hi="पंजीकृत खेत">Registered Farms</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main History Hub Card -->
+<div class="card" style="margin-bottom: 28px;">
+    
+    <!-- Controls Header: Tabs, Farm Filter & Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 20px;">
+        
+        <!-- Interactive Category Tabs -->
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-sm tab-btn active" id="tabAll" onclick="switchHistoryTab('all')" style="padding: 7px 14px; font-weight: 600;">
+                📋 <span class="lang-text" data-en="All Activities" data-te="అన్ని రికార్డులు" data-hi="सभी रिकॉर्ड्स">All Activities</span> ({{ crop_history|length + yield_history|length + disease_history|length }})
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm tab-btn" id="tabCrop" onclick="switchHistoryTab('crop')" style="padding: 7px 14px; font-weight: 600;">
+                🌱 <span class="lang-text" data-en="Crop Recommendations" data-te="పంట సిఫార్సులు" data-hi="फसल सिफारिशें">Crop Recs</span> ({{ crop_history|length }})
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm tab-btn" id="tabYield" onclick="switchHistoryTab('yield')" style="padding: 7px 14px; font-weight: 600;">
+                🌾 <span class="lang-text" data-en="Yield Simulations" data-te="దిగుబడి అంచనాలు" data-hi="उपज अनुमान">Yield Sims</span> ({{ yield_history|length }})
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm tab-btn" id="tabDisease" onclick="switchHistoryTab('disease')" style="padding: 7px 14px; font-weight: 600;">
+                🔬 <span class="lang-text" data-en="Disease Diagnoses" data-te="వ్యాధి శోధనలు" data-hi="रोग निदान">Disease Lookups</span> ({{ disease_history|length }})
+            </button>
+        </div>
+
+        <!-- Right Filter & Action Tools -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- Live Search -->
+            <input 
+                type="text" 
+                id="historySearchInput" 
+                class="form-control form-control-sm" 
+                placeholder="🔍 Search crop, farm, disease..." 
+                onkeyup="filterHistoryTables()" 
+                style="width: 220px; font-size: 13px;"
+            >
+
+            <!-- Farm Filter -->
+            <select id="farmFilterSelect" class="form-select form-select-sm" onchange="filterHistoryTables()" style="width: 190px; font-size: 13px;">
+                <option value="" data-en="-- All Farms --" data-te="-- అన్ని పొలాలు --" data-hi="-- सभी खेत --">-- All Farms --</option>
+                {% for f in farms %}
+                <option value="{{ f.farm_name|lower }}">{{ f.farm_name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Print / Export Button -->
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="padding: 6px 12px; font-size: 12.5px;">
+                🖨️ <span class="lang-text" data-en="Print / Save" data-te="ప్రింట్ / సేవ్" data-hi="प्रिंट / सेव">Print</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB 1: CROP RECOMMENDATIONS TABLE -->
+    <div id="sectionCropHistory" class="history-section" style="margin-bottom: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 16px; color: var(--forest); display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>🌱</span> 
+                <span class="lang-text" data-en="Crop Recommendation History" data-te="పంట సిఫార్సుల చరిత్ర" data-hi="फसल सिफारिश इतिहास">
+                    Crop Recommendation History
+                </span>
+            </h3>
+            <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm" style="font-size: 12px; padding: 4px 10px;">
+                + <span class="lang-text" data-en="New Crop Query" data-te="కొత్త పంట విశ్లేషణ" data-hi="नई फसल जांच">New Crop Query</span>
+            </a>
+        </div>
+
+        {% if crop_history %}
+        <div class="table-responsive">
+            <table class="table history-table" id="cropHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Associated Farm</th>
+                        <th>Soil N-P-K</th>
+                        <th>pH</th>
+                        <th>Climate (T / H / Rain)</th>
+                        <th>Recommended Crop</th>
+                        <th>Model Confidence</th>
+                        <th>Alternatives</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in crop_history %}
+                    <tr data-farm="{{ (item.farm_name or '')|lower }}" data-text="{{ item.predicted_crop|lower }} {{ (item.farm_name or '')|lower }} {{ item.n }} {{ item.p }} {{ item.k }}">
+                        <td style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">
+                            {{ item.created_at[:16] }}
+                        </td>
+                        <td>
+                            {% if item.farm_name %}
+                            <strong style="color: var(--text-primary);">🏡 {{ item.farm_name }}</strong>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 12px;">Standalone Soil Query</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ item.n }} - {{ item.p }} - {{ item.k }}</strong></td>
+                        <td>{{ item.ph }}</td>
+                        <td style="font-size: 12px;">
+                            {{ item.temperature }}°C | {{ item.humidity }}% | {{ item.rainfall }}mm
+                        </td>
+                        <td>
+                            <strong style="color: var(--forest); text-transform: capitalize; font-size: 14px;">
+                                🌱 {{ item.predicted_crop }}
+                            </strong>
+                        </td>
+                        <td>
+                            <span class="badge-ready" style="padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px;">
+                                {{ item.confidence_pct }}%
+                            </span>
+                        </td>
+                        <td style="font-size: 11.5px; color: var(--text-secondary);">
+                            {% if item.top_3 %}
+                                {% for alt in item.top_3 %}
+                                    <span style="text-transform: capitalize;">{{ alt.crop }} ({{ alt.confidence_pct }}%)</span>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="background: #f8fafc; border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-secondary);">
+            <p style="margin: 0 0 10px 0; font-size: 13.5px;">No crop recommendation records yet.</p>
+            <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm">🌱 Run Crop Soil Analysis</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TAB 2: YIELD PREDICTIONS TABLE -->
+    <div id="sectionYieldHistory" class="history-section" style="margin-bottom: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; margin-top: 14px;">
+            <h3 style="font-size: 16px; color: #92400e; display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>🌾</span> 
+                <span class="lang-text" data-en="Yield Simulation History" data-te="దిగుబడి అంచనాల చరిత్ర" data-hi="उपज सिमुलेशन इतिहास">
+                    Yield Simulation History
+                </span>
+            </h3>
+            <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm" style="font-size: 12px; padding: 4px 10px;">
+                + <span class="lang-text" data-en="New 360° Advisory" data-te="కొత్త 360° నివేదిక" data-hi="नया 360° सलाहकार">New 360° Advisory</span>
+            </a>
+        </div>
+
+        {% if yield_history %}
+        <div class="table-responsive">
+            <table class="table history-table" id="yieldHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Associated Farm</th>
+                        <th>Crop Variety</th>
+                        <th>Land Area</th>
+                        <th>Soil & Irrigation</th>
+                        <th>Season</th>
+                        <th>Inputs (Fert / Pest / Water)</th>
+                        <th>Estimated Output</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in yield_history %}
+                    <tr data-farm="{{ (item.farm_name or '')|lower }}" data-text="{{ item.crop_type|lower }} {{ (item.farm_name or '')|lower }} {{ item.soil_type|lower }} {{ item.season|lower }}">
+                        <td style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">
+                            {{ item.created_at[:16] }}
+                        </td>
+                        <td>
+                            {% if item.farm_name %}
+                            <strong style="color: var(--text-primary);">🏡 {{ item.farm_name }}</strong>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 12px;">Standalone Simulation</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>🌾 {{ item.crop_type }}</strong></td>
+                        <td>{{ item.farm_area }} acres</td>
+                        <td style="font-size: 12px;">{{ item.soil_type }} | {{ item.irrigation_type }}</td>
+                        <td>{{ item.season }}</td>
+                        <td style="font-size: 11.5px; color: var(--text-secondary);">
+                            {{ item.fertilizer_used }}t fert | {{ item.pesticide_used }}kg pest | {{ item.water_usage|int }}m³
+                        </td>
+                        <td>
+                            <strong style="color: #92400e; font-size: 14.5px;">
+                                {{ item.predicted_yield }} Tons
+                            </strong>
+                            <div style="font-size: 11px; color: var(--text-secondary);">
+                                ({{ item.yield_per_acre }} t/acre)
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="background: #f8fafc; border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-secondary);">
+            <p style="margin: 0 0 10px 0; font-size: 13.5px;">No yield simulation records yet.</p>
+            <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm">🌾 Launch 360° Farm Advisory</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TAB 3: DISEASE DIAGNOSES TABLE -->
+    <div id="sectionDiseaseHistory" class="history-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; margin-top: 14px;">
+            <h3 style="font-size: 16px; color: #1e40af; display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>🔬</span> 
+                <span class="lang-text" data-en="Disease Lookup & Diagnostics History" data-te="వ్యాధి నిర్ధారణల చరిత్ర" data-hi="रोग निदान इतिहास">
+                    Disease Lookup & Diagnostics History
+                </span>
+            </h3>
+            <a href="{{ url_for('disease_page') }}" class="btn btn-primary btn-sm" style="font-size: 12px; padding: 4px 10px;">
+                + <span class="lang-text" data-en="New Disease Query" data-te="వ్యాధి శోధన" data-hi="नई रोग जांच">New Disease Query</span>
+            </a>
+        </div>
+
+        {% if disease_history %}
+        <div class="table-responsive">
+            <table class="table history-table" id="diseaseHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Plant Species</th>
+                        <th>Diagnosed Disease</th>
+                        <th>Query Method</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in disease_history %}
+                    <tr data-farm="" data-text="{{ item.plant_name|lower }} {{ item.disease_name|lower }} {{ item.lookup_type|lower }}">
+                        <td style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">
+                            {{ item.created_at[:16] }}
+                        </td>
+                        <td><strong>{{ item.plant_name }}</strong></td>
+                        <td>
+                            <strong style="color: var(--text-primary);">
+                                {{ item.disease_name }}
+                            </strong>
+                        </td>
+                        <td>
+                            <span style="font-size: 11px; background: #f1f5f9; padding: 2px 8px; border-radius: 10px; font-weight: 600;">
+                                {{ item.lookup_type|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('disease_page', selected_class=item.class_name) }}" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 11.5px;">
+                                🔍 View Report →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="background: #f8fafc; border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-secondary);">
+            <p style="margin: 0 0 10px 0; font-size: 13.5px;">No disease lookup queries yet.</p>
+            <a href="{{ url_for('disease_page') }}" class="btn btn-primary btn-sm">🔬 Diagnose Plant Disease</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.tab-btn.active {
+    background: var(--forest) !important;
+    color: white !important;
+    border-color: var(--forest) !important;
+}
+</style>
+
+<script>
+// 1. History Tab Switcher
+function switchHistoryTab(tab) {
+    const secCrop = document.getElementById('sectionCropHistory');
+    const secYield = document.getElementById('sectionYieldHistory');
+    const secDisease = document.getElementById('sectionDiseaseHistory');
+
+    const tabAll = document.getElementById('tabAll');
+    const tabCrop = document.getElementById('tabCrop');
+    const tabYield = document.getElementById('tabYield');
+    const tabDisease = document.getElementById('tabDisease');
+
+    [tabAll, tabCrop, tabYield, tabDisease].forEach(b => {
+        if (b) {
+            b.classList.remove('active');
+            b.classList.add('btn-secondary');
+        }
+    });
+
+    if (tab === 'crop') {
+        if (secCrop) secCrop.style.display = 'block';
+        if (secYield) secYield.style.display = 'none';
+        if (secDisease) secDisease.style.display = 'none';
+        tabCrop.classList.add('active');
+        tabCrop.classList.remove('btn-secondary');
+    } else if (tab === 'yield') {
+        if (secCrop) secCrop.style.display = 'none';
+        if (secYield) secYield.style.display = 'block';
+        if (secDisease) secDisease.style.display = 'none';
+        tabYield.classList.add('active');
+        tabYield.classList.remove('btn-secondary');
+    } else if (tab === 'disease') {
+        if (secCrop) secCrop.style.display = 'none';
+        if (secYield) secYield.style.display = 'none';
+        if (secDisease) secDisease.style.display = 'block';
+        tabDisease.classList.add('active');
+        tabDisease.classList.remove('btn-secondary');
+    } else {
+        // All
+        if (secCrop) secCrop.style.display = 'block';
+        if (secYield) secYield.style.display = 'block';
+        if (secDisease) secDisease.style.display = 'block';
+        tabAll.classList.add('active');
+        tabAll.classList.remove('btn-secondary');
+    }
+}
+
+// 2. Filter History Tables by Farm and Keyword
+function filterHistoryTables() {
+    const query = (document.getElementById('historySearchInput')?.value || '').toLowerCase().trim();
+    const farmFilter = (document.getElementById('farmFilterSelect')?.value || '').toLowerCase().trim();
+
+    const rows = document.querySelectorAll('.history-table tbody tr');
+    rows.forEach(row => {
+        const rowText = row.getAttribute('data-text') || '';
+        const rowFarm = row.getAttribute('data-farm') || '';
+
+        const matchesQuery = !query || rowText.includes(query);
+        const matchesFarm = !farmFilter || rowFarm.includes(farmFilter);
+
+        if (matchesQuery && matchesFarm) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

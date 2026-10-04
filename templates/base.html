@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agri Smart AI — Precision Agriculture Platform{% endblock %}</title>
+    <!-- Anti-flicker script for instant theme and language hydration -->
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('agri_theme') || 'emerald';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌾</text></svg>">
+</head>
+<body>
+
+{% if current_user %}
+<div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🌾</div>
+            <div class="brand-text">AgriSmart<span>AI</span></div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-section-title" data-i18n="menu_core">Core Workspace</li>
+            <li class="menu-item">
+                <a href="{{ url_for('dashboard') }}" class="menu-link {% if active_endpoint == 'dashboard' %}active{% endif %}">
+                    <span class="menu-icon">📊</span>
+                    <span data-i18n="menu_dashboard">Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('farm_list') }}" class="menu-link {% if active_endpoint in ['farm_list', 'farm_add', 'farm_edit'] %}active{% endif %}">
+                    <span class="menu-icon">🏡</span>
+                    <span data-i18n="menu_farms">My Farms</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('notifications_page') }}" class="menu-link {% if active_endpoint == 'notifications_page' %}active{% endif %}">
+                    <span class="menu-icon">🔔</span>
+                    <span data-i18n="menu_notif">Price Alerts</span>
+                    {% if unread_notif_count > 0 %}
+                    <span class="menu-badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: bold;">
+                        <span class="lang-text" data-en="{{ unread_notif_count }} New" data-te="{{ unread_notif_count }} కొత్తవి" data-hi="{{ unread_notif_count }} नई">{{ unread_notif_count }} New</span>
+                    </span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('unified_history') }}" class="menu-link {% if active_endpoint == 'unified_history' %}active{% endif %}">
+                    <span class="menu-icon">📜</span>
+                    <span data-i18n="menu_history">Activity History</span>
+                    <span class="menu-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">
+                        <span class="lang-text" data-en="All Logs" data-te="అన్ని రికార్డులు" data-hi="सभी लॉग">All Logs</span>
+                    </span>
+                </a>
+            </li>
+
+            <li class="menu-section-title" data-i18n="menu_modules">Active AI Modules</li>
+            <li class="menu-item">
+                <a href="{{ url_for('crop_recommend') }}" class="menu-link {% if active_endpoint in ['crop_recommend', 'crop_history', 'farm_advisory_direct'] %}active{% endif %}">
+                    <span class="menu-icon">🌾</span>
+                    <span data-i18n="menu_crop">Smart Farm Advisory (360° AI)</span>
+                    <span class="menu-badge" style="background: rgba(16, 185, 129, 0.25); color: #34d399;">
+                        <span class="lang-text" data-en="8-Slides AI" data-te="8-స్లైడ్ల AI" data-hi="8-స్లైడ్ AI">8-Slides AI</span>
+                    </span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('disease_page') }}" class="menu-link {% if active_endpoint in ['disease_page', 'disease_upload_image'] %}active{% endif %}">
+                    <span class="menu-icon">📸</span>
+                    <span class="lang-text" data-en="Plant Disease Scanner" data-te="మొక్కల వ్యాధి గుర్తింపు (కెమెరా)" data-hi="पादप रोग स्कैनर (कैमरा)">Plant Disease Scanner</span>
+                    <span class="menu-badge" style="background: rgba(16, 185, 129, 0.25); color: #34d399;">
+                        <span class="lang-text" data-en="Live Cam" data-te="లైవ్ కెమెరా" data-hi="लाइव कैमरा">Live Cam</span>
+                    </span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('weather_page') }}" class="menu-link {% if active_endpoint == 'weather_page' %}active{% endif %}">
+                    <span class="menu-icon">🌤️</span>
+                    <span class="lang-text" data-en="Weather & Monsoon" data-te="వాతావరణం & వర్షపాతం" data-hi="मौसम व वर्षा">Weather & Monsoon</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('assistant_page') }}" class="menu-link {% if active_endpoint in ['assistant_page', 'assistant_send_message'] %}active{% endif %}">
+                    <span class="menu-icon">🤖</span>
+                    <span data-i18n="menu_assistant">AI Agronomist Assistant</span>
+                    <span class="menu-badge" style="background: rgba(16, 185, 129, 0.25); color: #34d399;">
+                        <span class="lang-text" data-en="Active" data-te="యాక్టివ్" data-hi="सक्रिय">Active</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ current_user.name[:1].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ current_user.name }}</div>
+                <div class="user-role" data-i18n="user_role">Farmer / Agronomist</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Sign Out">🚪</a>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="page-title-wrap">
+                <h1>{% block header_title %}Agri Smart AI Platform{% endblock %}</h1>
+                <p>{% block header_subtitle %}Precision Agriculture Intelligence & Soil Analytics{% endblock %}</p>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px; position: relative;">
+                
+                <!-- Interactive Theme Selector Dropdown -->
+                <div class="theme-dropdown-wrapper">
+                    <button type="button" id="themePickerBtn" onclick="toggleThemeDropdown()" class="theme-picker-trigger" title="Choose Interface Theme">
+                        <span id="themePickerCurrentIcon">🌿</span>
+                        <span class="theme-picker-name" id="themePickerCurrentName">Emerald</span>
+                        <span style="font-size: 10px; opacity: 0.7; margin-left: 2px;">▼</span>
+                    </button>
+
+                    <!-- Quick Dark / Light Mode One-Click Toggle -->
+                    <button type="button" id="quickDarkToggleBtn" onclick="toggleQuickDarkMode()" class="quick-dark-btn" title="Toggle Midnight Dark / Light Mode">
+                        <span id="quickDarkIcon">🌙</span>
+                    </button>
+
+                    <!-- Theme Selection Popover Menu -->
+                    <div id="themeDropdownMenu" class="theme-dropdown-card" style="display: none;">
+                        <div class="theme-dropdown-header">
+                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                <span>🎨</span> <span data-i18n="theme_picker_title">Select Interface Theme</span>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;" data-i18n="theme_auto_saved">Auto-saved</span>
+                        </div>
+                        <div class="theme-options-grid">
+                            <!-- Theme 1: Emerald Nature -->
+                            <button type="button" class="theme-option-btn active" data-theme-val="emerald" onclick="setAppTheme('emerald')">
+                                <div class="theme-swatch-preview theme-swatch-emerald">
+                                    <span class="theme-swatch-dot"></span>
+                                </div>
+                                <div class="theme-option-info">
+                                    <div class="theme-option-title">
+                                        <span>🌿</span>
+                                        <span class="lang-text" data-en="Emerald Nature (Lush)" data-te="పచ్చని పైరు (ఎమరాల్డ్)" data-hi="एमराल्ड प्रकृति">Emerald Nature (Lush)</span>
+                                    </div>
+                                    <div class="theme-option-sub" data-i18n="theme_emerald_sub">Lush green & daylight freshness</div>
+                                </div>
+                                <div class="theme-check-icon">✓</div>
+                            </button>
+
+                            <!-- Theme 2: Midnight Dark -->
+                            <button type="button" class="theme-option-btn" data-theme-val="midnight" onclick="setAppTheme('midnight')">
+                                <div class="theme-swatch-preview theme-swatch-midnight">
+                                    <span class="theme-swatch-dot"></span>
+                                </div>
+                                <div class="theme-option-info">
+                                    <div class="theme-option-title">
+                                        <span>🌙</span>
+                                        <span class="lang-text" data-en="Midnight Agro (Dark)" data-te="మిడ్‌నైట్ డార్క్ మోడ్" data-hi="मिडनाइट डार्क">Midnight Agro (Dark)</span>
+                                    </div>
+                                    <div class="theme-option-sub" data-i18n="theme_midnight_sub">OLED dark & glowing neon accents</div>
+                                </div>
+                                <div class="theme-check-icon">✓</div>
+                            </button>
+
+                            <!-- Theme 3: Golden Harvest -->
+                            <button type="button" class="theme-option-btn" data-theme-val="golden" onclick="setAppTheme('golden')">
+                                <div class="theme-swatch-preview theme-swatch-golden">
+                                    <span class="theme-swatch-dot"></span>
+                                </div>
+                                <div class="theme-option-info">
+                                    <div class="theme-option-title">
+                                        <span>🌾</span>
+                                        <span class="lang-text" data-en="Golden Harvest" data-te="బంగారు పంట (గోల్డెన్)" data-hi="सुनहरी फसल">Golden Harvest</span>
+                                    </div>
+                                    <div class="theme-option-sub" data-i18n="theme_golden_sub">Warm amber & sunlit wheat tones</div>
+                                </div>
+                                <div class="theme-check-icon">✓</div>
+                            </button>
+
+                            <!-- Theme 4: Monsoon Ocean -->
+                            <button type="button" class="theme-option-btn" data-theme-val="monsoon" onclick="setAppTheme('monsoon')">
+                                <div class="theme-swatch-preview theme-swatch-monsoon">
+                                    <span class="theme-swatch-dot"></span>
+                                </div>
+                                <div class="theme-option-info">
+                                    <div class="theme-option-title">
+                                        <span>🌊</span>
+                                        <span class="lang-text" data-en="Monsoon Ocean" data-te="వర్షాకాలం (ఓషన్ బ్లూ)" data-hi="मानसून ओशन">Monsoon Ocean</span>
+                                    </div>
+                                    <div class="theme-option-sub" data-i18n="theme_monsoon_sub">Cool rain breeze & azure skies</div>
+                                </div>
+                                <div class="theme-check-icon">✓</div>
+                            </button>
+
+                            <!-- Theme 5: Forest Sage -->
+                            <button type="button" class="theme-option-btn" data-theme-val="sage" onclick="setAppTheme('sage')">
+                                <div class="theme-swatch-preview theme-swatch-sage">
+                                    <span class="theme-swatch-dot"></span>
+                                </div>
+                                <div class="theme-option-info">
+                                    <div class="theme-option-title">
+                                        <span>🍃</span>
+                                        <span class="lang-text" data-en="Forest Sage" data-te="దట్టమైన అడవి (సేజ్)" data-hi="सघन वन (सेज)">Forest Sage</span>
+                                    </div>
+                                    <div class="theme-option-sub" data-i18n="theme_sage_sub">Organic botanical & earthy moss</div>
+                                </div>
+                                <div class="theme-check-icon">✓</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Language Switcher -->
+                <div style="display: flex; gap: 4px; align-items: center; background: var(--bg-surface); padding: 5px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <span style="font-size: 13px; margin-right: 2px;">🌐</span>
+                    <button type="button" class="btn btn-sm global-lang-btn active" id="globalLangEn" onclick="setGlobalLanguage('en')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">EN</button>
+                    <button type="button" class="btn btn-sm global-lang-btn" id="globalLangTe" onclick="setGlobalLanguage('te')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">తెలుగు</button>
+                    <button type="button" class="btn btn-sm global-lang-btn" id="globalLangHi" onclick="setGlobalLanguage('hi')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">हिन्दी</button>
+                </div>
+
+                <!-- High Price Notification Bell Dropdown -->
+                <div class="notif-dropdown-wrapper" style="position: relative;">
+                    <button type="button" id="notifBellBtn" onclick="toggleNotificationDropdown()" class="btn btn-secondary btn-sm" style="position: relative; padding: 8px 12px; font-size: 15px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                        🔔
+                        {% if unread_notif_count > 0 %}
+                        <span class="notif-badge-pulse">{{ unread_notif_count }}</span>
+                        {% endif %}
+                    </button>
+
+                    <!-- Dropdown Popover Menu -->
+                    <div id="notifDropdownMenu" class="notif-dropdown-card" style="display: none;">
+                        <div class="notif-dropdown-header">
+                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                <span>🔔</span> <span data-i18n="notif_header">Price Alerts & Advisories</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{{ url_for('mark_all_user_notifications_read') }}" style="font-size: 11px; color: var(--primary); font-weight: 600;">
+                                    <span class="lang-text" data-en="✓ Mark Read" data-te="✓ చదివినట్లు గుర్తించు" data-hi="✓ पढ़ा हुआ चिह्नित करें">✓ Mark Read</span>
+                                </a>
+                                <a href="{{ url_for('notifications_page') }}" style="font-size: 11px; color: var(--forest); font-weight: 600;">
+                                    <span class="lang-text" data-en="View All →" data-te="అన్నీ చూడండి →" data-hi="सभी देखें →">View All →</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="notif-dropdown-list">
+                            <!-- High Market Price Highlights -->
+                            {% if high_price_alerts %}
+                            <div style="padding: 8px 12px; background: rgba(16, 185, 129, 0.1); border-bottom: 1px solid var(--border-color); font-size: 11.5px; font-weight: bold; color: var(--primary-dark); display: flex; align-items: center; gap: 5px;">
+                                🔥 <span data-i18n="high_price_opp">High Mandi Price Opportunities</span>
+                            </div>
+                            {% for alert in high_price_alerts[:2] %}
+                            <a href="{{ url_for('notifications_page') }}" class="notif-item-link" style="display: block; padding: 10px 12px; border-bottom: 1px solid var(--border-color); text-decoration: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                    <strong style="font-size: 12.5px; color: var(--text-primary);">
+                                        <span class="lang-text" data-en="{{ alert.commodity }}" data-te="{{ alert.commodity_te }}" data-hi="{{ alert.commodity_hi }}">{{ alert.commodity }}</span>
+                                    </strong>
+                                    <span style="font-size: 12px; font-weight: 800; color: #15803d;">₹{{ alert.price|int }}</span>
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+                                    <span class="lang-text" data-en="{{ alert.badge_en }}" data-te="{{ alert.badge_te }}" data-hi="{{ alert.badge_hi }}">{{ alert.badge_en }}</span> • 
+                                    <span class="lang-text" data-en="₹{{ alert.spread_rs|int }} above MSP (+{{ alert.spread_pct }}%)" data-te="MSP కంటే ₹{{ alert.spread_rs|int }} ఎక్కువ (+{{ alert.spread_pct }}%)" data-hi="MSP से ₹{{ alert.spread_rs|int }} अधिक (+{{ alert.spread_pct }}%)">₹{{ alert.spread_rs|int }} above MSP (+{{ alert.spread_pct }}%)</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            {% endif %}
+
+                            <!-- User Notifications -->
+                            {% if notifications %}
+                            {% for n in notifications[:3] %}
+                            <div style="padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: {% if not n.is_read %}var(--bg-table-hover){% else %}var(--bg-surface){% endif %};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">
+                                        <span class="lang-text" data-en="{{ n.title }}" data-te="{{ n.title_te or n.title }}" data-hi="{{ n.title }}">{{ n.title }}</span>
+                                    </div>
+                                    <span style="font-size: 10px; color: var(--text-muted);">{{ n.created_at[:10] }}</span>
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                                    <span class="lang-text" data-en="{{ n.message }}" data-te="{{ n.message_te or n.message }}" data-hi="{{ n.message }}">{{ n.message }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div style="padding: 20px; text-align: center; font-size: 12px; color: var(--text-muted);" data-i18n="no_notifications">
+                                No recent notifications.
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div style="padding: 8px 12px; background: var(--bg-table-header); text-align: center; border-top: 1px solid var(--border-color);">
+                            <a href="{{ url_for('notifications_page') }}" style="font-size: 12px; font-weight: 600; color: var(--primary);" data-i18n="open_notif_hub">
+                                Open Full Notification Hub →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm">
+                    🌱 <span data-i18n="btn_new_pred">New Advisory</span>
+                </a>
+                <a href="{{ url_for('farm_add') }}" class="btn btn-secondary btn-sm">
+                    ➕ <span data-i18n="btn_add_farm">Add Farm</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <span>
+                            {% if category == 'success' %}✅
+                            {% elif category == 'danger' %}❌
+                            {% elif category == 'warning' %}⚠️
+                            {% else %}ℹ️{% endif %}
+                        </span>
+                        <div>{{ message }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+{% else %}
+<!-- Unauthenticated Auth Container -->
+<div class="auth-wrapper" style="position: relative;">
+    <!-- Guest Top Controls for Theme and Language -->
+    <div style="position: absolute; top: 20px; right: 24px; display: flex; align-items: center; gap: 10px; z-index: 100;">
+        <div class="theme-dropdown-wrapper">
+            <button type="button" id="guestThemePickerBtn" onclick="toggleThemeDropdown()" class="theme-picker-trigger" style="background: var(--bg-surface); padding: 6px 10px;" title="Choose Interface Theme">
+                <span id="guestThemePickerIcon">🌿</span>
+                <span class="theme-picker-name" id="guestThemePickerName">Emerald</span>
+                <span style="font-size: 9px; opacity: 0.7;">▼</span>
+            </button>
+            <button type="button" onclick="toggleQuickDarkMode()" class="quick-dark-btn" style="padding: 6px 9px;" title="Toggle Dark/Light Mode">
+                <span id="guestQuickDarkIcon">🌙</span>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="guestThemeDropdownMenu" class="theme-dropdown-card" style="display: none;">
+                <div class="theme-dropdown-header">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                        <span>🎨</span> <span data-i18n="theme_picker_title">Select Theme</span>
+                    </div>
+                </div>
+                <div class="theme-options-grid">
+                    <button type="button" class="theme-option-btn active" data-theme-val="emerald" onclick="setAppTheme('emerald')">
+                        <div class="theme-swatch-preview theme-swatch-emerald"><span class="theme-swatch-dot"></span></div>
+                        <div class="theme-option-info">
+                            <div class="theme-option-title"><span>🌿</span> <span class="lang-text" data-en="Emerald Nature" data-te="పచ్చని పైరు (ఎమరాల్డ్)" data-hi="एमराल्ड प्रकृति">Emerald Nature</span></div>
+                        </div>
+                        <div class="theme-check-icon">✓</div>
+                    </button>
+                    <button type="button" class="theme-option-btn" data-theme-val="midnight" onclick="setAppTheme('midnight')">
+                        <div class="theme-swatch-preview theme-swatch-midnight"><span class="theme-swatch-dot"></span></div>
+                        <div class="theme-option-info">
+                            <div class="theme-option-title"><span>🌙</span> <span class="lang-text" data-en="Midnight Dark" data-te="మిడ్‌నైట్ డార్క్" data-hi="मिडनाइट डार्क">Midnight Dark</span></div>
+                        </div>
+                        <div class="theme-check-icon">✓</div>
+                    </button>
+                    <button type="button" class="theme-option-btn" data-theme-val="golden" onclick="setAppTheme('golden')">
+                        <div class="theme-swatch-preview theme-swatch-golden"><span class="theme-swatch-dot"></span></div>
+                        <div class="theme-option-info">
+                            <div class="theme-option-title"><span>🌾</span> <span class="lang-text" data-en="Golden Harvest" data-te="బంగారు పంట" data-hi="सुनहरी फसल">Golden Harvest</span></div>
+                        </div>
+                        <div class="theme-check-icon">✓</div>
+                    </button>
+                    <button type="button" class="theme-option-btn" data-theme-val="monsoon" onclick="setAppTheme('monsoon')">
+                        <div class="theme-swatch-preview theme-swatch-monsoon"><span class="theme-swatch-dot"></span></div>
+                        <div class="theme-option-info">
+                            <div class="theme-option-title"><span>🌊</span> <span class="lang-text" data-en="Monsoon Ocean" data-te="వర్షాకాలం" data-hi="मानसून ओशन">Monsoon Ocean</span></div>
+                        </div>
+                        <div class="theme-check-icon">✓</div>
+                    </button>
+                    <button type="button" class="theme-option-btn" data-theme-val="sage" onclick="setAppTheme('sage')">
+                        <div class="theme-swatch-preview theme-swatch-sage"><span class="theme-swatch-dot"></span></div>
+                        <div class="theme-option-info">
+                            <div class="theme-option-title"><span>🍃</span> <span class="lang-text" data-en="Forest Sage" data-te="దట్టమైన అడవి" data-hi="सघन वन">Forest Sage</span></div>
+                        </div>
+                        <div class="theme-check-icon">✓</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 4px; align-items: center; background: var(--bg-surface); padding: 4px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--border-color); box-shadow: var(--shadow-sm);">
+            <button type="button" class="btn btn-sm global-lang-btn active" id="authLangEn" onclick="setGlobalLanguage('en')" style="padding: 3px 8px; font-size: 11px;">EN</button>
+            <button type="button" class="btn btn-sm global-lang-btn" id="authLangTe" onclick="setGlobalLanguage('te')" style="padding: 3px 8px; font-size: 11px;">తెలుగు</button>
+            <button type="button" class="btn btn-sm global-lang-btn" id="authLangHi" onclick="setGlobalLanguage('hi')" style="padding: 3px 8px; font-size: 11px;">हिन्दी</button>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    <div>{{ message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block auth_content %}{% endblock %}
+    </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}AI Agriculture Assistant — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="AgriSmart AI Assistant & Agronomist" data-te="అగ్రిస్మార్ట్ AI సహాయకుడు & వ్యవసాయ నిపుణుడు" data-hi="एग्रीस्मार्ट AI सहायक और कृषि विशेषज्ञ">AgriSmart AI Assistant & Agronomist</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Context-aware agricultural decision support powered by your farm profiles, ML predictions, and agronomic knowledge" data-te="మీ పొలాలు, పంట సిఫార్సులు, వాతావరణం మరియు మార్కెట్ సమాచారంతో కూడిన స్మార్ట్ AI వ్యవసాయ సహాయం" data-hi="आपके खेतों, फसल सिफारिशों, मौसम और मंडी भावों पर आधारित स्मार्ट AI कृषि परामर्श">Context-aware agricultural decision support powered by your farm profiles, ML predictions, and agronomic knowledge</span>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+
+    <!-- AI Configuration Status Card -->
+    {% if not ai_config.is_configured %}
+    <div class="card" style="margin-bottom: 20px; background: #fffbeb; border: 1.5px solid #fde68a;">
+        <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px;">
+            <div style="font-size: 36px;">🤖</div>
+            <div style="flex: 1;">
+                <h3 style="font-size: 15px; color: #92400e; margin-bottom: 4px;">AI Assistant Configuration Notice</h3>
+                <p style="font-size: 13.5px; color: #78350f; line-height: 1.5; margin-bottom: 8px;">
+                    AI Assistant is not configured yet. Please add the required API key to enable AI responses.
+                </p>
+            </div>
+        </div>
+
+        <!-- Interactive Key Activation Form -->
+        <form method="POST" action="{{ url_for('assistant_set_key') }}" style="background: white; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid #fcd34d;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #92400e; text-transform: uppercase; margin-bottom: 8px;">
+                🔑 1-Click Engine Activation:
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select name="provider" id="providerSelect" class="form-select" style="width: auto; font-size: 13px;" onchange="handleProviderChange(this.value)">
+                    <option value="builtin" selected>Built-in Agronomist Engine (100% Free / Offline)</option>
+                    <option value="gemini">Google Gemini (Cloud LLM)</option>
+                    <option value="openai">OpenAI ChatGPT (Cloud LLM)</option>
+                </select>
+                <input 
+                    type="password" 
+                    id="apiKeyInput"
+                    name="api_key" 
+                    class="form-control" 
+                    value="builtin_agri_intelligence"
+                    placeholder="Built-in Engine requires no key" 
+                    required 
+                    style="flex: 1; min-width: 240px; font-size: 13px;"
+                >
+                <button type="submit" class="btn btn-primary btn-sm" style="padding: 8px 18px; font-weight: 700;">
+                    🚀 Activate AI Engine
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Context Insights Summary Bar -->
+    <div class="card" style="margin-bottom: 20px; padding: 14px 18px; background: linear-gradient(135deg, #f0fdf4, #f8fafc); border-color: #bbf7d0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🧠</span>
+                <div>
+                    <strong style="font-size: 13.5px; color: var(--forest);">Active Farm Context Connected</strong>
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        {{ user_farms|length }} Farms • {{ user_crop_preds|length }} Crop Recs • {{ user_yield_preds|length }} Yield Estimates
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px;">
+                    {% if ai_config.provider == 'builtin' %}
+                    🟢 Built-in ICAR Engine (Offline/Free)
+                    {% elif ai_config.is_configured %}
+                    🟢 {{ ai_config.provider|title }} AI Active
+                    {% else %}
+                    🟡 Ready to Activate
+                    {% endif %}
+                </span>
+                <form method="POST" action="{{ url_for('assistant_clear') }}" onsubmit="return confirm('Clear your entire chat history?');" style="margin: 0;">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="padding: 5px 12px; font-size: 12px;">
+                        🗑️ Clear Chat History
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested Quick Prompts -->
+    <div style="margin-bottom: 18px;">
+        <div style="font-size: 12.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            💡 Suggested Questions (తెలుగు & English)
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('టమోటా సాగుకు ఏ రకమైన నేలలు అనుకూలం?')">
+                🍅 టమోటా నేల రకాలు?
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('వరి పంటలో కాండం తొలుచు పురుగు నివారణ ఎలా?')">
+                🌾 వరి పురుగు నివారణ?
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('పత్తి పంటలో గులాబీ రంగు పురుగు నివారణ చర్యలు ఏమిటి?')">
+                🌾 పత్తి గులాబీ పురుగు?
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('నా నమోదైన పొలాల వివరాలు మరియు నేల రకాలు చెప్పు')">
+                🏡 నా పొలాల సమాచారం
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('What crop was recommended for my farm and why?')">
+                🌱 Recommended crop for my farm?
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Explain my last yield prediction and how to improve it.')">
+                📊 Explain my yield prediction
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('What are current Mandi market price trends and MSP for commodities?')">
+                💰 Mandi price trends & MSP
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('How should I manage drip irrigation and chemical spraying in current weather?')">
+                💧 Drip irrigation & spraying guide
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Chat Window Card -->
+    <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 600px; box-shadow: var(--shadow-md);">
+        
+        <!-- Chat Header -->
+        <div style="padding: 14px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
+                <div>
+                    <h3 style="font-size: 14.5px; margin: 0; color: var(--text-primary);">AgriSmart Agronomist AI</h3>
+                    <div style="font-size: 11.5px; color: var(--text-secondary);">
+                        Multilingual Agronomy Engine • Telugu, Hindi & English Supported
+                    </div>
+                </div>
+            </div>
+            <span class="badge-ready" style="padding: 3px 10px; font-size: 11px;">Phase 6 Assistant</span>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 20px; background: #f8fafc; display: flex; flex-direction: column; gap: 16px;">
+            
+            <!-- Welcome Message -->
+            <div style="display: flex; gap: 12px; max-width: 85%;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--forest); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                    🌾
+                </div>
+                <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; border-top-left-radius: 2px; padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13.5px; line-height: 1.6; color: var(--text-primary);">
+                    <p style="margin-bottom: 8px;"><strong>నమస్తే {{ current_user.name }}! / Namaste {{ current_user.name }}!</strong></p>
+                    <p style="margin-bottom: 8px;">I am your <strong>AgriSmart AI Agronomist & Farm Advisor</strong>. I have real-time access to your registered farm holdings, soil tests, crop recommendations, yield projections, plant disease diagnoses, and live weather/mandi databases.</p>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 12.5px;">
+                        💡 <em>మీరు తెలుగులో లేదా ఇంగ్లీషులో ఎలాంటి వ్యవసాయ ప్రశ్నలనైనా అడగవచ్చు (ఉదా: పంటలు, ఎరువులు, పురుగు మందులు, నేల రకాలు, మార్కెట్ ధరలు).</em>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Historical Messages -->
+            {% for msg in messages %}
+            {% if msg.role == 'user' %}
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <div style="background: var(--forest); color: white; border-radius: 12px; border-top-right-radius: 2px; padding: 12px 16px; max-width: 80%; font-size: 13.5px; line-height: 1.5; box-shadow: var(--shadow-sm);">
+                    {{ msg.message }}
+                    <div style="font-size: 10.5px; opacity: 0.75; text-align: right; margin-top: 4px;">{{ msg.created_at[11:16] }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div style="display: flex; gap: 12px; max-width: 85%;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--forest); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                    🌾
+                </div>
+                <div class="ai-msg-content" style="background: white; border: 1px solid var(--border-color); border-radius: 12px; border-top-left-radius: 2px; padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13.5px; line-height: 1.6; color: var(--text-primary);">{{ msg.message }}
+                    <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">{{ msg.created_at[11:16] }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <!-- Dynamic Assistant Response Placement -->
+            <div id="loadingIndicator" style="display: none; gap: 12px; max-width: 85%;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--forest); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                    🌾
+                </div>
+                <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; color: var(--text-secondary); font-size: 13px; font-style: italic;">
+                    AgriSmart AI is analyzing your farm context and preparing agronomic guidance... ⏳
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chat Input Form -->
+        <div style="padding: 14px 20px; background: white; border-top: 1px solid var(--border-color);">
+            <form id="chatForm" method="POST" action="{{ url_for('assistant_send_message') }}" onsubmit="handleFormSubmit(event)">
+                <div style="display: flex; gap: 10px;">
+                    <input 
+                        type="text" 
+                        id="userMessageInput" 
+                        name="message" 
+                        class="form-control" 
+                        placeholder="మీ వ్యవసాయ ప్రశ్న లేదా crop/soil/fertilizer/yield query టైప్ చేయండి..." 
+                        autocomplete="off" 
+                        required 
+                        style="flex: 1; padding: 12px 16px; font-size: 14px;"
+                    >
+                    <button type="submit" id="sendBtn" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; font-weight: 600;">
+                        Send 🚀
+                    </button>
+                </div>
+            </form>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; justify-content: space-between;">
+                <span>🛡️ ICAR-standard educational agronomy guidance. Always follow official product labels for chemical sprays.</span>
+                <span>Press Enter to send</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function handleProviderChange(val) {
+    const input = document.getElementById('apiKeyInput');
+    if (val === 'builtin') {
+        input.value = 'builtin_agri_intelligence';
+        input.placeholder = 'Built-in Engine requires no key';
+    } else if (val === 'gemini') {
+        input.value = '';
+        input.placeholder = 'Paste Gemini API Key (e.g. AIzaSy...)';
+    } else {
+        input.value = '';
+        input.placeholder = 'Paste OpenAI API Key (e.g. sk-...)';
+    }
+}
+
+function formatMarkdown(text) {
+    if (!text) return '';
+    let html = escapeHtml(text);
+    
+    // Bold: **text** -> <strong>text</strong>
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic: *text* -> <em>$1</em>
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Bullet lists: • item or - item -> styled list item
+    html = html.replace(/^[•\-]\s+(.+)$/gm, '<li style="margin-left: 18px; margin-bottom: 4px;">$1</li>');
+    
+    // Numbered lists: 1. item
+    html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 4px; margin-bottom: 4px;"><strong>$1.</strong> $2</div>');
+    
+    // Line breaks to <br>
+    html = html.replace(/\n/g, '<br>');
+    
+    // Clean up consecutive <br> inside lists
+    html = html.replace(/(<\/li>)<br>/g, '$1');
+    return html;
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('chatMessages');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Format historical messages
+    document.querySelectorAll('.ai-msg-content').forEach(el => {
+        const raw = el.childNodes[0]?.textContent || el.textContent;
+        const timeDiv = el.querySelector('div');
+        el.innerHTML = formatMarkdown(raw) + (timeDiv ? timeDiv.outerHTML : '');
+    });
+
+    scrollToBottom();
+    const input = document.getElementById('userMessageInput');
+    if (input) input.focus();
+});
+
+function sendQuickPrompt(promptText) {
+    const input = document.getElementById('userMessageInput');
+    if (input) {
+        input.value = promptText;
+        document.getElementById('chatForm').dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+}
+
+async function handleFormSubmit(e) {
+    const input = document.getElementById('userMessageInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    if (window.fetch) {
+        e.preventDefault();
+        const chatContainer = document.getElementById('chatMessages');
+        const loading = document.getElementById('loadingIndicator');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Append user bubble immediately
+        const userBubble = document.createElement('div');
+        userBubble.style.display = 'flex';
+        userBubble.style.justifyContent = 'flex-end';
+        userBubble.style.gap = '12px';
+        userBubble.innerHTML = `
+            <div style="background: var(--forest); color: white; border-radius: 12px; border-top-right-radius: 2px; padding: 12px 16px; max-width: 80%; font-size: 13.5px; line-height: 1.5; box-shadow: var(--shadow-sm);">
+                ${escapeHtml(msg)}
+                <div style="font-size: 10.5px; opacity: 0.75; text-align: right; margin-top: 4px;">Just now</div>
+            </div>
+        `;
+        chatContainer.insertBefore(userBubble, loading);
+        input.value = '';
+        loading.style.display = 'flex';
+        sendBtn.disabled = true;
+        scrollToBottom();
+
+        try {
+            const formData = new FormData();
+            formData.append('message', msg);
+
+            const res = await fetch("{{ url_for('assistant_send_message') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await res.json();
+            loading.style.display = 'none';
+            sendBtn.disabled = false;
+
+            const aiBubble = document.createElement('div');
+            aiBubble.style.display = 'flex';
+            aiBubble.style.gap = '12px';
+            aiBubble.style.maxWidth = '85%';
+            aiBubble.innerHTML = `
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--forest); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                    🌾
+                </div>
+                <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; border-top-left-radius: 2px; padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13.5px; line-height: 1.6; color: var(--text-primary);">
+                    ${formatMarkdown(data.message || '')}
+                    <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">Just now</div>
+                </div>
+            `;
+            chatContainer.insertBefore(aiBubble, loading);
+            scrollToBottom();
+            input.focus();
+
+        } catch (err) {
+            loading.style.display = 'none';
+            sendBtn.disabled = false;
+            const errBubble = document.createElement('div');
+            errBubble.style.display = 'flex';
+            errBubble.style.gap = '12px';
+            errBubble.style.maxWidth = '85%';
+            errBubble.innerHTML = `
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #ef4444; color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                    ⚠️
+                </div>
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; border-top-left-radius: 2px; padding: 14px 16px; font-size: 13.5px; line-height: 1.6; color: #991b1b;">
+                    Could not complete request. Please refresh or try again.
+                </div>
+            `;
+            chatContainer.insertBefore(errBubble, loading);
+            scrollToBottom();
+        }
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

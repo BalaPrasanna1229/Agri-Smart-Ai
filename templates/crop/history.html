@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Recommendation History — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Prediction History Log" data-te="పంట సిఫార్సు చరిత్ర" data-hi="सिफारिश इतिहास लॉग">Prediction History Log</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Review your previous soil analyses and model-generated crop recommendations" data-te="మీ మునుపటి నేల పరీక్షలు మరియు మోడల్ సిఫార్సు చేసిన పంటల చరిత్రను సమీక్షించండి" data-hi="अपने पिछले मिट्टी परीक्षणों और अनुशंसित फसलों का इतिहास देखें">Review your previous soil analyses and model-generated crop recommendations</span>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📜</span> <span class="lang-text" data-en="Saved Recommendations" data-te="భద్రపరిచిన సిఫార్సులు" data-hi="सहेजी गई सिफारिशें">Saved Recommendations</span> ({{ history|length }})
+        </div>
+        <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm">
+            <span class="lang-text" data-en="🌱 Run New Recommendation" data-te="🌱 కొత్త సిఫార్సు ప్రారంభించండి" data-hi="🌱 नई सिफारिश शुरू करें">🌱 Run New Recommendation</span>
+        </a>
+    </div>
+
+    {% if history %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><span class="lang-text" data-en="Date & Time" data-te="తేదీ & సమయం" data-hi="दिनांक और समय">Date & Time</span></th>
+                    <th><span class="lang-text" data-en="Associated Farm" data-te="సంబంధిత పొలం" data-hi="संबंधित खेत">Associated Farm</span></th>
+                    <th><span class="lang-text" data-en="Soil N-P-K" data-te="మట్టి N-P-K" data-hi="मिट्टी N-P-K">Soil N-P-K</span></th>
+                    <th><span class="lang-text" data-en="pH" data-te="pH స్థాయి" data-hi="pH मान">pH</span></th>
+                    <th><span class="lang-text" data-en="Temp / Humidity / Rain" data-te="ఉష్ణోగ్రత / తేమ / వర్షం" data-hi="तापमान / आर्द्रता / वर्षा">Temp / Humidity / Rain</span></th>
+                    <th><span class="lang-text" data-en="Recommended Crop" data-te="సిఫార్సు చేయబడిన పంట" data-hi="अनुशंसित फसल">Recommended Crop</span></th>
+                    <th><span class="lang-text" data-en="Confidence" data-te="ఖచ్చితత్వం" data-hi="सटीकता">Confidence</span></th>
+                    <th><span class="lang-text" data-en="Top Alternatives" data-te="ప్రత్యామ్నాయ పంటలు" data-hi="वैकल्पिक फसलें">Top Alternatives</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td style="font-size: 12.5px; color: var(--text-secondary);">
+                        {{ item.created_at[:16] }}
+                    </td>
+                    <td>
+                        {% if item.farm_name %}
+                        <strong>🏡 {{ item.farm_name }}</strong>
+                        {% else %}
+                        <span style="color: var(--text-muted);" class="lang-text" data-en="Independent Query" data-te="స్వతంత్ర పరిశీలన" data-hi="स्वतंत्र पूछताछ">Independent Query</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ item.n }} / {{ item.p }} / {{ item.k }}</strong></td>
+                    <td>{{ item.ph }}</td>
+                    <td style="font-size: 12.5px;">
+                        {{ item.temperature }}°C | {{ item.humidity }}% | {{ item.rainfall }}mm
+                    </td>
+                    <td>
+                        <strong style="color: var(--forest); text-transform: capitalize; font-size: 14px;">
+                            🌱 <span class="lang-text" 
+                                     data-en="{{ item.predicted_crop_en or item.predicted_crop }}" 
+                                     data-te="{{ item.predicted_crop_te or item.predicted_crop }}" 
+                                     data-hi="{{ item.predicted_crop_hi or item.predicted_crop }}">{{ item.predicted_crop }}</span>
+                        </strong>
+                    </td>
+                    <td>
+                        <span class="badge-ready" style="padding: 3px 8px; border-radius: 12px; font-weight: 700;">
+                            {{ item.confidence_pct }}%
+                        </span>
+                    </td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">
+                        {% if item.top_3 %}
+                            {% for alt in item.top_3 %}
+                                <span style="text-transform: capitalize;">{{ alt.crop }} ({{ alt.confidence_pct }}%)</span>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px; color: var(--text-secondary);">
+        <div style="font-size: 42px; margin-bottom: 12px;">📜</div>
+        <h3 class="lang-text" data-en="No Prediction History Found" data-te="ఎలాంటి సిఫార్సు చరిత్ర లేదు" data-hi="कोई सिफारिश इतिहास नहीं मिला">No Prediction History Found</h3>
+        <p style="font-size: 14px; margin-top: 6px; margin-bottom: 20px;" class="lang-text" data-en="You have not run any crop recommendation queries yet." data-te="మీరు ఇంకా ఎలాంటి పంట సిఫార్సులు చేయలేదు." data-hi="आपने अभी तक कोई फसल सिफारिश नहीं की है।">
+            You have not run any crop recommendation queries yet.
+        </p>
+        <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary">
+            <span class="lang-text" data-en="🌱 Run Your First Soil Analysis" data-te="🌱 మొదటి నేల విశ్లేషణ ప్రారంభించండి" data-hi="🌱 अपना पहला मिट्टी विश्लेषण शुरू करें">🌱 Run Your First Soil Analysis</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

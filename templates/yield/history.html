@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Yield Prediction History — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="Yield Estimation History Log" data-te="దిగుబడి అంచనా చరిత్ర" data-hi="उपज अनुमान इतिहास लॉग">Yield Estimation History Log</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Review your farm harvest output simulations and input configurations" data-te="మీ పొలం పంట దిగుబడి అంచనాలు మరియు వనరుల వివరాల చరిత్రను సమీక్షించండి" data-hi="अपने खेत की फसल पैदावार के अनुकरण और इनपुट इतिहास की समीक्षा करें">Review your farm harvest output simulations and input configurations</span>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📜</span> <span class="lang-text" data-en="Saved Yield Estimates" data-te="భద్రపరిచిన దిగుబడి అంచనాలు" data-hi="सहेजे गए उपज अनुमान">Saved Yield Estimates</span> ({{ history|length }})
+        </div>
+        <a href="{{ url_for('yield_page') }}" class="btn btn-primary btn-sm">
+            <span class="lang-text" data-en="🌾 Run New Yield Estimate" data-te="🌾 కొత్త దిగుబడిని అంచనా వేయండి" data-hi="🌾 नया उपज अनुमान लगाएं">🌾 Run New Yield Estimate</span>
+        </a>
+    </div>
+
+    {% if history %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><span class="lang-text" data-en="Date & Time" data-te="తేదీ & సమయం" data-hi="दिनांक और समय">Date & Time</span></th>
+                    <th><span class="lang-text" data-en="Associated Farm" data-te="సంబంధిత పొలం" data-hi="संबंधित खेत">Associated Farm</span></th>
+                    <th><span class="lang-text" data-en="Crop Variety" data-te="పంట రకం" data-hi="फसल किस्म">Crop Variety</span></th>
+                    <th><span class="lang-text" data-en="Land Area" data-te="విస్తీర్ణం" data-hi="क्षेत्रफल">Land Area</span></th>
+                    <th><span class="lang-text" data-en="Soil & Irrigation" data-te="నేల & సాగునీరు" data-hi="मिट्टी और सिंचाई">Soil & Irrigation</span></th>
+                    <th><span class="lang-text" data-en="Season" data-te="సీజన్" data-hi="मौसम">Season</span></th>
+                    <th><span class="lang-text" data-en="Inputs (Fert / Pest / Water)" data-te="వాడినవి (ఎరువులు / మందులు / నీరు)" data-hi="इनपुट (उर्वरक / कीटनाशक / पानी)">Inputs (Fert / Pest / Water)</span></th>
+                    <th><span class="lang-text" data-en="Estimated Yield" data-te="అంచనా దిగుబడి" data-hi="अनुमानित पैदावार">Estimated Yield</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td style="font-size: 12.5px; color: var(--text-secondary);">
+                        {{ item.created_at[:16] }}
+                    </td>
+                    <td>
+                        {% if item.farm_name %}
+                        <strong>🏡 {{ item.farm_name }}</strong>
+                        {% else %}
+                        <span style="color: var(--text-muted);" class="lang-text" data-en="Standalone Simulation" data-te="స్వతంత్ర అంచనా" data-hi="स्वतंत्र अनुकरण">Standalone Simulation</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>🌾 <span class="lang-text" 
+                                        data-en="{{ item.crop_type_en or item.crop_type }}" 
+                                        data-te="{{ item.crop_type_te or item.crop_type }}" 
+                                        data-hi="{{ item.crop_type_hi or item.crop_type }}">{{ item.crop_type }}</span></strong>
+                    </td>
+                    <td>{{ item.farm_area }} <span class="lang-text" data-en="acres" data-te="ఎకరాలు" data-hi="एकड़">acres</span></td>
+                    <td style="font-size: 12.5px;">
+                        <span class="lang-text" data-en="{{ item.soil_type_en or item.soil_type }}" data-te="{{ item.soil_type_te or item.soil_type }}" data-hi="{{ item.soil_type_hi or item.soil_type }}">{{ item.soil_type }}</span> | 
+                        {{ item.irrigation_type }}
+                    </td>
+                    <td>
+                        <span class="lang-text" data-en="{{ item.season_en or item.season }}" data-te="{{ item.season_te or item.season }}" data-hi="{{ item.season_hi or item.season }}">{{ item.season }}</span>
+                    </td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">
+                        {{ item.fertilizer_used }}t fert | {{ item.pesticide_used }}kg pest | {{ item.water_usage|int }}m³
+                    </td>
+                    <td>
+                        <strong style="color: #92400e; font-size: 15px;">
+                            {{ item.predicted_yield }} <span class="lang-text" data-en="Tons" data-te="టన్నులు" data-hi="टन">Tons</span>
+                        </strong>
+                        <div style="font-size: 11.5px; color: var(--text-secondary);">
+                            ({{ item.yield_per_acre }} <span class="lang-text" data-en="tons/acre" data-te="టన్నులు/ఎకరా" data-hi="टन/एकड़">tons/acre</span>)
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px; color: var(--text-secondary);">
+        <div style="font-size: 42px; margin-bottom: 12px;">🌾</div>
+        <h3 class="lang-text" data-en="No Yield Estimates Found" data-te="ఎలాంటి దిగుబడి అంచనాలు లేవు" data-hi="कोई उपज अनुमान नहीं मिला">No Yield Estimates Found</h3>
+        <p style="font-size: 14px; margin-top: 6px; margin-bottom: 20px;" class="lang-text" data-en="You have not run any farm yield prediction simulations yet." data-te="మీరు ఇంకా ఎలాంటి దిగుబడి అంచనాలు చేయలేదు." data-hi="आपने अभी तक कोई उपज अनुमान नहीं लगाया है।">
+            You have not run any farm yield prediction simulations yet.
+        </p>
+        <a href="{{ url_for('yield_page') }}" class="btn btn-primary">
+            <span class="lang-text" data-en="🌾 Run Your First Yield Simulation" data-te="🌾 మొదటి దిగుబడి అంచనాను ప్రారంభించండి" data-hi="🌾 अपना पहला उपज अनुमान शुरू करें">🌾 Run Your First Yield Simulation</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

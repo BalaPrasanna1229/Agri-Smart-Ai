@@ -1,0 +1,679 @@
+{% extends "base.html" %}
+
+{% block title %}Mandi Market Dashboard, MSP Comparison & Revenue Calculator — Agri Smart AI{% endblock %}
+{% block header_title %}Agricultural Commodity & Mandi Price Dashboard{% endblock %}
+{% block header_subtitle %}Live wholesale market prices (Rs./Quintal), Government MSP comparisons, Mandi arrival volumes, and Farmer Selling Advisories{% endblock %}
+
+{% block content %}
+<!-- 360 Advisory Integration Notice -->
+<div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #eff6ff, #f0fdf4); border: 1.5px solid #93c5fd; box-shadow: var(--shadow-sm); padding: 14px 18px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">💡</span>
+            <div>
+                <div style="font-weight: 800; color: #1e40af; font-size: 13.5px;">
+                    <span class="lang-text" data-en="Mandi Rates & Profit Economics are Integrated in 360° Smart Advisory" data-te="మార్కెట్ ధరలు & లాభాల గణన 360° సమగ్ర సలహాలో చేర్చబడ్డాయి" data-hi="मंडी भाव व लाभ गणना 360° रिपोर्ट में एकीकृत हैं">Mandi Rates & Profit Economics are Integrated in 360° Smart Advisory</span>
+                </div>
+                <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">
+                    <span class="lang-text" data-en="Generate complete 8-slide farm intelligence with crop suitability, yield output, and mandi profits in 1 click." data-te="ఒకే క్లిక్‌తో పంట సిఫార్సు, దిగుబడి, మార్కెట్ రాబడి మరియు పూర్తి 8-స్లైడ్ల వ్యవసాయ నివేదికను పొందండి." data-hi="1-क्लिक में फसल चयन, पैदावार और मंडी मुनाफे सहित संपूर्ण 8-स्लाइड रिपोर्ट प्राप्त करें।">Generate complete 8-slide farm intelligence with crop suitability, yield output, and mandi profits in 1 click.</span>
+                </div>
+            </div>
+        </div>
+        <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm" style="font-weight: 700;">
+            🚀 <span class="lang-text" data-en="Launch 360° Advisory →" data-te="360° సలహా ప్రారంభించండి →" data-hi="360° रिपोर्ट शुरू करें →">Launch 360° Advisory →</span>
+        </a>
+    </div>
+</div>
+
+<!-- APMC Mandi Market Bulletin Banner -->
+<div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, #f0fdf4, #ffffff); border-color: #86efac; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; gap: 16px; align-items: flex-start;">
+        <div style="font-size: 32px;">📊</div>
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <h3 style="font-size: 15px; color: #166534; margin-bottom: 2px; font-weight: 800;">
+                    <span class="lang-text" data-en="APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK" data-te="APMC హోల్‌సేల్ మార్కెట్ ధరలు & ప్రభుత్వ మద్దతు ధర (MSP) విశ్లేషణ" data-hi="APMC थोक मंडी भाव व सरकारी समर्थन मूल्य (MSP) विश्लेषण">APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK</span>
+                </h3>
+                <span class="badge-ready" style="padding: 2px 10px; border-radius: 12px; font-size: 11px;">Agmarknet Benchmark</span>
+            </div>
+            <p style="font-size: 13px; color: #14532d; line-height: 1.5; margin-top: 4px; margin-bottom: 0;">
+                <span class="lang-text" data-en="Official mandi wholesale prices (₹/Quintal), arrival volumes across major agricultural hubs, MSP comparison, and revenue calculations for your registered farm holdings." data-te="25 రకాల వ్యవసాయ ఉత్పత్తుల హోల్‌సేల్ మార్కెట్ ధరలు, మార్కెట్ రాక పరిమాణాలు, MSP పోలిక మరియు మీ పొలానికి వచ్చే నికర రాబడి లెక్కలు." data-hi="25 कृषि जींसों के थोक भाव (₹/क्विंटल), आवक, MSP तुलना और आपके पंजीकृत खेत हेतु आय गणना।">
+                    Official mandi wholesale prices (₹/Quintal), arrival volumes across major agricultural hubs, MSP comparison, and revenue calculations for your registered farm holdings.
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- High Price Alerts Banner for Farmers -->
+{% if high_price_alerts %}
+<div class="high-price-banner" style="margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+        <div style="font-size: 28px;">🔥</div>
+        <div>
+            <div style="font-size: 14px; font-weight: 800; color: #166534;">
+                <span data-i18n="high_price_banner_title">HIGH MARKET PRICE ALERT</span>
+            </div>
+            <div style="font-size: 12.5px; color: #14532d; margin-top: 2px;">
+                <span class="lang-text" data-en="Commodities trading at high premium over MSP:" data-te="ప్రభుత్వ మద్దతు ధర (MSP) కంటే అధిక ధర పలుకుతున్న పంటలు:" data-hi="सरकारी समर्थन मूल्य (MSP) से अधिक भाव पर बिकने वाली फसलें:">Commodities trading at high premium over MSP:</span>
+                {% for a in high_price_alerts[:4] %}
+                <span style="display: inline-block; background: white; padding: 2px 8px; border-radius: 6px; border: 1px solid #86efac; margin: 2px 4px 2px 0; font-weight: 600;">
+                    <span class="lang-text" data-en="{{ a.commodity }}" data-te="{{ a.commodity_te }}" data-hi="{{ a.commodity_hi }}">{{ a.commodity }}</span>: ₹{{ '{:,.0f}'.format(a.price) }} (+₹{{ '{:,.0f}'.format(a.spread_rs) }})
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <a href="{{ url_for('notifications_page') }}" class="btn btn-secondary btn-sm" style="background: white; border-color: #86efac; color: #166534; white-space: nowrap;">
+        <span data-i18n="all_alerts_btn">🔔 All Alerts →</span>
+    </a>
+</div>
+{% endif %}
+
+<!-- SECTION 1: Top 4 Market Intelligence Highlight Cards -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+
+    <!-- Card 1: Value Leader -->
+    <div class="stat-card">
+        <div class="stat-icon green">🏆</div>
+        <div class="stat-info">
+            <div class="stat-value">Rs. {{ top_insights.highest_value.price|int }}</div>
+            <div class="stat-label">
+                <strong>
+                    <span class="lang-text" data-en="{{ top_insights.highest_value.commodity }}" data-te="{{ top_insights.highest_value.commodity_te }}" data-hi="{{ top_insights.highest_value.commodity_hi }}">{{ top_insights.highest_value.commodity }}</span>
+                </strong>
+                <div style="font-size: 11px; color: var(--text-secondary);" data-i18n="highest_val_label">Average Market Price (Rs./Quintal) • 25 Commodities Tracked</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Top 3-Day Gainer -->
+    <div class="stat-card">
+        <div class="stat-icon blue">🚀</div>
+        <div class="stat-info">
+            <div class="stat-value">+{{ top_insights.top_gainer.change_pct }}%</div>
+            <div class="stat-label">
+                <strong>
+                    <span class="lang-text" data-en="{{ top_insights.top_gainer.commodity }}" data-te="{{ top_insights.top_gainer.commodity_te }}" data-hi="{{ top_insights.top_gainer.commodity_hi }}">{{ top_insights.top_gainer.commodity }}</span>
+                </strong>
+                <div style="font-size: 11px; color: var(--text-secondary);" data-i18n="top_gainer_label">Top 3-Day Price Gainer</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Top Arrival Leader -->
+    <div class="stat-card">
+        <div class="stat-icon amber">🚚</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ (top_insights.top_arrival.arrival_tonnes / 1000)|round(1) }}k <span style="font-size: 13px; font-weight: normal;">MT</span></div>
+            <div class="stat-label">
+                <strong>
+                    <span class="lang-text" data-en="{{ top_insights.top_arrival.commodity }}" data-te="{{ top_insights.top_arrival.commodity_te }}" data-hi="{{ top_insights.top_arrival.commodity_hi }}">{{ top_insights.top_arrival.commodity }}</span>
+                </strong>
+                <div style="font-size: 11px; color: var(--text-secondary);" data-i18n="top_arrival_label">Largest Mandi Arrival Volume</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Best MSP Premium -->
+    <div class="stat-card">
+        <div class="stat-icon purple">⚖️</div>
+        <div class="stat-info">
+            <div class="stat-value">+{{ top_insights.top_premium.spread_pct|round(1) }}%</div>
+            <div class="stat-label">
+                <strong>
+                    <span class="lang-text" data-en="{{ top_insights.top_premium.commodity }}" data-te="{{ top_insights.top_premium.commodity_te }}" data-hi="{{ top_insights.top_premium.commodity_hi }}">{{ top_insights.top_premium.commodity }}</span>
+                </strong> (+₹{{ top_insights.top_premium.spread_rs|int }}/Q)
+                <div style="font-size: 11px; color: var(--text-secondary);" data-i18n="best_margin_label">Best Margin Over Govt MSP</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: Interactive Farmer Revenue & Selling Channel Calculator -->
+<div class="card" style="margin-bottom: 28px; background: linear-gradient(135deg, #f0fdf4, #ffffff); border-color: #bbf7d0;">
+    <div class="card-header" style="border-bottom-color: #dcfce7;">
+        <div class="card-title">
+            <span>💰</span> 
+            <span data-i18n="calc_title">
+                Farmer Mandi Revenue & Selling Advisory Calculator
+            </span>
+        </div>
+        <span class="badge-ready" style="padding: 3px 10px; font-size: 11px;">Instant Decision Engine</span>
+    </div>
+
+    <div class="form-grid-2" style="gap: 24px; align-items: center;">
+        <!-- Left: Input Form -->
+        <div>
+
+
+            <div class="form-group">
+                <label class="form-label" for="calcCommodity">
+                    <span data-i18n="select_harvested_crop">Select Your Harvested Crop:</span>
+                </label>
+                <select id="calcCommodity" class="form-select" onchange="calculateMandiRevenue()">
+                    {% for item in all_commodities_data %}
+                    <option value="{{ item.Commodity }}" 
+                            data-price="{{ item['Price on 01 Oct, 2026'] or 0 }}" 
+                            data-msp="{{ item['MSP (Rs./Quintal) 2026-27'] or 0 }}"
+                            data-en="{{ item.Commodity }} — ₹{{ (item['Price on 01 Oct, 2026'] or 0)|int }}/Quintal"
+                            data-te="{{ item.commodity_te or item.Commodity }} — ₹{{ (item['Price on 01 Oct, 2026'] or 0)|int }}/క్వింటాల్"
+                            data-hi="{{ item.commodity_hi or item.Commodity }} — ₹{{ (item['Price on 01 Oct, 2026'] or 0)|int }}/क्विंटल"
+                            data-name-te="{{ item.commodity_te or item.Commodity }}"
+                            data-group="{{ item['Commodity Group'] }}">
+                        {{ item.Commodity }} — ₹{{ (item['Price on 01 Oct, 2026'] or 0)|int }}/Quintal
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grid-2" style="gap: 12px; margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="calcQty">
+                        <span data-i18n="quantity_label">Quantity:</span>
+                    </label>
+                    <input type="number" id="calcQty" class="form-control" value="50" min="1" step="0.5" oninput="calculateMandiRevenue()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="calcUnit">
+                        <span data-i18n="unit_label">Unit:</span>
+                    </label>
+                    <select id="calcUnit" class="form-select" onchange="calculateMandiRevenue()">
+                        <option value="quintal" data-en="Quintals (100 kg)" data-te="క్వింటాళ్ళు (100 కేజీలు)" data-hi="क्विंटल (100 किग्रा)">Quintals (100 kg)</option>
+                        <option value="ton" data-en="Metric Tonnes (10 Quintals)" data-te="మెట్రిక్ టన్నులు (10 క్వింటాళ్ళు)" data-hi="मीट्रिक टन (10 क्विंटल)">Metric Tonnes (10 Quintals)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Real-time Revenue & Advisory Card -->
+        <div style="background: white; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--forest); text-transform: uppercase;">
+                    <span data-i18n="est_harvest_rev">Estimated Harvest Revenue</span>
+                </span>
+                <span id="calcAdvisoryBadge" class="badge-ready" style="padding: 2px 10px; font-size: 11px;">
+                    🟢 Sell in Mandi
+                </span>
+            </div>
+
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                <div id="calcMandiTotal" style="font-size: 28px; font-weight: 800; color: var(--forest);">
+                    ₹1,25,000
+                </div>
+                <span style="font-size: 13px; color: var(--text-secondary);">in Wholesale Mandi</span>
+            </div>
+
+            <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+                <span>Govt MSP Value: <strong id="calcMspTotal">₹1,15,000</strong></span> • 
+                <span id="calcSpreadGain" style="color: #065f46; font-weight: 700;">+₹10,000 (+8.7% vs MSP)</span>
+            </div>
+
+            <div id="calcTipText" style="font-size: 12.5px; color: var(--forest); line-height: 1.4; background: #ecfdf5; padding: 8px 12px; border-radius: var(--radius-sm);">
+                💡 Mandi rate is higher than Government MSP. Recommended to sell harvest in Mandi today.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 3: Filter & Search Controls -->
+<div class="card" style="margin-bottom: 24px;">
+    <form method="GET" action="{{ url_for('market_page') }}">
+        <div class="form-grid-3" style="align-items: end;">
+            <!-- Keyword Search -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="q">
+                    🔍 <span data-i18n="search_crop_label">Search Commodity / Crop</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="q" 
+                    name="q" 
+                    class="form-control" 
+                    placeholder="e.g. Paddy, Cotton, Wheat..." 
+                    data-en-placeholder="e.g. Paddy, Cotton, Wheat..."
+                    data-te-placeholder="ఉదా: వరి, పత్తి, గోధుమలు..."
+                    data-hi-placeholder="उदा: धान, कपास, गेहूं..."
+                    value="{{ search_query or '' }}"
+                >
+            </div>
+
+            <!-- Group Filter -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="group">
+                    📦 <span data-i18n="commodity_category_label">Commodity Category</span>
+                </label>
+                <select id="group" name="group" class="form-select" onchange="this.form.submit()">
+                    <option value="" data-en="-- All Commodity Groups --" data-te="-- అన్ని పంట విభాగాలు --" data-hi="-- सभी फसल श्रेणियां --" {% if not selected_group %}selected{% endif %}>-- All Commodity Groups --</option>
+                    {% for g in commodity_groups %}
+                    <option value="{{ g }}" {% if selected_group == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sorting Option -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="sort_by">
+                    ↕️ <span data-i18n="sort_order_label">Sort Order</span>
+                </label>
+                <select id="sort_by" name="sort_by" class="form-select" onchange="this.form.submit()">
+                    <option value="price_desc" data-en="Price: Highest to Lowest" data-te="ధర: అధికం నుండి తక్కువ" data-hi="भाव: अधिक से कम" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: Highest to Lowest</option>
+                    <option value="price_asc" data-en="Price: Lowest to Highest" data-te="ధర: తక్కువ నుండి అధికం" data-hi="भाव: कम से अधिक" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Lowest to Highest</option>
+                    <option value="arrival_desc" data-en="Arrival Volume: High to Low" data-te="రాకల పరిమాణం: అధికం నుండి తక్కువ" data-hi="आवक: अधिक से कम" {% if sort_by == 'arrival_desc' %}selected{% endif %}>Arrival Volume: High to Low</option>
+                    <option value="name_asc" data-en="Commodity Name (A - Z)" data-te="పంట పేరు (A - Z)" data-hi="फसल नाम (A - Z)" {% if sort_by == 'name_asc' %}selected{% endif %}>Commodity Name (A - Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Quick Category Filter Chips -->
+        <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">Quick Filter:</span>
+            <a href="{{ url_for('market_page') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">All</a>
+            <a href="{{ url_for('market_page', group='Cereals') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                <span class="lang-text" data-en="🌾 Cereals" data-te="🌾 ధాన్యాలు" data-hi="🌾 अनाज">🌾 Cereals</span>
+            </a>
+            <a href="{{ url_for('market_page', group='Pulses') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                <span class="lang-text" data-en="🌱 Pulses" data-te="🌱 పప్పులు" data-hi="🌱 दालें">🌱 Pulses</span>
+            </a>
+            <a href="{{ url_for('market_page', group='Oil Seeds') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                <span class="lang-text" data-en="🌻 Oilseeds" data-te="🌻 నూనెగింజలు" data-hi="🌻 तिलहन">🌻 Oilseeds</span>
+            </a>
+            <a href="{{ url_for('market_page', group='Vegetables') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                <span class="lang-text" data-en="🥕 Vegetables" data-te="🥕 కూరగాయలు" data-hi="🥕 सब्जियां">🥕 Vegetables</span>
+            </a>
+            <a href="{{ url_for('market_page', group='Commercial') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px; padding: 3px 8px;">
+                <span class="lang-text" data-en="💼 Commercial" data-te="💼 వాణిజ్య పంటలు" data-hi="💼 वाणिज्यिक">💼 Commercial</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- SECTION 4: Analytical Charts Grid -->
+<div class="form-grid-2" style="gap: 24px; margin-bottom: 28px;">
+    <!-- Chart 1: Market Price vs MSP Comparison -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>💰</span> 
+                <span class="lang-text" data-en="Top Commodities: Market Price vs Govt MSP" data-te="మార్కెట్ ధర vs ప్రభుత్వ కనీస మద్దతు ధర (MSP)" data-hi="बाजार भाव बनाम सरकारी समर्थन मूल्य (MSP)">
+                    Top Commodities: Market Price vs Govt MSP
+                </span>
+            </div>
+            <span style="font-size: 11px; color: var(--text-secondary);">Rs. / Quintal (01-Oct-2026)</span>
+        </div>
+        <div style="position: relative; height: 290px;">
+            <canvas id="priceMspChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 2: Top Mandi Arrival Volumes -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>🚚</span> 
+                <span class="lang-text" data-en="Top Mandi Arrival Volumes Distribution" data-te="మండీ రాకల పరిమాణ పంపిణీ" data-hi="मंडी दैनिक आवक मात्रा वितरण">
+                    Top Mandi Arrival Volumes Distribution
+                </span>
+            </div>
+            <span style="font-size: 11px; color: var(--text-secondary);">Metric Tonnes (01-Oct-2026)</span>
+        </div>
+        <div style="position: relative; height: 290px;">
+            <canvas id="arrivalChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 5: Comprehensive Mandi Commodity Table with Trading Advisories -->
+<div class="card">
+    <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
+        <div class="card-title">
+            <span>📋</span> Mandi Daily Price & Arrival Report Table ({{ market_items|length }} Records)
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="font-size: 12px;">
+                🖨️ <span class="lang-text" data-en="Print Sheet" data-te="ప్రింట్" data-hi="प्रिंट">Print</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportMarketTableToCSV()" style="font-size: 12px;">
+                📥 <span class="lang-text" data-en="Export CSV" data-te="CSV డౌన్‌లోడ్" data-hi="CSV डाउनलोड">Export CSV</span>
+            </button>
+        </div>
+    </div>
+
+    {% if market_items %}
+    <div class="table-responsive">
+        <table class="table" id="mandiDataTable">
+            <thead>
+                <tr>
+                    <th class="lang-text" data-en="Commodity" data-te="పంట / ఉత్పత్తి" data-hi="फसल / उत्पाद">Commodity</th>
+                    <th class="lang-text" data-en="Category" data-te="విభాగం" data-hi="श्रेणी">Category</th>
+                    <th class="lang-text" data-en="Govt MSP" data-te="ప్రభుత్వ MSP" data-hi="सरकारी MSP">Govt MSP</th>
+                    <th class="lang-text" data-en="Price (01 Oct)" data-te="ధర (01 అక్టోబర్)" data-hi="भाव (01 अक्टूबर)">Price (01 Oct)</th>
+                    <th class="lang-text" data-en="Price (30 Sep)" data-te="ధర (30 సెప్టెంబర్)" data-hi="भाव (30 सितंबर)">Price (30 Sep)</th>
+                    <th class="lang-text" data-en="Price (29 Sep)" data-te="ధర (29 సెప్టెంబర్)" data-hi="भाव (29 सितंबर)">Price (29 Sep)</th>
+                    <th class="lang-text" data-en="3-Day Momentum" data-te="3 రోజుల మార్పు" data-hi="3-दिवसीय बदलाव">3-Day Momentum</th>
+                    <th class="lang-text" data-en="Selling Advisory" data-te="విక్రయ సలహా" data-hi="बिक्री सलाह">Selling Advisory</th>
+                    <th class="lang-text" data-en="Arrivals" data-te="మండీ రాకలు" data-hi="मंडी आवक">Arrivals</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in market_items %}
+                <tr>
+                    <td>
+                        <strong style="color: var(--text-primary); font-size: 13.5px;">
+                            <span class="lang-text" data-en="{{ row.Commodity }}" data-te="{{ row.commodity_te or row.Commodity }}" data-hi="{{ row.commodity_hi or row.Commodity }}">{{ row.Commodity }}</span>
+                        </strong>
+                    </td>
+                    <td>
+                        <span style="font-size: 11px; background: #f1f5f9; padding: 2px 8px; border-radius: 8px; font-weight: 600;">
+                            {{ row['Commodity Group'] }}
+                        </span>
+                    </td>
+                    
+                    <td>
+                        {% if row['MSP (Rs./Quintal) 2026-27'] %}
+                        <strong style="color: #92400e;">Rs. {{ row['MSP (Rs./Quintal) 2026-27']|int }}</strong>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 12px;">Non-MSP</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if row['Price on 01 Oct, 2026'] %}
+                        <strong style="color: var(--forest); font-size: 14.5px;">Rs. {{ row['Price on 01 Oct, 2026']|round(2) }}</strong>
+                        {% else %}
+                        <span style="color: var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td style="color: var(--text-secondary); font-size: 12.5px;">
+                        {% if row['Price on 30 Sep, 2026'] %}Rs. {{ row['Price on 30 Sep, 2026']|round(2) }}{% else %}—{% endif %}
+                    </td>
+
+                    <td style="color: var(--text-secondary); font-size: 12.5px;">
+                        {% if row['Price on 29 Sep, 2026'] %}Rs. {{ row['Price on 29 Sep, 2026']|round(2) }}{% else %}—{% endif %}
+                    </td>
+
+                    <td>
+                        {% if row.price_change_pct_3d is not none %}
+                            {% if row.price_change_pct_3d > 1.5 %}
+                            <span class="badge-ready" style="padding: 2px 8px; border-radius: 12px; font-size: 11.5px; font-weight: bold;">
+                                ⬆ +{{ row.price_change_pct_3d }}%
+                            </span>
+                            {% elif row.price_change_pct_3d < -1.5 %}
+                            <span style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 12px; font-size: 11.5px; font-weight: bold;">
+                                ⬇ {{ row.price_change_pct_3d }}%
+                            </span>
+                            {% else %}
+                            <span style="background: #f1f5f9; color: var(--text-secondary); padding: 2px 8px; border-radius: 12px; font-size: 11.5px;">
+                                ⏺ {{ row.price_change_pct_3d }}%
+                            </span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if row.advisory_color == 'green' %}
+                        <span class="badge-ready" style="padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                            <span class="lang-text" data-en="🟢 {{ row.advisory_action }}" data-te="🟢 {{ row.advisory_te }}" data-hi="🟢 {{ row.advisory_action }}">🟢 {{ row.advisory_action }}</span>
+                        </span>
+                        {% elif row.advisory_color == 'red' %}
+                        <span style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                            <span class="lang-text" data-en="🔴 {{ row.advisory_action }}" data-te="🔴 {{ row.advisory_te }}" data-hi="🔴 {{ row.advisory_action }}">🔴 {{ row.advisory_action }}</span>
+                        </span>
+                        {% elif row.advisory_color == 'amber' %}
+                        <span style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                            <span class="lang-text" data-en="🟡 {{ row.advisory_action }}" data-te="🟡 {{ row.advisory_te }}" data-hi="🟡 {{ row.advisory_action }}">🟡 {{ row.advisory_action }}</span>
+                        </span>
+                        {% else %}
+                        <span style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                            <span class="lang-text" data-en="🔵 {{ row.advisory_action }}" data-te="🔵 {{ row.advisory_te }}" data-hi="🔵 {{ row.advisory_action }}">🔵 {{ row.advisory_action }}</span>
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if row['Arrival on 01 Oct, 2026'] %}
+                        <strong>{{ row['Arrival on 01 Oct, 2026']|round(1) }}</strong> <span style="font-size: 11px; color: var(--text-secondary);">MT</span>
+                        {% else %}
+                        <span style="color: var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px; color: var(--text-secondary);">
+        <p style="font-size: 15px; margin-bottom: 12px;">No commodities match your filter criteria.</p>
+        <a href="{{ url_for('market_page') }}" class="btn btn-secondary btn-sm">↺ Clear Filters</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Chart.js CDN & Interactive Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initial Revenue Calculation
+    calculateMandiRevenue();
+
+    // 2. Price vs MSP Comparison Chart
+    const priceMspLabels = {{ chart_data.price_msp_labels|tojson }};
+    const marketPrices = {{ chart_data.market_prices|tojson }};
+    const mspPrices = {{ chart_data.msp_prices|tojson }};
+
+    const ctxPriceMsp = document.getElementById('priceMspChart');
+    if (ctxPriceMsp) {
+        new Chart(ctxPriceMsp, {
+            type: 'bar',
+            data: {
+                labels: priceMspLabels,
+                datasets: [
+                    {
+                        label: 'Market Price (Rs./Q)',
+                        data: marketPrices,
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10b981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Govt MSP Benchmark (Rs./Q)',
+                        data: mspPrices,
+                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': Rs. ' + context.parsed.y.toLocaleString('en-IN');
+                            }
+                        }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return '₹' + value.toLocaleString('en-IN'); }
+                        }
+                    } 
+                }
+            }
+        });
+    }
+
+    // 3. Arrival Volumes Doughnut Chart
+    const arrivalLabels = {{ chart_data.arrival_labels|tojson }};
+    const arrivalValues = {{ chart_data.arrival_values|tojson }};
+
+    const ctxArrival = document.getElementById('arrivalChart');
+    if (ctxArrival) {
+        new Chart(ctxArrival, {
+            type: 'doughnut',
+            data: {
+                labels: arrivalLabels,
+                datasets: [{
+                    data: arrivalValues,
+                    backgroundColor: [
+                        '#10b981',
+                        '#0284c7',
+                        '#f59e0b',
+                        '#8b5cf6',
+                        '#ec4899',
+                        '#14b8a6'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'right' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed.toLocaleString('en-IN') + ' MT';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+
+function onMarketFarmSelected(farmSelect) {
+    if (!farmSelect) return;
+    const opt = farmSelect.options[farmSelect.selectedIndex];
+    if (!opt || !opt.value) return;
+
+    const area = parseFloat(opt.getAttribute('data-area')) || 5.0;
+    const cropName = (opt.getAttribute('data-crop') || 'Rice').toLowerCase();
+
+    // Match commodity in dropdown
+    const commSelect = document.getElementById('calcCommodity');
+    if (commSelect) {
+        for (let i = 0; i < commSelect.options.length; i++) {
+            const val = commSelect.options[i].value.toLowerCase();
+            if (val.includes(cropName) || cropName.includes(val)) {
+                commSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    // Auto-scale typical yield in quintals (e.g. 20 quintals per acre)
+    const qtyInput = document.getElementById('calcQty');
+    const unitSelect = document.getElementById('calcUnit');
+    if (qtyInput) {
+        qtyInput.value = Math.round(area * 22.0);
+    }
+    if (unitSelect) {
+        unitSelect.value = 'quintal';
+    }
+
+    calculateMandiRevenue();
+}
+
+// Interactive Mandi Revenue Calculator Function
+function calculateMandiRevenue() {
+    const select = document.getElementById('calcCommodity');
+    const qtyInput = document.getElementById('calcQty');
+    const unitSelect = document.getElementById('calcUnit');
+
+    if (!select || !qtyInput) return;
+
+    const opt = select.options[select.selectedIndex];
+    const pricePerQuintal = parseFloat(opt.getAttribute('data-price')) || 0;
+    const mspPerQuintal = parseFloat(opt.getAttribute('data-msp')) || 0;
+    const rawQty = parseFloat(qtyInput.value) || 0;
+    const isTon = unitSelect && unitSelect.value === 'ton';
+
+    // Convert tons to quintals (1 Ton = 10 Quintals)
+    const quintals = isTon ? rawQty * 10 : rawQty;
+
+    const mandiTotal = quintals * pricePerQuintal;
+    const mspTotal = quintals * mspPerQuintal;
+    const diff = mandiTotal - mspTotal;
+
+    const mandiEl = document.getElementById('calcMandiTotal');
+    const mspEl = document.getElementById('calcMspTotal');
+    const spreadEl = document.getElementById('calcSpreadGain');
+    const badgeEl = document.getElementById('calcAdvisoryBadge');
+    const tipEl = document.getElementById('calcTipText');
+
+    if (mandiEl) mandiEl.textContent = '₹' + Math.round(mandiTotal).toLocaleString('en-IN');
+    if (mspEl) {
+        if (mspPerQuintal > 0) {
+            mspEl.textContent = '₹' + Math.round(mspTotal).toLocaleString('en-IN');
+        } else {
+            mspEl.textContent = 'Non-MSP Crop';
+        }
+    }
+
+    if (spreadEl && badgeEl && tipEl) {
+        if (mspPerQuintal <= 0) {
+            spreadEl.textContent = 'Market-Driven Wholesale Pricing';
+            spreadEl.style.color = '#0284c7';
+            badgeEl.className = 'badge-ready';
+            badgeEl.textContent = '🔵 Market Driven';
+            tipEl.textContent = '💡 This is a perishable / market-driven crop without statutory MSP. Sell based on current daily arrival supply.';
+        } else if (diff >= 0) {
+            const pct = ((diff / mspTotal) * 100).toFixed(1);
+            spreadEl.textContent = '+₹' + Math.round(diff).toLocaleString('en-IN') + ' (+' + pct + '% over MSP)';
+            spreadEl.style.color = '#065f46';
+            badgeEl.className = 'badge-ready';
+            badgeEl.textContent = '🟢 Sell in Mandi';
+            tipEl.textContent = '💡 Mandi wholesale rate is ₹' + Math.round(pricePerQuintal - mspPerQuintal).toLocaleString('en-IN') + '/Q higher than Government MSP. Highly profitable to sell in Mandi!';
+        } else {
+            const pct = ((Math.abs(diff) / mspTotal) * 100).toFixed(1);
+            spreadEl.textContent = '-₹' + Math.round(Math.abs(diff)).toLocaleString('en-IN') + ' (-' + pct + '% below MSP)';
+            spreadEl.style.color = '#991b1b';
+            badgeEl.className = 'badge-coming-soon';
+            badgeEl.style.background = '#fef2f2';
+            badgeEl.style.color = '#991b1b';
+            badgeEl.textContent = '🔴 Sell at Govt MSP Center';
+            tipEl.textContent = '⚠️ Mandi price is ₹' + Math.round(mspPerQuintal - pricePerQuintal).toLocaleString('en-IN') + '/Q lower than Govt MSP. Recommend delivering to Government FCI / Procurement center!';
+        }
+    }
+}
+
+// Export Table to CSV function
+function exportMarketTableToCSV() {
+    let csv = [];
+    const rows = document.querySelectorAll("#mandiDataTable tr");
+    for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) {
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/(\s\s+)/gm, " ");
+            data = data.replace(/"/g, '""');
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(","));
+    }
+    const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+    const downloadLink = document.createElement("a");
+    downloadLink.download = "mandi_market_bulletin_agri_smart_ai.csv";
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+</script>
+{% endblock %}

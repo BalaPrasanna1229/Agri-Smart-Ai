@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Farm Advisory (360° AI) — Agri Smart AI{% endblock %}
+{% block header_title %}
+    <span class="lang-text" data-en="AI Smart Farm Advisory Engine (360° Intelligence)" data-te="రైతు సమగ్ర వ్యవసాయ సలహా ఇంజిన్ (360° AI)" data-hi="किसान समग्र कृषि सलाहकार इंजन (360° AI)">AI Smart Farm Advisory Engine (360° Intelligence)</span>
+{% endblock %}
+{% block header_subtitle %}
+    <span class="lang-text" data-en="Single Master Input: Enter your farm or soil test values to generate the complete 8-Slide Action Plan (Crop Suitability, Harvest Yield, Mandi Revenue, Disease Prevention, Pesticide Dosages, Irrigation & Soil Health)" data-te="ఒక్క క్లిక్‌తో పూర్తి వ్యవసాయ నివేదిక: పొలం వివరాలు లేదా నేల పరీక్ష వివరాలను నమోదు చేసి 8-స్లైడ్ల ప్రెజెంటేషన్ పొందండి (పంట సిఫార్సు, దిగుబడి, మార్కెట్ రాబడి, తెగుళ్ల నివారణ, పురుగు మందులు, సాగునీరు & నేల ఆరోగ్యం)" data-hi="एकल इनपुट: खेत या मिट्टी परीक्षण डेटा दर्ज करें और संपूर्ण 8-स्लाइड एक्शन प्लान प्राप्त करें (फसल सिफारिश, पैदावार, मंडी भाव, रोग रोकथाम, कीटनाशक, सिंचाई व मिट्टी)">Single Master Input: Enter your farm or soil test values to generate the complete 8-Slide Action Plan (Crop Suitability, Harvest Yield, Mandi Revenue, Disease Prevention, Pesticide Dosages, Irrigation & Soil Health)</span>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+    <!-- Recommendation Form Card -->
+    <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 12px 36px -6px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(16, 185, 129, 0.05);">
+        
+        <div class="card-header" style="background: linear-gradient(135deg, rgba(240, 253, 244, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%); padding: 18px 22px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; margin: -28px -28px 24px -28px; border-bottom: 1px solid rgba(16, 185, 129, 0.15);">
+            <div class="card-title" style="font-size: 19px; color: var(--forest); display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px; background: white; padding: 6px; border-radius: 10px; box-shadow: var(--shadow-sm);">📋</span> 
+                <span class="lang-text" data-en="Soil & Farm Intelligence Feature Input" data-te="నేల పరీక్ష & వ్యవసాయ సమాచార నమోదు" data-hi="मिट्टी परीक्षण व कृषि डेटा प्रविष्टि">Soil & Farm Intelligence Feature Input</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="badge-ready" style="padding: 5px 12px; font-size: 12px; border-radius: 20px; font-weight: 700;">
+                    🌱 <span class="lang-text" data-en="Farm-Profile Driven" data-te="రైతు పొలం ప్రొఫైల్ ఆధారితం" data-hi="किसान प्रोफ़ाइल आधारित">Farm-Profile Driven</span>
+                </span>
+                <span class="badge-ready" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0369a1; border-color: #7dd3fc; padding: 5px 12px; font-size: 12px; border-radius: 20px; font-weight: 700; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);">
+                    ⚡ <span class="lang-text" data-en="1-Click 8-Slide Output" data-te="1-క్లిక్ 8-స్లైడ్ల నివేదిక" data-hi="1-क्लिक 8-स्लाइड रिपोर्ट">1-Click 8-Slide Output</span>
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('crop_recommend') }}">
+            <!-- Farm Selector (Optional) -->
+            <div class="form-group" style="background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%); padding: 20px 22px; border-radius: 16px; border: 1.5px solid #93c5fd; margin-bottom: 26px; box-shadow: 0 4px 18px rgba(59, 130, 246, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <label class="form-label" for="farm_id" style="font-weight: 800; color: #1e3a8a; margin-bottom: 0; font-size: 15px;">
+                        🏡 <span class="lang-text" data-en="Selected Farm Holding (Farmer Profile Driven)" data-te="ఎంచుకున్న రైతు పొలం (ప్రొఫైల్ ఆధారంగా)" data-hi="चयनित खेत (किसान प्रोफ़ाइल आधारित)">Selected Farm Holding (Farmer Profile Driven)</span>
+                    </label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="autofillFarmBaselines()" style="background: white; border-color: #93c5fd; color: #1d4ed8; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            ⚡ <span class="lang-text" data-en="Auto-Fill Farm Baselines" data-te="పొలం వివరాలు ఆటో-ఫిల్ చేయండి" data-hi="खेत डेटा स्वतः भरें">Auto-Fill Farm Baselines</span>
+                        </button>
+                        <button type="button" id="btn-quick-farm-advisory" class="btn btn-primary btn-sm" onclick="generateSelectedFarmAdvisoryDirect()" style="font-weight: 800; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                            🚀 <span class="lang-text" data-en="1-Click Complete Output (Slides)" data-te="1-క్లిక్ పూర్తి నివేదిక (స్లైడ్స్)" data-hi="1-क्लिक संपूर्ण रिपोर्ट (स्लाइड्स)">1-Click Complete Output (Slides)</span>
+                        </button>
+                    </div>
+                </div>
+                <select id="farm_id" name="farm_id" class="form-select" onchange="onFarmSelected(this)" style="font-weight: 600; background-color: #ffffff; border-color: #bfdbfe; font-size: 14.5px;">
+                    <option value="" data-area="5.0" data-soil="Loamy" data-irr="Drip" data-en="-- Standalone Soil Test (Default 5.0 Acres) --" data-te="-- ప్రత్యేకం / సాధారణ పరీక్ష (5.0 ఎకరాలు) --" data-hi="-- सामान्य परीक्षण (डिफ़ॉल्ट 5.0 एकड़) --">-- Standalone Soil Test (Default 5.0 Acres) --</option>
+                    {% for f in farms %}
+                    <option value="{{ f.id }}" 
+                            data-area="{{ f.land_area }}" 
+                            data-soil="{{ f.soil_type }}" 
+                            data-irr="{{ f.irrigation_type }}"
+                            data-crop="{{ f.current_crop }}"
+                            data-district="{{ f.district }}"
+                            {% if selected_farm_id and selected_farm_id == f.id %}selected{% elif loop.first and not selected_farm_id %}selected{% endif %}>
+                        {{ f.farm_name }} ({{ f.district }}, {{ f.state }} — {{ f.land_area }} acres • {{ f.soil_type }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="form-help" style="margin-top: 10px; color: #1e40af; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                    <span>💡</span>
+                    <span class="lang-text" 
+                          data-en="All 8 agronomic pillars (Crop, Yield, Disease, Pesticides, Irrigation, Soil, Mandi Prices) are automatically generated from this farm holding." 
+                          data-te="ఈ పొలం వివరాల ఆధారంగా మొత్తం 8 రకాల నివేదికలు (పంట, దిగుబడి, మందులు, సాగునీరు, మార్కెట్ ధరలు) ఆటోమేటిక్‌గా లెక్కించబడతాయి." 
+                          data-hi="इस खेत के आधार पर सभी 8 रिपोर्ट (फसल, पैदावार, कीटनाशक, सिंचाई, मंडी भाव) स्वतः तैयार होंगी।">
+                        All 8 agronomic pillars (Crop, Yield, Disease, Pesticides, Irrigation, Soil, Mandi Prices) are automatically generated from this farm holding.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Section 1: Soil Chemical Properties -->
+            <div style="display: flex; align-items: center; gap: 10px; margin: 24px 0 16px 0;">
+                <span style="background: #ecfdf5; color: #065f46; border: 1.5px solid #a7f3d0; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                    🌱 1. <span data-i18n="soil_section_1">Soil Chemical Properties (NPK & pH)</span>
+                </span>
+                <div style="flex: 1; height: 1px; background: linear-gradient(90deg, #a7f3d0, transparent);"></div>
+            </div>
+
+            <!-- NPK Inputs -->
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="N">
+                        <span>🌿</span> <span class="lang-text" data-en="Nitrogen (N) Ratio" data-te="నత్రజని (N) నిష్పత్తి" data-hi="नाइट्रोजन (N) अनुपात">Nitrogen (N) Ratio</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        max="200" 
+                        id="N" 
+                        name="N" 
+                        class="form-control" 
+                        placeholder="e.g. 90 (0 - 140)" 
+                        value="{{ form_data.N if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Soil nitrogen ratio (kg/ha)" data-te="నేలలో నత్రజని పరిమాణం (కేజీ/హెక్టార్)" data-hi="मिट्टी में नाइट्रोजन मात्रा (किग्रा/हेक्टेयर)">Soil nitrogen ratio (kg/ha)</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="P">
+                        <span>🧪</span> <span class="lang-text" data-en="Phosphorus (P) Ratio" data-te="భాస్వరం (P) నిష్పత్తి" data-hi="फास्फोरस (P) अनुपात">Phosphorus (P) Ratio</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        max="200" 
+                        id="P" 
+                        name="P" 
+                        class="form-control" 
+                        placeholder="e.g. 42 (5 - 145)" 
+                        value="{{ form_data.P if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Soil phosphorus ratio" data-te="నేలలో భాస్వరం పరిమాణం" data-hi="मिट्टी में फास्फोरस मात्रा">Soil phosphorus ratio</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="K">
+                        <span>⚡</span> <span class="lang-text" data-en="Potassium (K) Ratio" data-te="పొటాషియం (K) నిష్పత్తి" data-hi="पोटेशियम (K) अनुपात">Potassium (K) Ratio</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        max="250" 
+                        id="K" 
+                        name="K" 
+                        class="form-control" 
+                        placeholder="e.g. 43 (5 - 205)" 
+                        value="{{ form_data.K if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Soil potassium ratio" data-te="నేలలో పొటాషియం పరిమాణం" data-hi="मिट्टी में पोटेशियम मात्रा">Soil potassium ratio</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="max-width: 320px;">
+                <label class="form-label" for="ph">
+                    <span>💧</span> <span class="lang-text" data-en="Soil pH Level" data-te="నేల pH విలువ" data-hi="मिट्टी का pH स्तर">Soil pH Level</span> <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    step="0.01" 
+                    min="0" 
+                    max="14" 
+                    id="ph" 
+                    name="ph" 
+                    class="form-control" 
+                    placeholder="e.g. 6.5 (3.5 - 9.9)" 
+                    value="{{ form_data.ph if form_data else '' }}" 
+                    required
+                >
+                <div class="form-help">
+                    <span class="lang-text" data-en="Standard pH scale (0.0 to 14.0)" data-te="ప్రామాణిక pH స్కేల్ (0.0 నుండి 14.0)" data-hi="मानक pH पैमाना (0.0 से 14.0)">Standard pH scale (0.0 to 14.0)</span>
+                </div>
+            </div>
+
+            <!-- Section 2: Environmental & Climate Parameters -->
+            <div style="display: flex; align-items: center; gap: 10px; margin: 28px 0 16px 0;">
+                <span style="background: #eff6ff; color: #1e40af; border: 1.5px solid #bfdbfe; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                    🌦️ 2. <span data-i18n="soil_section_2">Environmental & Climate Parameters</span>
+                </span>
+                <div style="flex: 1; height: 1px; background: linear-gradient(90deg, #bfdbfe, transparent);"></div>
+            </div>
+
+            <!-- Climatic Inputs -->
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="temperature">
+                        <span>🌡️</span> <span class="lang-text" data-en="Temperature (°C)" data-te="ఉష్ణోగ్రత (°C)" data-hi="तापमान (°C)">Temperature (°C)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="-10" 
+                        max="60" 
+                        id="temperature" 
+                        name="temperature" 
+                        class="form-control" 
+                        placeholder="e.g. 24.5" 
+                        value="{{ form_data.temperature if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Average ambient temperature" data-te="సగటు వాతావరణ ఉష్ణోగ్రత" data-hi="औसत वातावरण तापमान">Average ambient temperature</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="humidity">
+                        <span>💧</span> <span class="lang-text" data-en="Relative Humidity (%)" data-te="సాపేక్ష తేమ (%)" data-hi="सापेक्ष आर्द्रता (%)">Relative Humidity (%)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        max="100" 
+                        id="humidity" 
+                        name="humidity" 
+                        class="form-control" 
+                        placeholder="e.g. 80.0 (10 - 100%)" 
+                        value="{{ form_data.humidity if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Atmospheric relative humidity" data-te="వాతావరణ తేమ శాతం" data-hi="वायुमंडलीय आर्द्रता">Atmospheric relative humidity</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="rainfall">
+                        <span>🌧️</span> <span class="lang-text" data-en="Rainfall (mm)" data-te="వర్షపాతం (mm)" data-hi="वर्षा (मिमी)">Rainfall (mm)</span> <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        max="500" 
+                        id="rainfall" 
+                        name="rainfall" 
+                        class="form-control" 
+                        placeholder="e.g. 200.0 (20 - 300mm)" 
+                        value="{{ form_data.rainfall if form_data else '' }}" 
+                        required
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Seasonal precipitation total" data-te="సీజన్ మొత్తం వర్షపాతం" data-hi="मौसमी कुल वर्षा">Seasonal precipitation total</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Farm Parcel & Harvest Parameters -->
+            <div style="display: flex; align-items: center; gap: 10px; margin: 28px 0 16px 0;">
+                <span style="background: #fffbeb; color: #92400e; border: 1.5px solid #fde68a; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                    🏡 3. <span data-i18n="soil_section_3">Farm Land & Cultivation Acreage</span>
+                </span>
+                <div style="flex: 1; height: 1px; background: linear-gradient(90deg, #fde68a, transparent);"></div>
+            </div>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="farm_area">
+                        <span>📐</span> <span class="lang-text" data-en="Farm Land Area (Acres)" data-te="పొలం విస్తీర్ణం (ఎకరాలు)" data-hi="खेत का क्षेत्रफल (एकड़)">Farm Land Area (Acres)</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.1" 
+                        min="0.1" 
+                        max="5000" 
+                        id="farm_area" 
+                        name="farm_area" 
+                        class="form-control" 
+                        placeholder="e.g. 5.0" 
+                        value="5.0"
+                    >
+                    <div class="form-help">
+                        <span class="lang-text" data-en="Total cultivation acreage for yield calculation" data-te="దిగుబడి లెక్కించడానికి మొత్తం సాగు విస్తీర్ణం" data-hi="उपज गणना हेतु कुल कृषि क्षेत्रफल">Total cultivation acreage for yield calculation</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="soil_type">
+                        <span>🏜️</span> <span class="lang-text" data-en="Soil Type" data-te="నేల రకం" data-hi="मिट्टी का प्रकार">Soil Type</span>
+                    </label>
+                    <select id="soil_type" name="soil_type" class="form-select">
+                        <option value="Loamy" data-en="Loamy Soil" data-te="మట్టి నేల" data-hi="दोमट मिट्टी" selected>Loamy Soil</option>
+                        <option value="Clayey" data-en="Clayey Soil" data-te="నల్లరేగడి నేల" data-hi="चिकनी मिट्टी">Clayey Soil</option>
+                        <option value="Sandy" data-en="Sandy Soil" data-te="ఇసుక నేల" data-hi="बलुई मिट्टी">Sandy Soil</option>
+                        <option value="Silty" data-en="Silty Soil" data-te="వండలి నేల" data-hi="गाद मिट्टी">Silty Soil</option>
+                        <option value="Red" data-en="Red Soil" data-te="ఎర్ర నేల" data-hi="लाल मिट्टी">Red Soil</option>
+                        <option value="Black" data-en="Black Cotton Soil" data-te="నల్ల నేల" data-hi="काली मिट्टी">Black Cotton Soil</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="irrigation_type">
+                        <span>🚿</span> <span class="lang-text" data-en="Irrigation System" data-te="నీటి పారుదల వ్యవస్థ" data-hi="सिंचाई प्रणाली">Irrigation System</span>
+                    </label>
+                    <select id="irrigation_type" name="irrigation_type" class="form-select">
+                        <option value="Drip" data-en="Drip Irrigation" data-te="బిందు సేద్యం" data-hi="ड्रिप सिंचाई" selected>Drip Irrigation</option>
+                        <option value="Sprinkler" data-en="Sprinkler" data-te="తుంపర సేద్యం" data-hi="स्प्रिंकलर">Sprinkler</option>
+                        <option value="Canal" data-en="Canal Flow" data-te="కాలువ నీరు" data-hi="नहर सिंचाई">Canal Flow</option>
+                        <option value="Borewell" data-en="Borewell" data-te="బోరుబావి" data-hi="नलकूप / बोरवेल">Borewell</option>
+                        <option value="Rainfed" data-en="Rainfed" data-te="వర్షాధారం" data-hi="वर्षा आधारित">Rainfed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 32px;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 16px; font-size: 16px; font-weight: 800; letter-spacing: 0.3px;" data-i18n="btn_submit_advisory">
+                    🚀 Generate 360° Comprehensive Farm Advisory →
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function onFarmSelected(selectEl) {
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    if (selectedOption) {
+        const area = selectedOption.getAttribute('data-area');
+        const soil = selectedOption.getAttribute('data-soil');
+        const irr = selectedOption.getAttribute('data-irr');
+        if (area) document.getElementById('farm_area').value = area;
+        if (soil) {
+            const soilEl = document.getElementById('soil_type');
+            for (let i = 0; i < soilEl.options.length; i++) {
+                if (soilEl.options[i].value.toLowerCase().includes(soil.toLowerCase()) || soil.toLowerCase().includes(soilEl.options[i].value.toLowerCase())) {
+                    soilEl.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        if (irr) {
+            const irrEl = document.getElementById('irrigation_type');
+            for (let i = 0; i < irrEl.options.length; i++) {
+                if (irrEl.options[i].value.toLowerCase().includes(irr.toLowerCase()) || irr.toLowerCase().includes(irrEl.options[i].value.toLowerCase())) {
+                    irrEl.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function autofillFarmBaselines() {
+    const farmSelect = document.getElementById('farm_id');
+    const selectedOption = farmSelect.options[farmSelect.selectedIndex];
+    const soil = (selectedOption.getAttribute('data-soil') || 'Loamy').toLowerCase();
+    
+    if (soil.includes('clay') || soil.includes('black')) {
+        document.getElementById('N').value = 95;
+        document.getElementById('P').value = 45;
+        document.getElementById('K').value = 42;
+        document.getElementById('ph').value = 6.8;
+        document.getElementById('temperature').value = 25.5;
+        document.getElementById('humidity').value = 80.0;
+        document.getElementById('rainfall').value = 195.0;
+    } else if (soil.includes('sand')) {
+        document.getElementById('N').value = 55;
+        document.getElementById('P').value = 35;
+        document.getElementById('K').value = 40;
+        document.getElementById('ph').value = 6.2;
+        document.getElementById('temperature').value = 27.0;
+        document.getElementById('humidity').value = 62.0;
+        document.getElementById('rainfall').value = 85.0;
+    } else if (soil.includes('red')) {
+        document.getElementById('N').value = 75;
+        document.getElementById('P').value = 38;
+        document.getElementById('K').value = 60;
+        document.getElementById('ph').value = 6.4;
+        document.getElementById('temperature').value = 26.0;
+        document.getElementById('humidity').value = 68.0;
+        document.getElementById('rainfall').value = 125.0;
+    } else {
+        document.getElementById('N').value = 85;
+        document.getElementById('P').value = 45;
+        document.getElementById('K').value = 45;
+        document.getElementById('ph').value = 6.5;
+        document.getElementById('temperature').value = 24.5;
+        document.getElementById('humidity').value = 75.0;
+        document.getElementById('rainfall').value = 150.0;
+    }
+    onFarmSelected(farmSelect);
+}
+
+function generateSelectedFarmAdvisoryDirect() {
+    const farmSelect = document.getElementById('farm_id');
+    const farmId = farmSelect ? farmSelect.value : '';
+    if (farmId) {
+        window.location.href = '/farm/' + farmId + '/advisory';
+    } else {
+        document.querySelector('form').submit();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const farmSelect = document.getElementById('farm_id');
+    if (farmSelect) {
+        onFarmSelected(farmSelect);
+        if (!document.getElementById('N').value) {
+            autofillFarmBaselines();
+        }
+    }
+});
+</script>
+{% endblock %}
