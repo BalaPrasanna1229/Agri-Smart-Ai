@@ -23,6 +23,36 @@ try:
 except ImportError:
     PIL_AVAILABLE = False
 
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+
+_disease_face_classifiers: List[Any] = []
+def _get_disease_face_classifiers():
+    global _disease_face_classifiers
+    if not CV2_AVAILABLE or _disease_face_classifiers:
+        return _disease_face_classifiers
+    base_dir = Path(__file__).resolve().parent.parent / "models"
+    frontal_path = base_dir / "haarcascade_frontalface_default.xml"
+    profile_path = base_dir / "haarcascade_profileface.xml"
+    if frontal_path.exists():
+        try:
+            c = cv2.CascadeClassifier(str(frontal_path))
+            if not c.empty():
+                _disease_face_classifiers.append(c)
+        except Exception:
+            pass
+    if profile_path.exists():
+        try:
+            p = cv2.CascadeClassifier(str(profile_path))
+            if not p.empty():
+                _disease_face_classifiers.append(p)
+        except Exception:
+            pass
+    return _disease_face_classifiers
+
 from src.data_loader import load_disease_metadata
 
 
@@ -861,8 +891,32 @@ class DiseaseLookup:
         reason_hi = ""
         reason_ta = ""
 
+        # Priority 0: OpenCV Haar Cascade Face Detection
+        is_haar_face = False
+        if CV2_AVAILABLE:
+            try:
+                clfs = _get_disease_face_classifiers()
+                if clfs:
+                    cv_rgb = np.array(img.convert("RGB"))
+                    ch, cw = cv_rgb.shape[:2]
+                    c_scale = 480.0 / max(ch, cw)
+                    c_scaled = cv2.resize(cv_rgb, (max(64, int(cw * c_scale)), max(64, int(ch * c_scale))))
+                    c_gray = cv2.cvtColor(c_scaled, cv2.COLOR_RGB2GRAY)
+                    min_sz = (int(min(c_scaled.shape[:2]) * 0.18), int(min(c_scaled.shape[:2]) * 0.18))
+                    for clf in clfs:
+                        dets = clf.detectMultiScale(c_gray, scaleFactor=1.1, minNeighbors=4, minSize=min_sz)
+                        for (fx, fy, fw, fh) in dets:
+                            face_roi = c_gray[fy:fy+fh, fx:fx+fw]
+                            if float(cv2.Laplacian(face_roi, cv2.CV_64F).var()) < 450:
+                                is_haar_face = True
+                                break
+                        if is_haar_face:
+                            break
+            except Exception:
+                pass
+
         # Priority 1: Human Face / Selfie / Portrait Detection
-        if (skin_ratio > 0.05 or center_skin_ratio > 0.06) and foliage_ratio < 0.35:
+        if is_haar_face or ((skin_ratio > 0.05 or center_skin_ratio > 0.06) and foliage_ratio < 0.35):
             is_plant = False
             rejection_reason_code = "human_face_or_skin"
             reason_en = "⚠️ Human face or selfie detected instead of a crop leaf. The Plant Doctor cannot diagnose human photos. Please point the camera at an authentic crop leaf."

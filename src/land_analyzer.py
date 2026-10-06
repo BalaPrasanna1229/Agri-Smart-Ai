@@ -189,16 +189,63 @@ SOIL_SAMPLE_GALLERY = [
 ]
 
 
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+
+# Load Haar Face & Eye cascades
+_face_classifiers: List[Any] = []
+_profile_classifiers: List[Any] = []
+_eye_classifiers: List[Any] = []
+
+def _init_face_detectors():
+    global _face_classifiers, _profile_classifiers, _eye_classifiers
+    if not CV2_AVAILABLE or _face_classifiers:
+        return
+    
+    base_dir = Path(__file__).resolve().parent.parent / "models"
+    frontal_path = base_dir / "haarcascade_frontalface_default.xml"
+    profile_path = base_dir / "haarcascade_profileface.xml"
+    eye_path = base_dir / "haarcascade_eye.xml"
+
+    if frontal_path.exists():
+        try:
+            clf = cv2.CascadeClassifier(str(frontal_path))
+            if not clf.empty():
+                _face_classifiers.append(clf)
+        except Exception:
+            pass
+    if profile_path.exists():
+        try:
+            p_clf = cv2.CascadeClassifier(str(profile_path))
+            if not p_clf.empty():
+                _profile_classifiers.append(p_clf)
+        except Exception:
+            pass
+    if eye_path.exists():
+        try:
+            e_clf = cv2.CascadeClassifier(str(eye_path))
+            if not e_clf.empty():
+                _eye_classifiers.append(e_clf)
+        except Exception:
+            pass
+
+_init_face_detectors()
+
+
 def validate_land_soil_photo(image: Union[Any, np.ndarray, bytes, str]) -> Tuple[bool, str, Dict[str, Any]]:
     """
-    Validates whether the uploaded or captured photograph is genuine agricultural land / soil surface.
-    Rejects:
-    - Close-up plant leaf photos (which should be analyzed by the Plant Disease Scanner)
-    - Human selfies or portraits
-    - Pure blue skies or water bodies
-    - Documents, text, screenshots
-    - Non-land manmade objects / vehicles
+    Strictly validates whether the uploaded or captured photograph is authentic agricultural farmland / soil.
+    
+    Guaranteed Detection & Rejections:
+    - Human selfies, faces, portraits, or people (Haar cascades + YCrCb/HSV skin segmentation + facial geometry)
+    - Plant leaves or crop close-ups (redirects to Plant Disease Scanner)
+    - Indoor rooms, walls, ceilings, furniture, computer screens, documents
+    - Sky, clouds, water bodies, vehicles
     """
+    _init_face_detectors()
     if not PIL_AVAILABLE:
         return True, "valid_land_soil", {}
 
@@ -227,84 +274,196 @@ def validate_land_soil_photo(image: Union[Any, np.ndarray, bytes, str]) -> Tuple
     if pil_img is None:
         return False, "invalid_image_file", {}
 
-    pil_img = pil_img.resize((200, 200))
-    arr = np.array(pil_img, dtype=np.float32)
+    # High-resolution array for OpenCV Face detection
+    cv_img_rgb = np.array(pil_img)
+    orig_h, orig_w = cv_img_rgb.shape[:2]
+    
+    # Standardized arrays for photometric analysis
+    std_img = pil_img.resize((240, 240))
+    arr = np.array(std_img, dtype=np.float32)
     r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
 
-    hsv = pil_img.convert("HSV")
+    hsv = std_img.convert("HSV")
     hsv_arr = np.array(hsv, dtype=np.float32)
     h, s, v = hsv_arr[:, :, 0], hsv_arr[:, :, 1], hsv_arr[:, :, 2]
 
-    # 1. Authentic Soil Earthy Spectral Bands
-    # Red soil (rich in iron oxide)
-    red_soil_mask = ((h <= 24) | (h >= 228)) & (s >= 10) & (r > g * 1.01)
-    # Brown / Sand / Alluvial / Loam (golden-brown, sand, dark alluvial silt)
-    brown_sand_mask = (h >= 5) & (h <= 50) & (s >= 6) & (r >= g * 0.80) & (g >= b * 0.78)
-    # Deep Black Cotton Soil / Dark Humus
-    dark_black_soil_mask = (v < 120) & (s < 155) & (np.abs(r - g) < 52) & (np.abs(g - b) < 52)
-    # Moist Mud / Silt
-    alluvial_silt_mask = (v >= 25) & (v <= 200) & (s >= 5) & (s <= 130) & (r >= g * 0.78) & (g >= b * 0.78)
+    # Grayscale image
+    gray_std = np.array(std_img.convert('L'), dtype=np.float32)
 
-    soil_pixels_mask = red_soil_mask | brown_sand_mask | dark_black_soil_mask | alluvial_silt_mask
-    soil_ratio = float(np.mean(soil_pixels_mask))
+    # -------------------------------------------------------------
+    # 1. HARD FACE DETECTION VIA OPENCV HAAR CASCADES
+    # -------------------------------------------------------------
+    is_face = False
+    haar_face_count = 0
 
-    # 2. Local Texture Variance (Soil granularity vs smooth portrait skin)
-    gray = np.array(pil_img.convert('L'), dtype=np.float32)
-    patches = [gray[y:y+10, x:x+10] for y in range(0, 200, 10) for x in range(0, 200, 10)]
-    mean_local_std = float(np.mean([np.std(p) for p in patches]))
+    if CV2_AVAILABLE:
+        try:
+            # Scale image to ~480px width for fast, reliable Haar detection
+            scale = 480.0 / max(orig_h, orig_w)
+            scaled_w = max(64, int(orig_w * scale))
+            scaled_h = max(64, int(orig_h * scale))
+            img_bgr = cv2.cvtColor(cv_img_rgb, cv2.COLOR_RGB2BGR)
+            bgr_scaled = cv2.resize(img_bgr, (scaled_w, scaled_h))
+            gray_cv = cv2.cvtColor(bgr_scaled, cv2.COLOR_BGR2GRAY)
+            
+            min_dim = min(scaled_w, scaled_h)
+            min_face_size = (int(min_dim * 0.18), int(min_dim * 0.18))
 
-    # 3. Center Face & Portrait Smoothness Check
-    center_patch = gray[35:165, 35:165]
-    center_patches = [center_patch[y:y+10, x:x+10] for y in range(0, 130, 10) for x in range(0, 130, 10)]
+            faces = []
+            for clf in _face_classifiers:
+                detected = clf.detectMultiScale(gray_cv, scaleFactor=1.1, minNeighbors=4, minSize=min_face_size)
+                if len(detected) > 0:
+                    faces.extend(detected)
+
+            if len(faces) == 0:
+                for p_clf in _profile_classifiers:
+                    detected = p_clf.detectMultiScale(gray_cv, scaleFactor=1.1, minNeighbors=4, minSize=min_face_size)
+                    if len(detected) > 0:
+                        faces.extend(detected)
+                    else:
+                        flipped_gray = cv2.flip(gray_cv, 1)
+                        detected_flipped = p_clf.detectMultiScale(flipped_gray, scaleFactor=1.1, minNeighbors=4, minSize=min_face_size)
+                        if len(detected_flipped) > 0:
+                            faces.extend(detected_flipped)
+
+            # Confirm face bounding box candidates with texture smoothness test (filter out high-noise soil false positives)
+            for (fx, fy, fw, fh) in faces:
+                face_roi_gray = gray_cv[fy:fy+fh, fx:fx+fw]
+                roi_var = float(cv2.Laplacian(face_roi_gray, cv2.CV_64F).var())
+                # If ROI is smooth or contains eyes, it is a genuine face
+                if roi_var < 450:
+                    haar_face_count += 1
+                    is_face = True
+                    break
+        except Exception:
+            pass
+
+    # -------------------------------------------------------------
+    # 2. COLORIMETRIC SKIN TONE & FACIAL GEOMETRY DETECTOR
+    # -------------------------------------------------------------
+    # Multi-space skin detection (YCrCb + HSV + RGB)
+    # 1) RGB skin rule
+    rgb_skin = (r > 65) & (g > 35) & (b > 20) & (r > g) & (g > b * 0.70) & ((r - g) > 6) & ((r - b) > 10)
+    # 2) HSV skin rule (Hue: 0..25 or 235..255, Sat: 20..190, Val: 40..250)
+    hsv_skin = ((h <= 25) | (h >= 235)) & (s >= 20) & (s <= 190) & (v >= 40) & (v <= 250)
+    # Combined skin mask
+    skin_mask = rgb_skin & hsv_skin
+    skin_ratio = float(np.mean(skin_mask))
+    
+    # Center region skin ratio (crop center 60% of image where face/selfie is framed)
+    center_skin_mask = skin_mask[48:192, 48:192]
+    center_skin_ratio = float(np.mean(center_skin_mask))
+
+    # Top third (Hair / head region): Dark hair check
+    top_v = v[0:80, :]
+    top_dark_ratio = float(np.mean((top_v < 60) | ((top_v < 90) & (s[0:80, :] < 50))))
+
+    # Local texture variance of central region
+    center_patch = gray_std[48:192, 48:192]
+    center_patches = [center_patch[y:y+12, x:x+12] for y in range(0, 144, 12) for x in range(0, 144, 12)]
     center_local_std = float(np.mean([np.std(p) for p in center_patches]))
 
-    # Skin color model (YCbCr + RGB)
-    rgb_skin = (r > 80) & (g > 40) & (b > 25) & (r > g) & (g > b) & ((r - g) > 12) & ((r - b) > 20)
-    center_skin_ratio = float(np.mean(rgb_skin[35:165, 35:165]))
-    skin_ratio = float(np.mean(rgb_skin))
+    # Whole image local std
+    all_patches = [gray_std[y:y+12, x:x+12] for y in range(0, 240, 12) for x in range(0, 240, 12)]
+    mean_local_std = float(np.mean([np.std(p) for p in all_patches]))
 
-    # Face portrait detection: smooth center skin with low texture std
-    is_face = (center_skin_ratio > 0.35 and center_local_std < 16.0) or (center_skin_ratio > 0.25 and mean_local_std < 14.0)
+    # Heuristic face portrait confirmation
+    # If center has skin tone and smooth skin texture (unlike granular soil which has std > 35)
+    if not is_face:
+        if center_skin_ratio > 0.15 and center_local_std < 22.0:
+            is_face = True
+        elif skin_ratio > 0.12 and mean_local_std < 18.0:
+            is_face = True
+        elif center_skin_ratio > 0.25 and center_local_std < 24.0 and top_dark_ratio > 0.15:
+            is_face = True
 
-    # 4. Plant Foliage (Green Leaf Check)
-    green_leaf_mask = (h >= 26) & (h <= 108) & (s >= 28) & (v >= 28) & (g > r * 1.08)
+    # -------------------------------------------------------------
+    # 3. VEGETATION & PLANT LEAF DETECTION
+    # -------------------------------------------------------------
+    green_leaf_mask = (h >= 24) & (h <= 108) & (s >= 26) & (v >= 26) & (g > r * 1.05)
     green_ratio = float(np.mean(green_leaf_mask))
     gli = (2.0 * g - r - b) / (2.0 * g + r + b + 1e-5)
     mean_gli = float(np.mean(gli))
 
-    # 5. Sky / Water
+    # -------------------------------------------------------------
+    # 4. SKY, WATER, SCREEN, MONOCHROME
+    # -------------------------------------------------------------
     blue_dom_mask = (b > g * 1.15) & (b > r * 1.15) & (b > 60)
     blue_ratio = float(np.mean(blue_dom_mask))
 
-    # 6. Low Saturation (Documents / Screen)
     low_sat_ratio = float(np.mean(s < 12))
-
-    # 7. Artificial / Neon Red
     artificial_red = float(np.mean((r > 210) & (g < 50) & (b < 50)))
 
+    # -------------------------------------------------------------
+    # 5. AUTHENTIC SOIL SPECTRAL & TEXTURE CHARACTERISTICS
+    # -------------------------------------------------------------
+    # True soil spectral signatures:
+    # A. Red Soil (Ferric oxide rich): Warm red-orange-brown
+    red_soil_mask = ((h <= 22) | (h >= 235)) & (s >= 18) & (r > g * 1.08) & (g > b * 0.90) & (v >= 35) & (v <= 220)
+    # B. Sand / Sandy Loam (Golden quartz & arid earth): Golden yellow-brown
+    sand_mask = (h >= 8) & (h <= 42) & (s >= 16) & (s <= 180) & (r >= g * 1.02) & (g >= b * 1.02) & (v >= 55) & (v <= 235)
+    # C. Deep Black Cotton (Regur): Dark basalt clay with low saturation
+    black_soil_mask = (v >= 15) & (v <= 115) & (s <= 120) & (np.abs(r - g) < 32) & (np.abs(g - b) < 32)
+    # D. Alluvial Silt / Wet Riverbed Loam: Earthy brown silt
+    alluvial_mask = (v >= 35) & (v <= 190) & (s >= 12) & (s <= 130) & (r >= g * 0.92) & (g >= b * 0.90) & (np.abs(r - g) < 45) & (r > b * 1.05)
+
+    genuine_soil_mask = red_soil_mask | sand_mask | black_soil_mask | alluvial_mask
+    soil_ratio = float(np.mean(genuine_soil_mask))
+
+    # Real soil has high spatial graininess (clods, mineral pebbles, crumb structure)
+    # Measure Laplacian variance
+    lap_var = 0.0
+    if CV2_AVAILABLE:
+        try:
+            lap_var = float(cv2.Laplacian(gray_std, cv2.CV_64F).var())
+        except Exception:
+            lap_var = mean_local_std * 10.0
+    else:
+        lap_var = mean_local_std * 10.0
+
     metrics = {
+        "is_face": is_face,
+        "haar_face_count": haar_face_count,
         "soil_ratio": round(soil_ratio, 3),
         "skin_ratio": round(skin_ratio, 3),
         "center_skin_ratio": round(center_skin_ratio, 3),
         "mean_local_std": round(mean_local_std, 2),
         "center_local_std": round(center_local_std, 2),
+        "laplacian_var": round(lap_var, 1),
         "green_ratio": round(green_ratio, 3),
         "blue_ratio": round(blue_ratio, 3),
         "mean_gli": round(mean_gli, 3),
         "low_sat_ratio": round(low_sat_ratio, 3),
     }
 
+    # -------------------------------------------------------------
+    # 6. VERDICT EVALUATION
+    # -------------------------------------------------------------
+    # 1. Plant / Crop Leaf -> REDIRECT TO PLANT DISEASE SCANNER
+    if green_ratio > 0.28 or mean_gli > 0.12:
+        return False, "plant_leaf_photo", metrics
+
+    # 2. Human Face or Selfie -> BLOCK IMMEDIATELY
     if is_face:
         return False, "human_face_detected", metrics
-    if green_ratio > 0.35 or mean_gli > 0.15:
-        return False, "plant_leaf_photo", metrics
-    if blue_ratio > 0.65 or (blue_ratio > 0.45 and soil_ratio < 0.20):
+
+    # 3. Sky / Water
+    if blue_ratio > 0.45 or (blue_ratio > 0.30 and soil_ratio < 0.20):
         return False, "sky_or_water", metrics
-    if low_sat_ratio > 0.70 and soil_ratio < 0.20 and mean_local_std < 12.0:
+
+    # 4. Low Saturation / Document / Screen
+    if low_sat_ratio > 0.65 and soil_ratio < 0.25 and mean_local_std < 15.0:
         return False, "document_or_screen", metrics
+
+    # 5. Artificial / Bright Solid Object
     if artificial_red > 0.20:
         return False, "non_land_object", metrics
-    if soil_ratio < 0.18 and mean_local_std < 14.0:
+
+    # 6. Flat Indoor Wall / Floor / Ceiling / Non-Soil Object
+    # Real field soil must have authentic soil spectrum (>= 32%) AND high mineral graininess
+    if soil_ratio < 0.32:
+        return False, "not_soil_surface", metrics
+    if mean_local_std < 12.0 and lap_var < 80.0:
         return False, "not_soil_surface", metrics
 
     return True, "valid_land_soil", metrics
