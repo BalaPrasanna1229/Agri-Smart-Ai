@@ -12,27 +12,27 @@
 <div style="max-width: 1000px; margin: 0 auto;">
 
     <!-- Top Action Bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h2 style="font-size: 20px; display: flex; align-items: center; gap: 8px;">
                 <span>🔔</span> <span data-i18n="notif_title">Farmer Notification Center</span>
             </h2>
             <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" data-i18n="notif_subtitle">
-                Stay updated with profitable mandi selling windows and crop health precautions
+                Stay updated with real-time profitable mandi selling windows and crop health precautions
             </p>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <a href="{{ url_for('mark_all_user_notifications_read') }}" class="btn btn-secondary btn-sm">
-                ✓ <span data-i18n="mark_all_read">Mark All as Read</span>
-            </a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="{{ url_for('crop_recommend') }}" class="btn btn-primary btn-sm">
                 🌾 <span class="lang-text" data-en="360° Farm Advisory" data-te="360° వ్యవసాయ సలహా" data-hi="360° कृषि सलाहकार">360° Farm Advisory</span>
+            </a>
+            <a href="{{ url_for('market_page') }}" class="btn btn-secondary btn-sm">
+                📊 <span class="lang-text" data-en="Mandi Dashboard" data-te="మండీ డ్యాష్‌బోర్డ్" data-hi="मंडी डैशबोर्ड">Mandi Dashboard</span>
             </a>
         </div>
     </div>
 
     <!-- Active High Market Price Alerts Section (Featured Banner) -->
-    <div class="card" style="margin-bottom: 28px; border-color: #86efac; background: linear-gradient(135deg, #f0fdf4, #ffffff);">
+    <div class="card" style="margin-bottom: 28px; border-color: #86efac; background: linear-gradient(135deg, #f0fdf4, #ffffff); box-shadow: var(--shadow-sm);">
         <div class="card-header" style="border-bottom-color: #dcfce7;">
             <div class="card-title" style="color: #166534;">
                 <span>🔥</span> <span data-i18n="notif_high_price_title">High Market Price Alerts</span>
@@ -43,14 +43,14 @@
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 6px;">
-            {% for alert in high_price_alerts[:6] %}
+            {% for alert in high_price_alerts %}
             <div style="background: white; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">
                             <span class="lang-text" data-en="{{ alert.commodity }}" data-te="{{ alert.commodity_te }}" data-hi="{{ alert.commodity_hi }}">{{ alert.commodity }}</span>
                         </div>
-                        <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold; background: {% if alert.alert_type == 'high_msp_premium' %}#dcfce7; color: #15803d;{% else %}#dbeafe; color: #1d4ed8;{% endif %}">
+                        <span class="alert-type-badge {% if alert.alert_type == 'high_msp_premium' %}alert-type-premium{% else %}alert-type-info{% endif %}">
                             <span class="lang-text" data-en="{{ alert.badge_en }}" data-te="{{ alert.badge_te }}" data-hi="{{ alert.badge_hi }}">{{ alert.badge_en }}</span>
                         </span>
                     </div>
@@ -85,83 +85,6 @@
             </div>
             {% endfor %}
         </div>
-    </div>
-
-    <!-- Notifications History List -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <span>📜</span> <span data-i18n="notif_history_title">In-App Notifications History</span>
-            </div>
-            <span style="font-size: 12px; color: var(--text-secondary);">
-                {{ notifications|length }} <span class="lang-text" data-en="Total Messages" data-te="మొత్తం సందేశాలు" data-hi="कुल संदेश">Total Messages</span>
-            </span>
-        </div>
-
-        {% if notifications %}
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            {% for notif in notifications %}
-            <div style="display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: var(--radius-md); border: 1px solid {% if not notif.is_read %}#bbf7d0; background: #f0fdf4;{% else %}var(--border-color); background: white;{% endif %} transition: var(--transition);">
-                <div style="font-size: 24px; line-height: 1;">
-                    {% if notif.category == 'market_price' %}💰
-                    {% elif notif.category == 'disease_alert' %}🦠
-                    {% elif notif.category == 'weather_alert' %}🌦️
-                    {% else %}ℹ️{% endif %}
-                </div>
-
-                <div style="flex: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">
-                            <span class="lang-text" data-en="{{ notif.title }}" data-te="{{ notif.title_te or notif.title }}" data-hi="{{ notif.title }}">
-                                {{ notif.title }}
-                            </span>
-                        </h4>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 11px; color: var(--text-muted);">
-                                {{ notif.created_at[:16] }}
-                            </span>
-                            {% if not notif.is_read %}
-                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;" title="Unread"></span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
-                        <span class="lang-text" data-en="{{ notif.message }}" data-te="{{ notif.message_te or notif.message }}" data-hi="{{ notif.message }}">
-                            {{ notif.message }}
-                        </span>
-                    </p>
-
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        {% if notif.action_url %}
-                        <a href="{{ notif.action_url }}" style="font-size: 12px; font-weight: 600; color: var(--primary);">
-                            <span data-i18n="view_details">View Details →</span>
-                        </a>
-                        {% endif %}
-                        {% if not notif.is_read %}
-                        <a href="{{ url_for('mark_single_notification_read', notif_id=notif.id) }}" style="font-size: 11.5px; color: var(--text-muted);">
-                            <span data-i18n="mark_read_single">✓ Mark Read</span>
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-            <div style="font-size: 36px; margin-bottom: 10px;">📭</div>
-            <p style="font-size: 15px;" data-i18n="no_notifications">No recent notifications.</p>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
-                <span class="lang-text" 
-                      data-en="You will receive alerts here whenever mandi market prices peak or weather changes." 
-                      data-te="మార్కెట్ ధరలు పెరిగినప్పుడు లేదా వాతావరణం మారినప్పుడు మీకు ఇక్కడ అలర్ట్‌లు అందుతాయి." 
-                      data-hi="मंडी भाव बढ़ने या मौसम बदलने पर आपको यहां अलर्ट मिलेंगे।">
-                    You will receive alerts here whenever mandi market prices peak or weather changes.
-                </span>
-            </p>
-        </div>
-        {% endif %}
     </div>
 
 </div>

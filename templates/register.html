@@ -50,6 +50,24 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label class="form-label" for="phone">
+            <span class="lang-text" data-en="Mobile Number (For Instant Market Price Surge SMS)" data-te="మొబైల్ నంబర్ (మార్కెట్ ధరల SMS కోసం)" data-hi="मोबाइल नंबर (मंडी भाव SMS हेतु)">Mobile Number (For Instant Market Price Surge SMS)</span>
+            <span style="font-size: 11px; color: #166534; background: #dcfce7; padding: 1px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px;">Recommended</span>
+        </label>
+        <input 
+            type="text" 
+            id="phone" 
+            name="phone" 
+            class="form-control" 
+            placeholder="+91 98765 43210 (or 10 digits)" 
+            value="{{ phone or '' }}"
+        >
+        <small style="font-size: 11.5px; color: var(--text-secondary); margin-top: 3px; display: block;">
+            <span class="lang-text" data-en="Agri Smart AI will send direct SMS alerts to this number when your crop price increases in Mandi." data-te="మీ పంట మార్కెట్ ధరలు పెరిగినప్పుడు ఈ నంబర్‌కు నేరుగా SMS అలర్ట్ వస్తుంది." data-hi="मंडी में फसल भाव बढ़ने पर इस नंबर पर सीधा SMS प्राप्त होगा।">Agri Smart AI will send direct SMS alerts to this number when your crop price increases in Mandi.</span>
+        </small>
+    </div>
+
     <div class="form-grid-2">
         <div class="form-group">
             <label class="form-label" for="password">Password <span class="required">*</span></label>
@@ -98,16 +116,24 @@
         <div class="form-grid-2">
             <div class="form-group">
                 <label class="form-label" for="farm_name">
-                    <span class="lang-text" data-en="Farm Parcel Name" data-te="పొలం పేరు" data-hi="खेत का नाम">Farm Parcel Name</span>
+                    <span class="lang-text" data-en="Farm Parcel Name" data-te="పొలం పేరు" data-hi="खेत का नाम" data-ta="பண்ணை பெயர்">Farm Parcel Name</span>
                 </label>
                 <input 
                     type="text" 
                     id="farm_name" 
                     name="farm_name" 
                     class="form-control" 
-                    placeholder="e.g. My Primary Farm" 
+                    list="farm_name_options"
+                    placeholder="e.g. Primary Home Farm, Borewell Plot..." 
                     value="{{ farm_name or '' }}"
                 >
+                <datalist id="farm_name_options">
+                    <option value="Primary Home Farm"></option>
+                    <option value="Borewell Plot A"></option>
+                    <option value="Canal Side Field"></option>
+                    <option value="North Field (Plot 1)"></option>
+                    <option value="Paddy Wetland Parcel"></option>
+                </datalist>
             </div>
 
             <div class="form-group">
@@ -130,33 +156,49 @@
         <div class="form-grid-2">
             <div class="form-group">
                 <label class="form-label" for="state">
-                    <span class="lang-text" data-en="State" data-te="రాష్ట్రం" data-hi="राज्य">State</span>
+                    <span class="lang-text" data-en="State" data-te="రాష్ట్రం" data-hi="राज्य" data-ta="மாநிலம்">State</span>
                 </label>
-                <select id="state" name="state" class="form-select">
-                    <option value="Andhra Pradesh" selected>Andhra Pradesh</option>
-                    <option value="Telangana">Telangana</option>
-                    <option value="Karnataka">Karnataka</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <option value="Punjab">Punjab</option>
-                    <option value="Uttar Pradesh">Uttar Pradesh</option>
-                    <option value="Madhya Pradesh">Madhya Pradesh</option>
-                    <option value="Gujarat">Gujarat</option>
-                    <option value="Rajasthan">Rajasthan</option>
+                <select id="state" name="state" class="form-select state-select" data-selected-state="{{ state or 'Andhra Pradesh' }}">
+                    <option value="" data-en="-- Select State --" data-te="-- రాష్ట్రాన్ని ఎంచుకోండి --" data-hi="-- राज्य चुनें --" data-ta="-- மாநிலத்தைத் தேர்ந்தெடுக்கவும் --">-- Select State --</option>
+                    <option value="Andhra Pradesh" {% if not state or state == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                    <option value="Telangana" {% if state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                    <option value="Tamil Nadu" {% if state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                    <option value="Karnataka" {% if state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                    <option value="Maharashtra" {% if state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                    <option value="Punjab" {% if state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                    <option value="Uttar Pradesh" {% if state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                    <option value="Gujarat" {% if state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                    <option value="Madhya Pradesh" {% if state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                    <option value="Rajasthan" {% if state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                    <option value="Kerala" {% if state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                    <option value="West Bengal" {% if state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                    <option value="Odisha" {% if state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                    <option value="Bihar" {% if state == 'Bihar' %}selected{% endif %}>Bihar</option>
+                    <option value="Haryana" {% if state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                    <option value="Assam" {% if state == 'Assam' %}selected{% endif %}>Assam</option>
+                    <option value="Chhattisgarh" {% if state == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                    <option value="Jharkhand" {% if state == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                    <option value="Uttarakhand" {% if state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                    <option value="Himachal Pradesh" {% if state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                    <option value="Jammu & Kashmir" {% if state == 'Jammu & Kashmir' %}selected{% endif %}>Jammu & Kashmir</option>
+                    <option value="Goa" {% if state == 'Goa' %}selected{% endif %}>Goa</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="district">
-                    <span class="lang-text" data-en="District" data-te="జిల్లా" data-hi="जिला">District</span>
+                    <span class="lang-text" data-en="District" data-te="జిల్లా" data-hi="जिला" data-ta="மாவட்டம்">District</span>
                 </label>
+                <select id="district" name="district" class="form-select district-select" data-selected-district="{{ district or 'Guntur' }}">
+                    <option value="" data-en="-- Select District --" data-te="-- జిల్లాను ఎంచుకోండి --" data-hi="-- जिला चुनें --" data-ta="-- மாவட்டத்தைத் தேர்ந்தெடுக்கவும் --">-- Select District --</option>
+                </select>
                 <input 
                     type="text" 
-                    id="district" 
-                    name="district" 
+                    id="custom_district" 
+                    name="custom_district" 
                     class="form-control" 
-                    placeholder="e.g. Guntur, Warangal, Krishna" 
-                    value="{{ district or 'Guntur' }}"
+                    placeholder="Enter custom district name" 
+                    style="display: none; margin-top: 8px;"
                 >
             </div>
         </div>

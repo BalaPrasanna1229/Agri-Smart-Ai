@@ -221,6 +221,7 @@
                     <button type="button" class="btn btn-sm global-lang-btn active" id="globalLangEn" onclick="setGlobalLanguage('en')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">EN</button>
                     <button type="button" class="btn btn-sm global-lang-btn" id="globalLangTe" onclick="setGlobalLanguage('te')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">తెలుగు</button>
                     <button type="button" class="btn btn-sm global-lang-btn" id="globalLangHi" onclick="setGlobalLanguage('hi')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">हिन्दी</button>
+                    <button type="button" class="btn btn-sm global-lang-btn" id="globalLangTa" onclick="setGlobalLanguage('ta')" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">தமிழ்</button>
                 </div>
 
                 <!-- High Price Notification Bell Dropdown -->
@@ -273,7 +274,7 @@
                             <!-- User Notifications -->
                             {% if notifications %}
                             {% for n in notifications[:3] %}
-                            <div style="padding: 10px 12px; border-bottom: 1px solid var(--border-color); background: {% if not n.is_read %}var(--bg-table-hover){% else %}var(--bg-surface){% endif %};">
+                            <div class="dropdown-notif-item {% if not n.is_read %}unread{% endif %}" style="padding: 10px 12px; border-bottom: 1px solid var(--border-color);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
                                     <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">
                                         <span class="lang-text" data-en="{{ n.title }}" data-te="{{ n.title_te or n.title }}" data-hi="{{ n.title }}">{{ n.title }}</span>
@@ -399,6 +400,7 @@
             <button type="button" class="btn btn-sm global-lang-btn active" id="authLangEn" onclick="setGlobalLanguage('en')" style="padding: 3px 8px; font-size: 11px;">EN</button>
             <button type="button" class="btn btn-sm global-lang-btn" id="authLangTe" onclick="setGlobalLanguage('te')" style="padding: 3px 8px; font-size: 11px;">తెలుగు</button>
             <button type="button" class="btn btn-sm global-lang-btn" id="authLangHi" onclick="setGlobalLanguage('hi')" style="padding: 3px 8px; font-size: 11px;">हिन्दी</button>
+            <button type="button" class="btn btn-sm global-lang-btn" id="authLangTa" onclick="setGlobalLanguage('ta')" style="padding: 3px 8px; font-size: 11px;">தமிழ்</button>
         </div>
     </div>
 
@@ -420,6 +422,31 @@
 </div>
 {% endif %}
 
+<!-- ==========================================================================
+     GLOBAL FLOATING AUDIO PLAYER HUD (Agri Voice Narrator)
+     ========================================================================== -->
+<div id="agriGlobalAudioBar">
+    <div class="agri-audio-indicator">
+        <div class="agri-audio-avatar">
+            <span class="agri-equalizer-wave">
+                <span></span><span></span><span></span><span></span>
+            </span>
+        </div>
+        <div class="agri-audio-info">
+            <div class="agri-audio-title">
+                <span id="agriAudioTitle">Agri Voice Narration</span>
+                <span class="agri-audio-lang-chip" id="agriAudioLangChip">EN</span>
+            </div>
+            <div class="agri-audio-subtitle" id="agriAudioSub">Playing advisory...</div>
+        </div>
+    </div>
+    <div class="agri-audio-controls">
+        <button type="button" class="agri-audio-ctrl-btn" id="agriAudioPlayPauseBtn" onclick="AgriSpeaker.pause()" title="Pause / Resume Audio">⏸️</button>
+        <button type="button" class="agri-audio-ctrl-btn stop-btn" onclick="AgriSpeaker.stop()" title="Stop Audio Narration">⏹️</button>
+    </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
+

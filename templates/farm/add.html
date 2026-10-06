@@ -22,23 +22,61 @@
     <form method="POST" action="{{ url_for('farm_add') }}">
         <div class="form-group">
             <label class="form-label" for="farm_name">
-                <span class="lang-text" data-en="Farm / Plot Name" data-te="పొలం / ప్లాట్ పేరు" data-hi="खेत / प्लॉट का नाम">Farm / Plot Name</span> <span class="required">*</span>
+                <span class="lang-text" data-en="Farm / Plot Name" data-te="పొలం / ప్లాట్ పేరు" data-hi="खेत / प्लॉट का नाम" data-ta="பண்ணை / நிலத்தின் பெயர்">Farm / Plot Name</span> <span class="required">*</span>
             </label>
             <input 
                 type="text" 
                 id="farm_name" 
                 name="farm_name" 
                 class="form-control" 
-                placeholder="e.g. Green Valley Plot A" 
+                list="farm_name_options"
+                placeholder="Choose from options below or enter custom name" 
                 value="{{ form_data.farm_name if form_data else '' }}" 
                 required
             >
+            <datalist id="farm_name_options">
+                <option value="Primary Home Farm"></option>
+                <option value="Borewell Plot A"></option>
+                <option value="Canal Side Field"></option>
+                <option value="North Field (Plot 1)"></option>
+                <option value="South Field (Plot 2)"></option>
+                <option value="Paddy Wetland Parcel"></option>
+                <option value="Cotton / Chilli Field"></option>
+                <option value="Commercial Fruit Orchard"></option>
+            </datalist>
+
+            <!-- Quick Options Chips -->
+            <div style="margin-top: 8px;">
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">
+                    💡 <span class="lang-text" data-en="Quick Options (Click to choose):" data-te="త్వరిత ఎంపికలు (ఎంచుకోవడానికి క్లిక్ చేయండి):" data-hi="त्वरित विकल्प (चुनने के लिए क्लिक करें):" data-ta="விரைவு தேர்வுகள் (தேர்வு செய்ய கிளிக் செய்க):">Quick Options (Click to choose):</span>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('Primary Home Farm', 'ప్రధాన ఇంటి పొలం', 'मुख्य घरेलू खेत', 'முதன்மை வீட்டு நிலம்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        🏡 <span class="lang-text" data-en="Primary Home Farm" data-te="ప్రధాన ఇంటి పొలం" data-hi="मुख्य घरेलू खेत" data-ta="முதன்மை வீட்டு நிலம்">Primary Home Farm</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('Borewell Plot A', 'బోరుబావి పొలం', 'बोरवेल खेत', 'போர்வெல் நிலம்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        💧 <span class="lang-text" data-en="Borewell Plot" data-te="బోరుబావి పొలం" data-hi="बोरवेल खेत" data-ta="போர்வெல் நிலம்">Borewell Plot</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('Canal Side Field', 'కాలువ గట్టు చేను', 'नहर वाला खेत', 'கால்வாய் கரை நிலம்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        🌊 <span class="lang-text" data-en="Canal Side Field" data-te="కాలువ గట్టు చేను" data-hi="नहर वाला खेत" data-ta="கால்வாய் கரை நிலம்">Canal Side Field</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('North Field Plot', 'ఉత్తరం పొలం', 'उत्तरी खेत', 'வடக்கு நிலம்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        🧭 <span class="lang-text" data-en="North Field Plot" data-te="ఉత్తరం పొలం" data-hi="उत्तरी खेत" data-ta="வடக்கு நிலம்">North Field Plot</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('Paddy Wetland', 'వరి మడి చేను', 'धान का खेत', 'நெல் வயல்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        🌾 <span class="lang-text" data-en="Paddy Wetland" data-te="వరి మడి చేను" data-hi="धान का खेत" data-ta="நெல் வயல்">Paddy Wetland</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setFarmName('Fruit Orchard', 'పండ్ల తోట', 'फलों का बाग', 'பழத்தோட்டம்')" style="padding: 4px 10px; font-size: 12px; border-radius: 14px; background: #f8fafc;">
+                        🥭 <span class="lang-text" data-en="Fruit Orchard" data-te="పండ్ల తోట" data-hi="फलों का बाग" data-ta="பழத்தோட்டம்">Fruit Orchard</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="form-grid-3">
             <div class="form-group">
                 <label class="form-label" for="location">
-                    <span class="lang-text" data-en="Village / Town / Landmark" data-te="గ్రామం / పట్టణం / ల్యాండ్‌మార్క్" data-hi="गांव / कस्बा / स्थल">Village / Town / Landmark</span> <span class="required">*</span>
+                    <span class="lang-text" data-en="Village / Town / Landmark" data-te="గ్రామం / పట్టణం / ల్యాండ్‌మార్క్" data-hi="गांव / कस्बा / स्थल" data-ta="கிராமம் / நகரம் / அடையாளம்">Village / Town / Landmark</span> <span class="required">*</span>
                 </label>
                 <input 
                     type="text" 
@@ -52,32 +90,51 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="district">
-                    <span class="lang-text" data-en="District" data-te="జిల్లా" data-hi="जिला">District</span> <span class="required">*</span>
+                <label class="form-label" for="state">
+                    <span class="lang-text" data-en="State" data-te="రాష్ట్రం" data-hi="राज्य" data-ta="மாநிலம்">State</span> <span class="required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    id="district" 
-                    name="district" 
-                    class="form-control" 
-                    placeholder="e.g. East Godavari" 
-                    value="{{ form_data.district if form_data else '' }}" 
-                    required
-                >
+                <select id="state" name="state" class="form-select state-select" data-selected-state="{{ form_data.state if form_data else 'Andhra Pradesh' }}" required>
+                    <option value="" data-en="-- Select State --" data-te="-- రాష్ట్రాన్ని ఎంచుకోండి --" data-hi="-- राज्य चुनें --" data-ta="-- மாநிலத்தைத் தேர்ந்தெடுக்கவும் --">-- Select State --</option>
+                    <option value="Andhra Pradesh" {% if form_data and form_data.state == 'Andhra Pradesh' %}selected{% elif not form_data %}selected{% endif %}>Andhra Pradesh</option>
+                    <option value="Telangana" {% if form_data and form_data.state == 'Telangana' %}selected{% endif %}>Telangana</option>
+                    <option value="Tamil Nadu" {% if form_data and form_data.state == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                    <option value="Karnataka" {% if form_data and form_data.state == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                    <option value="Maharashtra" {% if form_data and form_data.state == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                    <option value="Punjab" {% if form_data and form_data.state == 'Punjab' %}selected{% endif %}>Punjab</option>
+                    <option value="Uttar Pradesh" {% if form_data and form_data.state == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                    <option value="Gujarat" {% if form_data and form_data.state == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                    <option value="Madhya Pradesh" {% if form_data and form_data.state == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                    <option value="Rajasthan" {% if form_data and form_data.state == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                    <option value="Kerala" {% if form_data and form_data.state == 'Kerala' %}selected{% endif %}>Kerala</option>
+                    <option value="West Bengal" {% if form_data and form_data.state == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                    <option value="Odisha" {% if form_data and form_data.state == 'Odisha' %}selected{% endif %}>Odisha</option>
+                    <option value="Bihar" {% if form_data and form_data.state == 'Bihar' %}selected{% endif %}>Bihar</option>
+                    <option value="Haryana" {% if form_data and form_data.state == 'Haryana' %}selected{% endif %}>Haryana</option>
+                    <option value="Assam" {% if form_data and form_data.state == 'Assam' %}selected{% endif %}>Assam</option>
+                    <option value="Chhattisgarh" {% if form_data and form_data.state == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                    <option value="Jharkhand" {% if form_data and form_data.state == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                    <option value="Uttarakhand" {% if form_data and form_data.state == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                    <option value="Himachal Pradesh" {% if form_data and form_data.state == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                    <option value="Jammu & Kashmir" {% if form_data and form_data.state == 'Jammu & Kashmir' %}selected{% endif %}>Jammu & Kashmir</option>
+                    <option value="Goa" {% if form_data and form_data.state == 'Goa' %}selected{% endif %}>Goa</option>
+                </select>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="state">
-                    <span class="lang-text" data-en="State" data-te="రాష్ట్రం" data-hi="राज्य">State</span> <span class="required">*</span>
+                <label class="form-label" for="district">
+                    <span class="lang-text" data-en="District" data-te="జిల్లా" data-hi="जिला" data-ta="மாவட்டம்">District</span> <span class="required">*</span>
                 </label>
+                <select id="district" name="district" class="form-select district-select" data-selected-district="{{ form_data.district if form_data else 'East Godavari' }}" required>
+                    <option value="" data-en="-- Select District --" data-te="-- జిల్లాను ఎంచుకోండి --" data-hi="-- जिला चुनें --" data-ta="-- மாவட்டத்தைத் தேர்ந்தெடுக்கவும் --">-- Select District --</option>
+                </select>
                 <input 
                     type="text" 
-                    id="state" 
-                    name="state" 
+                    id="custom_district" 
+                    name="custom_district" 
                     class="form-control" 
-                    placeholder="e.g. Andhra Pradesh" 
-                    value="{{ form_data.state if form_data else '' }}" 
-                    required
+                    placeholder="Enter custom district name" 
+                    value="{{ form_data.custom_district if form_data and form_data.custom_district else '' }}" 
+                    style="display: none; margin-top: 8px;"
                 >
             </div>
         </div>

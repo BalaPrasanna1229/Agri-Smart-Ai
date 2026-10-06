@@ -27,32 +27,34 @@ from src.database import (
 
 # Multilingual Crop Name Dictionary
 CROP_NAME_TRANSLATIONS: Dict[str, Dict[str, str]] = {
-    "rice": {"en": "Rice", "te": "వరి", "hi": "धान"},
-    "maize": {"en": "Maize", "te": "మొక్కజొన్న", "hi": "मक्का"},
-    "chickpea": {"en": "Chickpea", "te": "శనగలు", "hi": "चना"},
-    "kidneybeans": {"en": "Kidney Beans", "te": "రాజ్మా", "hi": "राजमा"},
-    "pigeonpeas": {"en": "Pigeon Peas", "te": "కందులు", "hi": "अरहर"},
-    "mothbeans": {"en": "Moth Beans", "te": "మొత్ బీన్స్", "hi": "मोठ"},
-    "mungbean": {"en": "Green Gram", "te": "పెసలు", "hi": "मूंग"},
-    "blackgram": {"en": "Black Gram", "te": "మినుములు", "hi": "उड़द"},
-    "lentil": {"en": "Lentil", "te": "మసూర్ పప్పు", "hi": "मसूर"},
-    "pomegranate": {"en": "Pomegranate", "te": "దానిమ్మ", "hi": "अनार"},
-    "banana": {"en": "Banana", "te": "అరటి", "hi": "केला"},
-    "mango": {"en": "Mango", "te": "మామిడి", "hi": "आम"},
-    "grapes": {"en": "Grapes", "te": "ద్రాక్ష", "hi": "अंगूर"},
-    "watermelon": {"en": "Watermelon", "te": "పుచ్చకాయ", "hi": "तरबूज"},
-    "muskmelon": {"en": "Muskmelon", "te": "ఖర్బూజ", "hi": "खरबूजा"},
-    "apple": {"en": "Apple", "te": "యాపిల్", "hi": "सेब"},
-    "orange": {"en": "Orange", "te": "నారింజ", "hi": "संतरा"},
-    "papaya": {"en": "Papaya", "te": "బొప్పాయి", "hi": "पपीता"},
-    "coconut": {"en": "Coconut", "te": "కొబ్బరి", "hi": "नारियल"},
-    "cotton": {"en": "Cotton", "te": "పత్తి", "hi": "कपास"},
-    "jute": {"en": "Jute", "te": "జనపనార", "hi": "पटसन"},
-    "coffee": {"en": "Coffee", "te": "కాఫీ", "hi": "कॉफी"},
-    "tomato": {"en": "Tomato", "te": "టమోటా", "hi": "टमाटर"},
-    "potato": {"en": "Potato", "te": "బంగాళాదుంప", "hi": "आलू"},
-    "sugarcane": {"en": "Sugarcane", "te": "చెరకు", "hi": "गन्ना"},
-    "groundnut": {"en": "Groundnut", "te": "వేరుశనగ", "hi": "मूंगफली"},
+    "rice": {"en": "Rice", "te": "వరి", "hi": "धान", "ta": "அரிசி / நெல்"},
+    "maize": {"en": "Maize", "te": "మొక్కజొన్న", "hi": "मक्का", "ta": "மக்காச்சோளம்"},
+    "chickpea": {"en": "Chickpea", "te": "శనగలు", "hi": "चना", "ta": "கொண்டைக்கடலை"},
+    "kidneybeans": {"en": "Kidney Beans", "te": "రాజ్మా", "hi": "राजमा", "ta": "ராஜ்மா"},
+    "pigeonpeas": {"en": "Pigeon Peas", "te": "కందులు", "hi": "अरहर", "ta": "துவரை"},
+    "mothbeans": {"en": "Moth Beans", "te": "మొత్ బీన్స్", "hi": "मोठ", "ta": "நரிப்பயறு"},
+    "mungbean": {"en": "Green Gram", "te": "పెసలు", "hi": "मूंग", "ta": "பாசிப்பயறு"},
+    "blackgram": {"en": "Black Gram", "te": "మినుములు", "hi": "उड़द", "ta": "உளுந்து"},
+    "lentil": {"en": "Lentil", "te": "మసూర్ పప్పు", "hi": "मसूर", "ta": "மைசூர் பருப்பு"},
+    "pomegranate": {"en": "Pomegranate", "te": "దానిమ్మ", "hi": "अनार", "ta": "மாதுளை"},
+    "banana": {"en": "Banana", "te": "అరటి", "hi": "केला", "ta": "வாழை"},
+    "mango": {"en": "Mango", "te": "మామిడి", "hi": "आम", "ta": "மாம்பழம்"},
+    "grapes": {"en": "Grapes", "te": "ద్రాక్ష", "hi": "अंगूर", "ta": "திராட்சை"},
+    "watermelon": {"en": "Watermelon", "te": "పుచ్చకాయ", "hi": "तरबूज", "ta": "தர்பூசணி"},
+    "muskmelon": {"en": "Muskmelon", "te": "ఖర్బూజ", "hi": "खरबूजा", "ta": "முலாம் பழம்"},
+    "apple": {"en": "Apple", "te": "యాపిల్", "hi": "सेब", "ta": "ஆப்பிள்"},
+    "orange": {"en": "Orange", "te": "నారింజ", "hi": "संतरा", "ta": "ஆரஞ்சு"},
+    "papaya": {"en": "Papaya", "te": "బొప్పాయి", "hi": "पपीता", "ta": "பப்பாளி"},
+    "coconut": {"en": "Coconut", "te": "కొబ్బరి", "hi": "नारियल", "ta": "தென்னை"},
+    "cotton": {"en": "Cotton", "te": "పత్తి", "hi": "कपास", "ta": "பருத்தி"},
+    "jute": {"en": "Jute", "te": "జనపనార", "hi": "पटसन", "ta": "சணல்"},
+    "coffee": {"en": "Coffee", "te": "కాఫీ", "hi": "कॉफी", "ta": "காபி"},
+    "tomato": {"en": "Tomato", "te": "టమోటా", "hi": "टमाटर", "ta": "தக்காளி"},
+    "potato": {"en": "Potato", "te": "బంగాళాదుంప", "hi": "आलू", "ta": "உருளைக்கிழங்கு"},
+    "sugarcane": {"en": "Sugarcane", "te": "చెరకు", "hi": "गन्ना", "ta": "கரும்பு"},
+    "groundnut": {"en": "Groundnut", "te": "వేరుశనగ", "hi": "मूंगफली", "ta": "நிலக்கடலை"},
+    "wheat": {"en": "Wheat", "te": "గోధుమలు", "hi": "गेहूं", "ta": "கோதுமை"},
+    "soybean": {"en": "Soybean", "te": "సోయాబీన్", "hi": "सोयाबीन", "ta": "சோயாபீன்"},
 }
 
 # Standard Agronomic Yield Benchmarks (Tons per Acre)
@@ -90,6 +92,72 @@ CROP_YIELD_BENCHMARKS: Dict[str, Dict[str, float]] = {
 
 # Targeted Crop Pesticides & Crop Protection Catalog
 CROP_PESTICIDES_CATALOG: Dict[str, List[Dict[str, Any]]] = {
+    "watermelon": [
+        {
+            "pest_name_en": "Melon Fruit Fly (Bactrocera cucurbitae) & Thrips",
+            "pest_name_te": "కాయ ఈగ (పండ్ల ఈగ) & తామర పురుగులు",
+            "pest_name_hi": "फल मक्खी (मेलन फ्रूट फ्लाई) व थ्रिप्स",
+            "chemical_pesticide": "Cyantraniliprole 10.26% OD (Benevia) @ 1.2 ml/L or Malathion 50% EC @ 2.0 ml/L",
+            "dosage": "1.2 ml/L of Cyantraniliprole (180 ml / acre)",
+            "dosage_te": "లీటరు నీటికి 1.2 మి.లీ సైంట్రానిలిప్రోల్ (ఎకరానికి 180 మి.లీ)",
+            "timing_en": "Apply at early flowering and fruit initiation stage; repeat after 12-14 days if needed",
+            "timing_te": "పూత మరియు పిందె దశ ప్రారంభంలో పిచికారీ చేయాలి",
+            "bio_pesticide_en": "Install Cue-Lure Pheromone Traps (6-8 traps/acre) + NSKE 5% spray.",
+            "bio_pesticide_te": "ఎకరానికి 6-8 క్యూ-ల్యూర్ లింగాకర్షక బుట్టలు అమర్చండి + 5% వేప గింజల కషాయం పిచికారీ చేయండి.",
+        },
+        {
+            "pest_name_en": "Downy Mildew & Powdery Mildew",
+            "pest_name_te": "డౌనీ మిల్డ్యూ (బూడిద తెగులు) & ఆకు మచ్చ తెగులు",
+            "pest_name_hi": "डाउनी मिल्ड्यू व पाउडरी मिल्ड्यू (फफूंद रोग)",
+            "chemical_pesticide": "Cymoxanil 8% + Mancozeb 64% WP (Curzate) @ 2.0 g/L or Azoxystrobin 23% SC @ 1.0 ml/L",
+            "dosage": "2.0 g/L of Curzate or 1.0 ml/L of Azoxystrobin",
+            "dosage_te": "కర్జేట్ 2.0 గ్రా/లీ లేదా అజోక్సిస్ట్రోబిన్ 1.0 మి.లీ/లీ",
+            "timing_en": "Spray upon noticing initial angular yellow lesions on upper leaf surfaces",
+            "timing_te": "ఆకులపై పసుపు మచ్చలు కనిపించిన వెంటనే పిచికారీ చేయాలి",
+            "bio_pesticide_en": "Trichoderma harzianum @ 5g/L foliar spray; avoid sprinkler/overhead watering.",
+            "bio_pesticide_te": "ట్రైకోడెర్మా 5 గ్రా/లీ పిచికారీ చేయండి; బిందు సేద్యం మాత్రమే వాడండి.",
+        },
+        {
+            "pest_name_en": "Fusarium Wilt & Gummy Stem Blight",
+            "pest_name_te": "ఎండు తెగులు (Fusarium Wilt) & కాండం కుళ్ళు తెగులు",
+            "pest_name_hi": "उकठा रोग (विल्ट) व तना गलन रोग",
+            "chemical_pesticide": "Carbendazim 12% + Mancozeb 63% WP (Saaf) drenching @ 2.0 g/L",
+            "dosage": "2.0 g/L root drenching (150-200 ml per plant basin)",
+            "dosage_te": "సాఫ్ 2.0 గ్రా/లీ కరిగించి మొక్కల మొదళ్ల వద్ద పోయాలి (డ్రెంచింగ్)",
+            "timing_en": "Drench root basins at transplanting / 20 days interval in prone sandy plots",
+            "timing_te": "నాటిన 20 రోజులకు మొక్కల వేర్ల వద్ద డ్రెంచింగ్ చేయాలి",
+            "bio_pesticide_en": "Soil application of Pseudomonas fluorescens (2.5 kg/acre mixed in 500 kg FYM).",
+            "bio_pesticide_te": "సూడోమోనాస్ ఫ్లోరోసెన్స్ 2.5 కిలోలను 500 కిలోల పశువుల ఎరువుతో కలిపి నేలలో వేయండి.",
+        },
+    ],
+    "muskmelon": [
+        {
+            "pest_name_en": "Fruit Fly & Aphids / Whiteflies",
+            "pest_name_te": "పండ్ల ఈగ, పేనుబంక & తెల్లదోమ",
+            "pest_name_hi": "फल मक्खी व सफेद मक्खी / माहू",
+            "chemical_pesticide": "Imidacloprid 17.8% SL @ 0.3 ml/L or Thiamethoxam 25% WG @ 0.4 g/L",
+            "dosage": "0.3 ml/L of Imidacloprid or 0.4 g/L Thiamethoxam",
+            "dosage_te": "ఇమిడాక్లోప్రిడ్ 0.3 మి.లీ/లీ లేదా థయామెథాక్సామ్ 0.4 గ్రా/లీ",
+            "timing_en": "Spray during early morning hours before flower opening",
+            "timing_te": "ఉదయం పూట పువ్వులు విచ్చుకోకముందే పిచికారీ చేయాలి",
+            "bio_pesticide_en": "Yellow Sticky Traps (10 traps/acre) + Neem Oil 10,000 PPM @ 2.5 ml/L.",
+            "bio_pesticide_te": "ఎకరానికి 10 పసుపు జిగురు అట్టలు + వేప నూనె 2.5 మి.లీ/లీ వాడండి.",
+        },
+    ],
+    "groundnut": [
+        {
+            "pest_name_en": "Tikka Leaf Spot & Rust Disease",
+            "pest_name_te": "టిక్కా ఆకుమచ్చ తెగులు & తుప్పు తెగులు",
+            "pest_name_hi": "टिक्का पत्ती धब्बा व रतुआ रोग",
+            "chemical_pesticide": "Tebuconazole 25.9% EC (Folicur) @ 1.0 ml/L or Hexaconazole 5% SC @ 2.0 ml/L",
+            "dosage": "1.0 ml/L of Folicur or 2.0 ml/L of Hexaconazole",
+            "dosage_te": "ఫోలికూర్ 1.0 మి.లీ/లీ లేదా హెక్సాకోనజోల్ 2.0 మి.లీ/లీ",
+            "timing_en": "Spray at 35-40 days and repeat at 55 days after sowing",
+            "timing_te": "విత్తిన 35-40 రోజులకు మరియు 55 రోజులకు పిచికారీ చేయాలి",
+            "bio_pesticide_en": "Pseudomonas fluorescens seed treatment @ 10g/kg seed + Trichoderma viride.",
+            "bio_pesticide_te": "కిలో విత్తనానికి 10 గ్రాముల సూడోమోనాస్ తో విత్తన శుద్ధి చేయండి.",
+        },
+    ],
     "rice": [
         {
             "pest_name_en": "Yellow Stem Borer & Leaf Folder",
@@ -184,13 +252,21 @@ CROP_PESTICIDES_CATALOG: Dict[str, List[Dict[str, Any]]] = {
     ],
 }
 
-# Soil-to-Crop Suitability Guide & Agronomic Rationale
+# Soil-to-Crop Suitability Guide & Comprehensive Agronomic Rationale
 SOIL_SUITABILITY_CATALOG: Dict[str, Dict[str, Any]] = {
     "loamy": {
         "soil_name_en": "Loamy Soil (ఆదర్శవంతమైన ఒండ్రు నేల)",
         "characteristics_en": "Optimal balance of sand, silt, and clay with high cation exchange, excellent drainage, and superior moisture retention.",
         "characteristics_te": "ఇసుక, బంకమట్టిల సమతుల్య మిశ్రమం. మంచి నీటి నిల్వ సామర్థ్యం, గాలి ప్రసరణ మరియు పోషకాలను గ్రహించే శక్తి కలది.",
         "best_crops": ["rice", "maize", "cotton", "banana", "sugarcane", "vegetables", "wheat", "chickpea"],
+        "companion_intercrops_en": "Maize + Cowpea / French Beans, Sugarcane + Blackgram, Tomato + Marigold",
+        "companion_intercrops_te": "మొక్కజొన్న + అలసందలు, చెరకు + మినుములు, టమోటా + బంతి పూలు",
+        "fertilizer_plan_en": "Apply 8 tons FYM/acre basal. Nitrogen 120 kg, P2O5 60 kg, K2O 60 kg in 3 equal splits at sowing, vegetative & flowering.",
+        "fertilizer_plan_te": "ఎకరానికి 8 టన్నుల పశువుల ఎరువు వేయండి. నత్రజని 120 కిలోలు, భాస్వరం 60 కిలోలు, పొటాష్ 60 కిలోలను 3 విడతల్లో అందించండి.",
+        "moisture_mulching_en": "Maintain 70% field capacity moisture. Organic paddy straw mulching reduces irrigation by 30%.",
+        "moisture_mulching_te": "70% తేమ నిల్వ ఉండేలా చూడండి. వరి గడ్డి మల్చింగ్ వాడటం వల్ల 30% నీరు ఆదా అవుతుంది.",
+        "crop_rotation_plan_en": "Cereal (Maize/Rice) -> Pulse (Chickpea/Green Gram) -> Oilseed (Mustard/Sesame) to rebuild soil nitrogen.",
+        "crop_rotation_plan_te": "ధాన్యపు పంట (మొక్కజొన్న/వరి) -> పప్పు ధాన్య పంట (శనగలు/పెసలు) -> నూనెగింజల పంటల రొటేషన్ పాటించండి.",
         "soil_health_tips_en": "Incorporate 5-8 tons/acre well-decomposed Farmyard Manure (FYM) or vermicompost annually. Top-dress with bio-fertilizers (Azospirillum & PSB).",
         "soil_health_tips_te": "ఎకరానికి 5-8 టన్నుల పశువుల ఎరువు లేదా వర్మీకంపోస్ట్ వేయండి. అజోస్పైరిల్లమ్ & PSB జీవ ఎరువులను వాడండి.",
     },
@@ -199,22 +275,46 @@ SOIL_SUITABILITY_CATALOG: Dict[str, Dict[str, Any]] = {
         "characteristics_en": "Very high water retention and nutrient holding capacity, rich in montmorillonite minerals; heavy texture prone to waterlogging if over-irrigated.",
         "characteristics_te": "అధిక తేమను నిలుపుకునే గుణం, పోషకాల సాంద్రత ఎక్కువ. నీరు ఎక్కువైతే నిల్వ ఉండే అవకాశం ఉంటుంది.",
         "best_crops": ["rice", "cotton", "pigeonpeas", "chickpea", "wheat", "sugarcane"],
+        "companion_intercrops_en": "Cotton + Pigeonpea (4:1 or 6:1 row ratio), Soybean + Sorghum, Chickpea + Safflower",
+        "companion_intercrops_te": "పత్తి + కందులు (4:1 నిష్పత్తి), సోయాబీన్ + జొన్నలు, శనగలు + కుసుమలు",
+        "fertilizer_plan_en": "Apply Single Super Phosphate (SSP) 100 kg + Zinc Sulfate 10 kg basal. Split Urea into 3 doses to avoid denitrification.",
+        "fertilizer_plan_te": "సింగిల్ సూపర్ ఫాస్ఫేట్ (SSP) 100 కిలోలు + జింక్ సల్ఫేట్ 10 కిలోలు వేయండి. యూరియాను 3 విడతలుగా వాడండి.",
+        "moisture_mulching_en": "Broad Bed and Furrow (BBF) irrigation system. Dig drainage trenches every 20 meters to prevent standing water.",
+        "moisture_mulching_te": "ఎత్తు బెడ్ & కాలువ పద్ధతి (BBF) ఉపయోగించండి. మురుగు నీరు నిలవకుండా 20 మీటర్లకు కాలువలు తీయండి.",
+        "crop_rotation_plan_en": "Kharif Cotton/Soybean -> Rabi Chickpea/Wheat -> Summer Green Manuring (Dhaincha/Sunnhemp).",
+        "crop_rotation_plan_te": "ఖరీఫ్ పత్తి/సోయాబీన్ -> రబీ శనగలు/గోధుమలు -> వేసవిలో జీలుగ/జనుము పచ్చిరొట్ట ఎరువుల సాగు చేయండి.",
         "soil_health_tips_en": "Provide deep drainage channels. Apply Gypsum @ 500 kg/acre if soil is heavy/sodic. Use green manuring (Sunnhemp / Dhaincha).",
         "soil_health_tips_te": "పొలంలో మురుగు కాలువలు తీయండి. నేల బిగుతు తగ్గడానికి జిప్సం 500 కిలోలు లేదా జనుము/జీలుగ పచ్చిరొట్ట ఎరువులు వాడండి.",
     },
     "sandy": {
-        "soil_name_en": "Sandy / Sandy Loam Soil (ఇసుక రేగడి / తేలికపాటి నేల)",
-        "characteristics_en": "Highly porous, fast drainage, warm soil temperature with lower native nutrient retention; ideal for root crops and pulses with frequent light irrigation.",
-        "characteristics_te": "తేలికపాటి నేల, వేగవంతమైన నీటి ఇంకుడు, అధిక గాలి ప్రసరణ. వేరుశనగ, పప్పుధాన్యాలు, పుచ్చకాయలకు అత్యంత అనుకూలం.",
-        "best_crops": ["watermelon", "muskmelon", "groundnut", "mothbeans", "mungbean", "potato", "coconut"],
-        "soil_health_tips_en": "Apply split doses of fertilizers with Drip fertigation to prevent nutrient leaching. Add tank silt (చెరువు మట్టి) and organic mulching.",
-        "soil_health_tips_te": "ఎరువులను ఒకేసారి కాకుండా విడతల వారీగా డ్రిప్ ద్వారా ఇవ్వండి. చెరువు మట్టి మరియు సేంద్రీయ మల్చింగ్ ఉపయోగించండి.",
+        "soil_name_en": "Sandy / Sandy Loam Soil (ఇసుక రేగడి / తేలికపాటి గరప నేల)",
+        "characteristics_en": "Highly porous, fast drainage, warm soil temperature with rapid solar heating; ideal for deep-rooted cucurbits, root crops, groundnut and pulses.",
+        "characteristics_te": "తేలికపాటి గుల్ల నేల, వేగవంతమైన నీటి ఇంకుడు, అధిక గాలి ప్రసరణ. పుచ్చకాయ, ఖర్బూజ, వేరుశనగ మరియు పప్పుధాన్యాలకు అత్యంత అనుకూలం.",
+        "best_crops": ["watermelon", "muskmelon", "groundnut", "mothbeans", "mungbean", "potato", "coconut", "tomato", "cotton"],
+        "companion_intercrops_en": "Watermelon + Radish/Coriander (in early borders), Groundnut + Red Gram (7:1), Muskmelon + Marigold (nematode repellent)",
+        "companion_intercrops_te": "పుచ్చకాయ + ముల్లంగి/కొత్తిమీర (మొదటి నెలలో అంచుల్లో), వేరుశనగ + కందులు (7:1), ఖర్బూజ + బంతి పూలు",
+        "fertilizer_plan_en": "Basal: 10 tons FYM + 200 kg Neem cake + 150 kg SSP. Apply Soluble NPK (19:19:19 & 0:0:50) via Drip weekly in 8 split doses to prevent leaching.",
+        "fertilizer_plan_te": "ఆఖరి దుక్కిలో 10 టన్నుల పశువుల ఎరువు + 200 కిలోల వేప పిండి + 150 కిలోల SSP వేయండి. పోషకాలు కారిపోకుండా డ్రిప్ ద్వారా వారానికి ఒకసారి ఎరువులు అందించండి.",
+        "moisture_mulching_en": "Silver-Black Plastic Mulch (25-30 micron) with inline Drip irrigation saves 45% water, prevents weed growth, and boosts soil warmth.",
+        "moisture_mulching_te": "సిల్వర్-బ్లాక్ ప్లాస్టిక్ మల్చింగ్ (25 మైక్రాన్లు) & డ్రిప్ వాడటం వల్ల 45% నీరు ఆదా అవుతుంది, కలుపు రాదు మరియు కాయ నాణ్యత పెరుగుతుంది.",
+        "crop_rotation_plan_en": "Summer Watermelon/Muskmelon -> Kharif Groundnut/Maize -> Rabi Green Gram (Mungbean)/Vegetables.",
+        "crop_rotation_plan_te": "వేసవి పుచ్చకాయ/ఖర్బూజ -> ఖరీఫ్ వేరుశనగ/మొక్కజొన్న -> రబీ పెసలు/కూరగాయల పంటల రొటేషన్ తో భూమి సారవంతంగా ఉంటుంది.",
+        "soil_health_tips_en": "Apply split doses of fertilizers with Drip fertigation to prevent nutrient leaching. Add tank silt (చెరువు మట్టి @ 15-20 carts/acre) and organic mulching.",
+        "soil_health_tips_te": "ఎరువులను ఒకేసారి కాకుండా విడతల వారీగా డ్రిప్ ద్వారా ఇవ్వండి. ఎకరానికి 15-20 బండ్ల చెరువు మట్టి మరియు సేంద్రీయ మల్చింగ్ ఉపయోగించండి.",
     },
     "red": {
         "soil_name_en": "Red Laterite / Red Sandy Soil (ఎర్ర నేలలు)",
         "characteristics_en": "Rich in iron oxides, permeable, neutral-to-slightly acidic pH. Requires balanced phosphorus and organic carbon boosting.",
         "characteristics_te": "ఐరన్ ఆక్సైడ్లు అధికంగా ఉండే నేల. పారగమ్యత ఎక్కువ, కొద్దిపాటి ఆమ్ల గుణం ఉంటుంది. భాస్వరం మరియు సేంద్రీయ ఎరువులు అవసరం.",
-        "best_crops": ["groundnut", "cotton", "maize", "mango", "pomegranate", "grapes", "coffee"],
+        "best_crops": ["groundnut", "cotton", "maize", "mango", "pomegranate", "grapes", "coffee", "tomato"],
+        "companion_intercrops_en": "Maize + Pigeonpea, Groundnut + Castor (border crop), Mango orchard + Stylosanthes cover legume",
+        "companion_intercrops_te": "మొక్కజొన్న + కందులు, వేరుశనగ + ఆముదం (సరిహద్దు పంట), మామిడి తోటల్లో పచ్చిరొట్ట పైర్లు",
+        "fertilizer_plan_en": "Apply Single Super Phosphate (SSP) 150 kg/acre (supplies Calcium + Sulfur) + 50 kg Potash. Apply Mycorrhiza (VAM) @ 4 kg/acre.",
+        "fertilizer_plan_te": "DAP బదులు సింగిల్ సూపర్ ఫాస్ఫేట్ (SSP) 150 కిలోలు + పొటాష్ 50 కిలోలు వేయండి. మైకోరైజా జీవ ఎరువులను మొక్కల వేర్ల వద్ద వేయండి.",
+        "moisture_mulching_en": "Contour bunding and micro-sprinkler / drip irrigation. Maintain crop residue mulching to retain soil moisture.",
+        "moisture_mulching_te": "సమతల గట్లు వేయడం మరియు మైక్రో-స్ప్రింక్లర్/డ్రిప్ పద్ధతి ద్వారా నీటిని ఆదా చేయండి.",
+        "crop_rotation_plan_en": "Kharif Groundnut/Cotton -> Rabi Pulses/Maize -> Green manure cover crops.",
+        "crop_rotation_plan_te": "ఖరీఫ్ వేరుశనగ/పత్తి -> రబీ పప్పుధాన్యాలు/మొక్కజొన్న -> పచ్చిరొట్ట పంటల చక్రీయ సాగు.",
         "soil_health_tips_en": "Apply Single Super Phosphate (SSP) instead of DAP to provide sulfur & calcium. Treat with Trichoderma and apply mycorrhiza.",
         "soil_health_tips_te": "DAP బదులు సింగిల్ సూపర్ ఫాస్ఫేట్ (SSP) వాడండి. మైకోరైజా జీవ ఎరువులను మొక్కల వేర్ల వద్ద వేయండి.",
     },
@@ -252,6 +352,21 @@ def get_irrigation_guidance(crop_name: str, soil_type: str, irrigation_type: str
 
     # Crop specific critical moisture stages
     critical_stages = {
+        "watermelon": [
+            {"stage_en": "Early Vine Growth & Branching (15-30 days)", "stage_te": "తీగలు సాగే మరియు కొమ్మలు తొడిగే దశ (15-30 రోజులు)", "depth": "Light uniform moisture; avoid saturated root pooling"},
+            {"stage_en": "Peak Flowering & Fruit Setting (35-60 days)", "stage_te": "పూత మరియు పిందె కట్టే దశ (35-60 రోజులు)", "depth": "Critical water window: maintain regular drip to prevent flower drop"},
+            {"stage_en": "Fruit Swelling & Sugar Ripening (65-85 days)", "stage_te": "కాయలు లావెక్కే మరియు పక్వానికి వచ్చే దశ (65-85 రోజులు)", "depth": "Reduce watering 10 days before harvest to maximize sweetness (Brix) and avoid cracking"},
+        ],
+        "muskmelon": [
+            {"stage_en": "Early Vegetative & Vine Growth (15-30 days)", "stage_te": "మొక్కల ఎదుగుదల మరియు తీగల దశ (15-30 రోజులు)", "depth": "Light frequent drip cycles"},
+            {"stage_en": "Flowering & Netting Formation (35-55 days)", "stage_te": "పూత మరియు కాయలపై గీతలు ఏర్పడే దశ (35-55 రోజులు)", "depth": "Critical moisture: avoid dry spells to prevent premature drop"},
+            {"stage_en": "Harvest Maturation Stage (60-75 days)", "stage_te": "పంట కోత దశ (60-75 రోజులు)", "depth": "Taper off irrigation to enhance melon aroma and sugar content"},
+        ],
+        "groundnut": [
+            {"stage_en": "Flowering & Peg Penetration (30-50 days)", "stage_te": "పూత మరియు ఊడలు దిగే దశ (30-50 రోజులు)", "depth": "Crucial watering: loose moist sandy soil enables effortless peg entry"},
+            {"stage_en": "Pod Formation & Seed Filling (55-80 days)", "stage_te": "కాయలు ఏర్పడి గింజ ఊరే దశ (55-80 రోజులు)", "depth": "Maintain adequate moisture for full kernel development"},
+            {"stage_en": "Pod Maturity & Pre-Harvest (85-105 days)", "stage_te": "కాయలు పక్వానికి వచ్చే దశ (85-105 రోజులు)", "depth": "Light irrigation for easy uprooting and pod harvesting"},
+        ],
         "rice": [
             {"stage_en": "Transplanting to Tillering (0-30 days)", "stage_te": "నాట్లు వేసినప్పటి నుండి పిలకల దశ (0-30 రోజులు)", "depth": "2-3 cm standing shallow water"},
             {"stage_en": "Panicle Initiation & Booting (45-65 days)", "stage_te": "చిరుపొట్ట & పూత దశ (45-65 రోజులు)", "depth": "5 cm water depth (Most critical moisture window)"},
@@ -567,19 +682,25 @@ def generate_comprehensive_farmer_advisory(
     
     soil_profile = SOIL_SUITABILITY_CATALOG.get(soil_key, SOIL_SUITABILITY_CATALOG["loamy"])
 
-    crop_trans = CROP_NAME_TRANSLATIONS.get(recommended_crop.lower(), {"en": recommended_crop.title(), "te": recommended_crop.title(), "hi": recommended_crop.title()})
+    crop_trans = CROP_NAME_TRANSLATIONS.get(recommended_crop.lower(), {"en": recommended_crop.title(), "te": recommended_crop.title(), "hi": recommended_crop.title(), "ta": recommended_crop.title()})
     localized_top_3 = []
     for r in top_3_recs:
         c_name = r.get("crop", "")
-        t_info = CROP_NAME_TRANSLATIONS.get(c_name.lower(), {"en": c_name.title(), "te": c_name.title(), "hi": c_name.title()})
+        t_info = CROP_NAME_TRANSLATIONS.get(c_name.lower(), {"en": c_name.title(), "te": c_name.title(), "hi": c_name.title(), "ta": c_name.title()})
         localized_top_3.append({
             "rank": r.get("rank", 1),
             "crop": c_name,
-            "crop_en": t_info["en"],
-            "crop_te": t_info["te"],
-            "crop_hi": t_info["hi"],
+            "crop_en": t_info.get("en", c_name.title()),
+            "crop_te": t_info.get("te", c_name.title()),
+            "crop_hi": t_info.get("hi", c_name.title()),
+            "crop_ta": t_info.get("ta", c_name.title()),
             "confidence": r.get("confidence", 0.0),
             "confidence_pct": r.get("confidence_pct", 0.0),
+            "suitability_level": r.get("suitability_level", "Viable Alternative"),
+            "match_rationale_en": r.get("match_rationale_en", "Optimal match for this soil and environmental profile."),
+            "match_rationale_te": r.get("match_rationale_te", "ఈ నేల రకానికి మరియు వాతావరణానికి సరిపోయే పంట."),
+            "match_rationale_hi": r.get("match_rationale_hi", "इस मिट्टी व जलवायु के लिए उपयुक्त फसल।"),
+            "match_rationale_ta": r.get("match_rationale_ta", "இந்த மண் மற்றும் காலநிலைக்கு உகந்த பயிர்."),
         })
 
     return {
@@ -593,9 +714,10 @@ def generate_comprehensive_farmer_advisory(
         "soil_inputs": soil_inputs,
         "crop_recommendation": {
             "recommended_crop": recommended_crop,
-            "crop_name_en": crop_trans["en"],
-            "crop_name_te": crop_trans["te"],
-            "crop_name_hi": crop_trans["hi"],
+            "crop_name_en": crop_trans.get("en", recommended_crop.title()),
+            "crop_name_te": crop_trans.get("te", recommended_crop.title()),
+            "crop_name_hi": crop_trans.get("hi", recommended_crop.title()),
+            "crop_name_ta": crop_trans.get("ta", recommended_crop.title()),
             "confidence": confidence,
             "confidence_pct": round(confidence * 100, 1),
             "top_3_recommendations": localized_top_3,
@@ -621,6 +743,14 @@ def generate_comprehensive_farmer_advisory(
             "registered_soil": soil_type,
             "soil_profile": soil_profile,
             "is_highly_compatible": crop_title in soil_profile.get("best_crops", []),
+            "companion_intercrops_en": soil_profile.get("companion_intercrops_en", ""),
+            "companion_intercrops_te": soil_profile.get("companion_intercrops_te", ""),
+            "fertilizer_plan_en": soil_profile.get("fertilizer_plan_en", ""),
+            "fertilizer_plan_te": soil_profile.get("fertilizer_plan_te", ""),
+            "moisture_mulching_en": soil_profile.get("moisture_mulching_en", ""),
+            "moisture_mulching_te": soil_profile.get("moisture_mulching_te", ""),
+            "crop_rotation_plan_en": soil_profile.get("crop_rotation_plan_en", ""),
+            "crop_rotation_plan_te": soil_profile.get("crop_rotation_plan_te", ""),
         },
         "market_economics": market_info,
     }
@@ -643,31 +773,41 @@ def generate_farm_advisory_from_profile(farm_id: int, user_id: int) -> Dict[str,
     irrigation_type = farm.get("irrigation_type", "Drip")
     current_crop = (farm.get("current_crop") or "").strip().lower()
 
-    # 1. Soil Chemical Benchmarks for Farm's Soil Type
+    # 1. Soil Chemical & Climatic Benchmarks for Farm's Soil Type, Irrigation & Crop Context
     s_low = soil_type.lower()
-    if "clay" in s_low or "black" in s_low:
-        n, p, k, ph = 88.0, 48.0, 42.0, 7.2
-    elif "sand" in s_low:
-        n, p, k, ph = 68.0, 38.0, 35.0, 6.4
-    elif "red" in s_low or "laterite" in s_low:
-        n, p, k, ph = 76.0, 34.0, 39.0, 6.3
-    elif "peat" in s_low or "silt" in s_low:
-        n, p, k, ph = 82.0, 44.0, 40.0, 6.6
-    else:  # Loamy / Alluvial / Default
-        n, p, k, ph = 90.0, 45.0, 44.0, 6.8
+    irr_low = irrigation_type.lower()
+    prev_crop = (farm.get("previous_crop") or "").strip().lower()
 
-    # 2. Local Climate/Weather for Farm's District/State
-    weather_analyzer = get_weather_analyzer()
-    try:
-        weather_stats = weather_analyzer.get_summary_statistics()
-        metrics = weather_stats.get("summary_metrics", {})
-        temp = float(metrics.get("temperature", {}).get("mean", 26.5))
-        humidity = float(metrics.get("humidity", {}).get("mean", 78.0))
-        rainfall = float(metrics.get("rainfall", {}).get("mean", 195.0))
-        if rainfall < 50.0:  # If daily mean is returned, scale to seasonal baseline (~195mm)
-            rainfall = 195.0
-    except Exception:
-        temp, humidity, rainfall = 26.5, 78.0, 195.0
+    if "black" in s_low or ("clay" in s_low and ("cotton" in current_crop or "cotton" in prev_crop or "drip" in irr_low or "borewell" in irr_low)):
+        # Black Cotton Soil / Vertisol (Cotton, Soybean, Chickpea, Sorghum)
+        n, p, k, ph = 118.0, 46.0, 20.0, 7.2
+        temp, humidity, rainfall = 25.0, 78.0, 80.0
+    elif "clay" in s_low or "wetland" in s_low or "flood" in irr_low or "canal" in irr_low or "rice" in current_crop or "paddy" in current_crop or "rice" in prev_crop or "paddy" in prev_crop:
+        # Clayey Delta Wetland / Rice Paddy (High moisture, canal/flood irrigation)
+        n, p, k, ph = 80.0, 48.0, 40.0, 6.5
+        temp, humidity, rainfall = 24.0, 82.0, 235.0
+    elif "sand" in s_low:
+        # Sandy Loam / Coastal / Arid (Watermelon, Muskmelon, Groundnut, Coconut)
+        n, p, k, ph = 98.0, 18.0, 50.0, 6.5
+        temp, humidity, rainfall = 26.5, 85.0, 50.0
+    elif "red" in s_low or "laterite" in s_low:
+        # Red Loam / Alfisol (Maize, Groundnut, Pigeonpea, Tomato)
+        n, p, k, ph = 75.0, 48.0, 20.0, 6.4
+        temp, humidity, rainfall = 23.5, 65.0, 85.0
+    elif "peat" in s_low or "silt" in s_low:
+        # Silty Alluvial / Orchard (Banana, Papaya, Sugarcane)
+        n, p, k, ph = 100.0, 80.0, 50.0, 6.2
+        temp, humidity, rainfall = 27.0, 80.0, 105.0
+    else:  # Loamy / General Agriculture (Maize, Cotton, Banana, Vegetables)
+        if "flood" in irr_low or "canal" in irr_low:
+            n, p, k, ph = 80.0, 48.0, 40.0, 6.5
+            temp, humidity, rainfall = 24.0, 82.0, 230.0
+        elif "drip" in irr_low or "sprinkler" in irr_low:
+            n, p, k, ph = 78.0, 48.0, 20.0, 6.5
+            temp, humidity, rainfall = 23.0, 66.0, 85.0
+        else:
+            n, p, k, ph = 100.0, 80.0, 50.0, 6.2
+            temp, humidity, rainfall = 27.0, 80.0, 105.0
 
     soil_inputs = {
         "N": n,

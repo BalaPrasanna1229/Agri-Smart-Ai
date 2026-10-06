@@ -155,13 +155,18 @@
     </div>
 </div>
 
-<!-- Agro-Meteorological Advisory Card -->
 <div class="card" style="margin-bottom: 28px; border-color: #a7f3d0;">
     <div class="card-header">
         <div class="card-title">
-            <span>🛡️</span> <span class="lang-text" data-en="Agro-Meteorological Advisory & Field Guidance" data-te="వ్యవసాయ వాతావరణ సలహాలు & మార్గదర్శకాలు" data-hi="कृषि मौसम सलाह और मार्गदर्शन">Agro-Meteorological Advisory & Field Guidance</span>
+            <span>🛡️</span> <span class="lang-text" data-en="Agro-Meteorological Advisory & Field Guidance" data-te="వ్యవసాయ వాతావరణ సలహాలు & మార్గదర్శకాలు" data-hi="कृषि मौसम सलाह और मार्गदर्शन" data-ta="வேளாண் வானிலை ஆலோசனை & கள வழிகாட்டுதல்">Agro-Meteorological Advisory & Field Guidance</span>
         </div>
-        <span style="font-size: 12px; color: var(--text-secondary);" class="lang-text" data-en="Rule-Based Agronomic Intelligence" data-te="శాస్త్రీయ వ్యవసాయ సలహాలు" data-hi="वैज्ञानिक कृषि परामर्श">Rule-Based Agronomic Intelligence</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="agri-speaker-btn btn-sm" onclick="AgriSpeaker.speak(this.closest('.card').innerText, this, null, 'Weather Advisory')" title="Listen to Weather Advisory">
+                <span class="speaker-icon">🔊</span>
+                <span class="lang-text" data-en="Listen" data-te="వినండి" data-hi="सुनें" data-ta="கேள்">Listen</span>
+            </button>
+            <span style="font-size: 12px; color: var(--text-secondary);" class="lang-text" data-en="Rule-Based Agronomic Intelligence" data-te="శాస్త్రీయ వ్యవసాయ సలహాలు" data-hi="वैज्ञानिक कृषि परामर्श" data-ta="வானிலை அறிவியல்">Rule-Based Agronomic Intelligence</span>
+        </div>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
@@ -300,13 +305,7 @@
 
 <!-- Safely Injected JSON Data Container (0 IDE Script Errors) -->
 <script type="application/json" id="weatherChartData">
-{
-    "temp_means": {{ chart_data.temp_means|tojson }},
-    "temp_mins": {{ chart_data.temp_mins|tojson }},
-    "temp_maxs": {{ chart_data.temp_maxs|tojson }},
-    "rain_sums": {{ chart_data.rain_sums|tojson }},
-    "humidity_means": {{ chart_data.humidity_means|tojson }}
-}
+{{ chart_data|tojson }}
 </script>
 
 <!-- Chart.js CDN -->

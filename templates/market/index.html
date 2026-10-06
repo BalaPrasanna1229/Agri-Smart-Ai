@@ -30,17 +30,67 @@
     <div style="display: flex; gap: 16px; align-items: flex-start;">
         <div style="font-size: 32px;">📊</div>
         <div>
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                 <h3 style="font-size: 15px; color: #166534; margin-bottom: 2px; font-weight: 800;">
-                    <span class="lang-text" data-en="APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK" data-te="APMC హోల్‌సేల్ మార్కెట్ ధరలు & ప్రభుత్వ మద్దతు ధర (MSP) విశ్లేషణ" data-hi="APMC थोक मंडी भाव व सरकारी समर्थन मूल्य (MSP) विश्लेषण">APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK</span>
+                    <span class="lang-text" data-en="APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK" data-te="APMC హోల్‌సేల్ మార్కెట్ ధరలు & ప్రభుత్వ మద్దతు ధర (MSP) విశ్లేషణ" data-hi="APMC थोक मंडी भाव व सरकारी समर्थन मूल्य (MSP) विश्लेषण" data-ta="APMC மொத்த வேளாண் மண்டி விலைப்பட்டியல் & அரசு MSP ஒப்பீடு">APMC WHOLESALE MANDI COMMODITY BULLETIN & MSP BENCHMARK</span>
                 </h3>
-                <span class="badge-ready" style="padding: 2px 10px; border-radius: 12px; font-size: 11px;">Agmarknet Benchmark</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="agri-speaker-btn btn-sm" onclick="AgriSpeaker.speak(this.closest('.card').innerText, this, null, 'Mandi Bulletin')" title="Listen to Market Bulletin">
+                        <span class="speaker-icon">🔊</span>
+                        <span class="lang-text" data-en="Listen" data-te="వినండి" data-hi="सुनें" data-ta="கேள்">Listen</span>
+                    </button>
+                    <span class="badge-ready" style="padding: 2px 10px; border-radius: 12px; font-size: 11px;">Agmarknet Benchmark</span>
+                </div>
             </div>
             <p style="font-size: 13px; color: #14532d; line-height: 1.5; margin-top: 4px; margin-bottom: 0;">
                 <span class="lang-text" data-en="Official mandi wholesale prices (₹/Quintal), arrival volumes across major agricultural hubs, MSP comparison, and revenue calculations for your registered farm holdings." data-te="25 రకాల వ్యవసాయ ఉత్పత్తుల హోల్‌సేల్ మార్కెట్ ధరలు, మార్కెట్ రాక పరిమాణాలు, MSP పోలిక మరియు మీ పొలానికి వచ్చే నికర రాబడి లెక్కలు." data-hi="25 कृषि जींसों के थोक भाव (₹/क्विंटल), आवक, MSP तुलना और आपके पंजीकृत खेत हेतु आय गणना।">
                     Official mandi wholesale prices (₹/Quintal), arrival volumes across major agricultural hubs, MSP comparison, and revenue calculations for your registered farm holdings.
                 </span>
             </p>
+        </div>
+    </div>
+</div>
+
+<!-- Direct Farmer SMS & WhatsApp Price Surge Alert Hub -->
+<div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, #064e3b, #047857); color: white; border: none; box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.4); border-radius: var(--radius-lg); padding: 18px 22px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 280px;">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(255, 255, 255, 0.18); display: flex; align-items: center; justify-content: center; font-size: 26px; backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                📲
+            </div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.3px;">
+                        <span class="lang-text" data-en="DIRECT MOBILE PRICE SURGE SMS DISPATCH" data-te="రైతు మొబైల్‌కు డైరెక్ట్ మార్కెట్ ధరల SMS అలర్ట్" data-hi="सीधा मोबाइल मंडी भाव SMS अलर्ट">DIRECT MOBILE PRICE SURGE SMS DISPATCH</span>
+                    </h3>
+                    {% if user_profile and user_profile.phone %}
+                    <span style="background: #22c55e; color: #052e16; font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 12px;">
+                        ✓ LINKED: {{ user_profile.phone }}
+                    </span>
+                    {% else %}
+                    <button type="button" onclick="promptFarmerPhone()" style="background: #f59e0b; color: #451a03; font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 12px; border: none; cursor: pointer;">
+                        + LINK MOBILE NUMBER
+                    </button>
+                    {% endif %}
+                </div>
+                <p style="margin: 4px 0 0 0; font-size: 12.5px; color: #d1fae5; line-height: 1.4;">
+                    <span class="lang-text" 
+                          data-en="Whenever wholesale mandi prices for your crops surge above benchmark or MSP, Agri Smart AI sends an instant SMS directly to your phone."
+                          data-te="మీ పంటల మార్కెట్ ధరలు పెరిగిన వెంటనే ఆటోమేటిక్‌గా మీ మొబైల్ ఫోన్‌కు నేరుగా SMS మరియు వాట్సాప్ సందేశం వెళ్తుంది."
+                          data-hi="आपकी फसल का भाव बढ़ते ही तुरंत आपके मोबाइल पर SMS व व्हाट्सएप अलर्ट भेजा जाएगा।">
+                        Whenever wholesale mandi prices for your crops surge above benchmark or MSP, Agri Smart AI sends an instant SMS directly to your phone.
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-sm" onclick="triggerMarketSmsQuickDispatch(this)" style="background: #facc15; color: #713f12; font-weight: 800; padding: 8px 16px; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(250, 204, 21, 0.4); cursor: pointer;">
+                ⚡ <span class="lang-text" data-en="Check Surges & Dispatch Alerts" data-te="ధరలు తనిఖీ చేసి అలర్ట్ పంపండి" data-hi="भाव जांचें व अलर्ट भेजें">Check Surges & Dispatch Alerts</span>
+            </button>
+            <a href="{{ url_for('notifications_page') }}" class="btn btn-sm" style="background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.4); font-weight: 600; padding: 8px 14px; text-decoration: none; border-radius: var(--radius-md);">
+                🔔 <span data-i18n="menu_notif">Price Alerts</span>
+            </a>
         </div>
     </div>
 </div>
@@ -64,9 +114,11 @@
             </div>
         </div>
     </div>
-    <a href="{{ url_for('notifications_page') }}" class="btn btn-secondary btn-sm" style="background: white; border-color: #86efac; color: #166534; white-space: nowrap;">
-        <span data-i18n="all_alerts_btn">🔔 All Alerts →</span>
-    </a>
+    <div style="display: flex; gap: 8px;">
+        <a href="{{ url_for('notifications_page') }}" class="btn btn-secondary btn-sm" style="background: white; border-color: #86efac; color: #166534; white-space: nowrap;">
+            <span data-i18n="all_alerts_btn">🔔 All Alerts →</span>
+        </a>
+    </div>
 </div>
 {% endif %}
 
@@ -353,6 +405,7 @@
                     <th class="lang-text" data-en="3-Day Momentum" data-te="3 రోజుల మార్పు" data-hi="3-दिवसीय बदलाव">3-Day Momentum</th>
                     <th class="lang-text" data-en="Selling Advisory" data-te="విక్రయ సలహా" data-hi="बिक्री सलाह">Selling Advisory</th>
                     <th class="lang-text" data-en="Arrivals" data-te="మండీ రాకలు" data-hi="मंडी आवक">Arrivals</th>
+                    <th class="lang-text" data-en="Direct Mobile Alert" data-te="మొబైల్ అలర్ట్" data-hi="मोबाइल अलर्ट">Direct Mobile Alert</th>
                 </tr>
             </thead>
             <tbody>
@@ -440,6 +493,17 @@
                         <span style="color: var(--text-muted);">—</span>
                         {% endif %}
                     </td>
+
+                    <td style="white-space: nowrap;">
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <button type="button" class="btn btn-primary btn-sm" data-commodity="{{ row.Commodity }}" onclick="sendDirectCropAlert(this.getAttribute('data-commodity'), this)" title="Send Instant SMS Alert to Your Phone" style="padding: 3px 8px; font-size: 11px; font-weight: 700; border-radius: 6px;">
+                                📲 SMS
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" data-commodity="{{ row.Commodity }}" data-price="{% if row['Price on 01 Oct, 2026'] %}{{ row['Price on 01 Oct, 2026']|int }}{% else %}0{% endif %}" onclick="shareCropWhatsApp(this.getAttribute('data-commodity'), this.getAttribute('data-price'))" title="Share Market Alert on WhatsApp" style="padding: 3px 7px; font-size: 11px; background: #25d366; color: white; border-color: #22c55e; border-radius: 6px;">
+                                💬
+                            </button>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -453,6 +517,11 @@
     {% endif %}
 </div>
 
+<!-- Safely Injected JSON Data Container -->
+<script id="marketChartData" type="application/json">
+{{ chart_data|tojson }}
+</script>
+
 <!-- Chart.js CDN & Interactive Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
@@ -460,10 +529,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Initial Revenue Calculation
     calculateMandiRevenue();
 
-    // 2. Price vs MSP Comparison Chart
-    const priceMspLabels = {{ chart_data.price_msp_labels|tojson }};
-    const marketPrices = {{ chart_data.market_prices|tojson }};
-    const mspPrices = {{ chart_data.msp_prices|tojson }};
+    // 2. Parse Chart Data safely
+    const chartDataEl = document.getElementById('marketChartData');
+    const chartData = chartDataEl ? JSON.parse(chartDataEl.textContent || '{}') : {};
+
+    const priceMspLabels = chartData.price_msp_labels || [];
+    const marketPrices = chartData.market_prices || [];
+    const mspPrices = chartData.msp_prices || [];
 
     const ctxPriceMsp = document.getElementById('priceMspChart');
     if (ctxPriceMsp) {
@@ -516,8 +588,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Arrival Volumes Doughnut Chart
-    const arrivalLabels = {{ chart_data.arrival_labels|tojson }};
-    const arrivalValues = {{ chart_data.arrival_values|tojson }};
+    const arrivalLabels = chartData.arrival_labels || [];
+    const arrivalValues = chartData.arrival_values || [];
 
     const ctxArrival = document.getElementById('arrivalChart');
     if (ctxArrival) {
@@ -674,6 +746,112 @@ function exportMarketTableToCSV() {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+}
+
+// Direct Farmer Mobile SMS & WhatsApp Dispatch Functions
+function triggerMarketSmsQuickDispatch(btn) {
+    const origText = btn.innerHTML;
+    btn.innerHTML = '⏳ Checking & Dispatching SMS...';
+    btn.disabled = true;
+
+    fetch('/api/alerts/dispatch-crop-sms?force=1', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        if (data.success) {
+            alert('✅ ' + (data.message || 'SMS Price Surge Alerts Dispatched to your phone!'));
+            window.location.reload();
+        } else {
+            if (data.status === 'missing_phone') {
+                promptFarmerPhone();
+            } else {
+                alert('⚠️ ' + (data.message || 'Could not dispatch SMS.'));
+            }
+        }
+    })
+    .catch(err => {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        alert('Network error while dispatching SMS: ' + err.message);
+    });
+}
+
+function sendDirectCropAlert(cropName, btn) {
+    const origText = btn.innerHTML;
+    btn.innerHTML = '⏳...';
+    btn.disabled = true;
+
+    fetch('/api/alerts/send-single-crop-sms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ crop_name: cropName })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        if (data.success) {
+            alert('✅ ' + (data.message || (cropName + ' alert sent to ' + data.phone)));
+        } else {
+            if (data.message && data.message.includes('మొబైల్ నంబర్')) {
+                promptFarmerPhone();
+            } else {
+                alert('⚠️ ' + data.message);
+            }
+        }
+    })
+    .catch(err => {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        alert('Error: ' + err.message);
+    });
+}
+
+function shareCropWhatsApp(cropName, price) {
+    const userPhone = "{{ user_profile.phone if user_profile else '' }}".replace(/\D/g, '');
+    const msg = encodeURIComponent(
+        "🚨 *అగ్రి స్మార్ట్ AI మార్కెట్ ధరల అలర్ట్!* 🌾\n" +
+        "పంట: *" + cropName + "*\n" +
+        "📈 ప్రస్తుత మార్కెట్ ధర: *₹" + Number(price).toLocaleString('en-IN') + "/క్వింటాల్*\n" +
+        "💡 మార్కెట్లో ధరలు గరిష్టంగా ఉన్నాయి. ఇప్పుడే విక్రయించి మంచి లాభం పొందండి!\n" +
+        "🌐 లైవ్ డాష్‌బోర్డ్: https://agrismart.ai/market"
+    );
+    const waUrl = userPhone ? "https://wa.me/" + userPhone + "?text=" + msg : "https://api.whatsapp.com/send?text=" + msg;
+    window.open(waUrl, '_blank');
+}
+
+function promptFarmerPhone() {
+    const phone = prompt("దయచేసి మీ మొబైల్ నంబర్ నమోదు చేయండి (Enter your 10-digit mobile number to receive instant SMS price alerts):", "{{ user_profile.phone if user_profile else '' }}");
+    if (phone && phone.trim()) {
+        fetch('/api/alerts/update-phone', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ phone: phone.trim() })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                window.location.reload();
+            } else {
+                alert('⚠️ ' + data.message);
+            }
+        });
+    }
 }
 </script>
 {% endblock %}

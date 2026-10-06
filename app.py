@@ -34,6 +34,9 @@ from src.database import (
     create_user,
     authenticate_user,
     get_user_by_id,
+    update_user_profile,
+    update_user_phone_and_alert_settings,
+    clear_user_phone_alerts,
     add_farm,
     get_user_farms,
     get_farm_by_id,
@@ -56,6 +59,12 @@ from src.database import (
     mark_notification_read,
     mark_all_notifications_read,
     delete_notification,
+    get_user_crop_price_alerts,
+    add_crop_price_alert,
+    delete_crop_price_alert,
+    toggle_crop_price_alert,
+    log_sent_message,
+    get_user_message_logs,
 )
 from src.integrated_advisory import (
     generate_comprehensive_farmer_advisory,
@@ -72,6 +81,15 @@ from src.disease_lookup import get_disease_lookup, lookup_disease, get_crop_dise
 from src.weather_analysis import get_weather_analyzer, fetch_live_weather, WeatherAnalyzer
 from src.market_analysis import get_market_analyzer
 from src.ai_assistant import generate_assistant_response, get_ai_config, UNCONFIGURED_MESSAGE
+from src.land_analyzer import classify_land_soil_photo, SOIL_SAMPLE_GALLERY
+from src.messaging_service import (
+    check_and_dispatch_crop_price_alerts,
+    send_direct_message,
+    get_messaging_config,
+    generate_whatsapp_click_url,
+    format_price_surge_message,
+    clean_phone_number,
+)
 
 
 # Initialize Flask App
@@ -167,6 +185,7 @@ def register():
         name = request.form.get("name", "").strip()
         username = request.form.get("username", "").strip().lower()
         email = request.form.get("email", "").strip().lower()
+        phone = request.form.get("phone", "").strip()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
 
@@ -174,6 +193,8 @@ def register():
         farm_name = request.form.get("farm_name", "").strip() or f"{name}'s Farm"
         state = request.form.get("state", "").strip() or "Andhra Pradesh"
         district = request.form.get("district", "").strip() or "Guntur"
+        if district == "__custom__":
+            district = request.form.get("custom_district", "").strip() or "Guntur"
         location = request.form.get("location", "").strip() or f"{district}, {state}"
         land_area_raw = request.form.get("land_area", "").strip()
         try:
@@ -187,18 +208,18 @@ def register():
         # Validation
         if not name or not username or not email or not password:
             flash("All fields are required.", "danger")
-            return render_template("register.html", name=name, username=username, email=email, farm_name=farm_name, land_area=land_area, district=district)
+            return render_template("register.html", name=name, username=username, email=email, phone=phone, farm_name=farm_name, land_area=land_area, district=district)
 
         if len(password) < 6:
             flash("Password must be at least 6 characters long.", "danger")
-            return render_template("register.html", name=name, username=username, email=email, farm_name=farm_name, land_area=land_area, district=district)
+            return render_template("register.html", name=name, username=username, email=email, phone=phone, farm_name=farm_name, land_area=land_area, district=district)
 
         if password != confirm_password:
             flash("Passwords do not match.", "danger")
-            return render_template("register.html", name=name, username=username, email=email, farm_name=farm_name, land_area=land_area, district=district)
+            return render_template("register.html", name=name, username=username, email=email, phone=phone, farm_name=farm_name, land_area=land_area, district=district)
 
         try:
-            user = create_user(name, username, email, password)
+            user = create_user(name, username, email, password, phone=phone)
             # Automatically create default primary farm holding for the registered farmer
             try:
                 add_farm(
@@ -321,6 +342,8 @@ def farm_add():
         location = request.form.get("location", "").strip()
         state = request.form.get("state", "").strip()
         district = request.form.get("district", "").strip()
+        if district == "__custom__":
+            district = request.form.get("custom_district", "").strip()
         soil_type = request.form.get("soil_type", "").strip()
         land_area_raw = request.form.get("land_area", "").strip()
         irrigation_type = request.form.get("irrigation_type", "").strip()
@@ -427,6 +450,8 @@ def farm_edit(farm_id: int):
         location = request.form.get("location", "").strip()
         state = request.form.get("state", "").strip()
         district = request.form.get("district", "").strip()
+        if district == "__custom__":
+            district = request.form.get("custom_district", "").strip()
         soil_type = request.form.get("soil_type", "").strip()
         land_area_raw = request.form.get("land_area", "").strip()
         irrigation_type = request.form.get("irrigation_type", "").strip()
@@ -615,18 +640,26 @@ def crop_recommend():
 
     if selected_farm:
         s_low = selected_farm["soil_type"].lower()
-        if "clay" in s_low or "black" in s_low:
-            n, p, k, ph = 88.0, 48.0, 42.0, 7.2
+        irr_low = selected_farm["irrigation_type"].lower()
+        if "black" in s_low:
+            n, p, k, ph = 118.0, 46.0, 20.0, 7.2
+            temp, hum, rain = 25.0, 78.0, 80.0
+        elif "clay" in s_low or "flood" in irr_low or "canal" in irr_low:
+            n, p, k, ph = 80.0, 48.0, 40.0, 6.5
+            temp, hum, rain = 24.0, 82.0, 235.0
         elif "sand" in s_low:
-            n, p, k, ph = 68.0, 38.0, 35.0, 6.4
+            n, p, k, ph = 98.0, 18.0, 50.0, 6.5
+            temp, hum, rain = 26.5, 85.0, 50.0
         elif "red" in s_low:
-            n, p, k, ph = 76.0, 34.0, 39.0, 6.3
+            n, p, k, ph = 75.0, 48.0, 20.0, 6.4
+            temp, hum, rain = 23.5, 65.0, 85.0
         else:
-            n, p, k, ph = 90.0, 45.0, 44.0, 6.8
+            n, p, k, ph = 100.0, 80.0, 50.0, 6.2
+            temp, hum, rain = 27.0, 80.0, 105.0
 
         form_data = {
             "N": n, "P": p, "K": k, "ph": ph,
-            "temperature": 26.5, "humidity": 78.0, "rainfall": 195.0,
+            "temperature": temp, "humidity": hum, "rainfall": rain,
             "farm_area": selected_farm["land_area"],
             "soil_type": selected_farm["soil_type"],
             "irrigation_type": selected_farm["irrigation_type"],
@@ -638,7 +671,43 @@ def crop_recommend():
         selected_farm_id=selected_farm_id,
         selected_farm=selected_farm,
         form_data=form_data,
+        soil_samples=SOIL_SAMPLE_GALLERY,
     )
+
+
+@app.route("/crop/analyze-land", methods=["POST"])
+@login_required
+def analyze_land_soil_photo():
+    """
+    Analyzes an uploaded land/soil photograph, camera snap, or preset sample to predict:
+    - Soil type and photometric characteristics (Humus, Redness, Sandiness, Texture)
+    - Estimated baseline Soil chemical DNA (N, P, K, pH)
+    - Optimal recommended crops with AI suitability ratings
+    """
+    json_data = request.get_json(silent=True) or {}
+    preset_id = (request.form.get("preset_id") or json_data.get("preset_id") or json_data.get("sample_preset_id") or "").strip()
+    camera_data = (request.form.get("camera_data") or json_data.get("camera_data") or "").strip()
+    
+    file_bytes = None
+    if "soil_image" in request.files:
+        file = request.files["soil_image"]
+        if file and file.filename:
+            file_bytes = file.read()
+            
+    if not preset_id and not camera_data and not file_bytes:
+        return jsonify({"success": False, "error": "No land photo or soil sample provided."}), 400
+
+    try:
+        if preset_id:
+            analysis = classify_land_soil_photo(preset_id=preset_id)
+        elif camera_data:
+            analysis = classify_land_soil_photo(image_input=camera_data)
+        else:
+            analysis = classify_land_soil_photo(image_input=file_bytes)
+
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 
@@ -784,6 +853,7 @@ def disease_page():
         "disease/index.html",
         all_classes=all_classes,
         selected_disease=selected_disease,
+        invalid_image_result=None,
         search_results=search_results,
         query=query,
         plant_filter=plant_filter,
@@ -879,7 +949,7 @@ def disease_upload_image():
         flash("Please choose or capture a valid leaf image before uploading.", "warning")
         return redirect(url_for("disease_page"))
 
-    # Run Intelligent AI Leaf Diagnosis
+    # Run Intelligent AI Leaf Diagnosis & Botanical Validation
     if saved_filepath and saved_filepath.exists():
         predicted_card = lookup_engine.predict_disease_from_image(saved_filepath, filename=orig_filename)
     else:
@@ -888,7 +958,34 @@ def disease_upload_image():
 
     predicted_card["uploaded_image_url"] = uploaded_image_url
 
-    # Log diagnosis to user history
+    is_valid_plant = predicted_card.get("is_valid_plant", True)
+
+    if not is_valid_plant:
+        # Non-plant image detected (e.g. barren ground, vehicle, human photo, screenshot)
+        # Block false prediction and guide farmer on proper leaf photography
+        flash(
+            f"⚠️ {predicted_card.get('message_te', 'అప్‌లోడ్ చేసిన ఫోటోలో పంట లేదా ఆకు గుర్తించబడలేదు. దయచేసి స్పష్టమైన పంట ఆకు ఫోటోను మాత్రమే అప్‌లోడ్ చేయండి.')}",
+            "warning",
+        )
+
+        lookup_history = get_user_disease_lookups(user_id, limit=10)
+
+        return render_template(
+            "disease/index.html",
+            all_classes=all_classes,
+            selected_disease=None,
+            invalid_image_result=predicted_card,
+            search_results=[],
+            query="",
+            plant_filter="",
+            lookup_history=lookup_history,
+            sample_gallery=sample_gallery,
+            farms=farms,
+            farmer_crops=farmer_crops,
+            crop_advisories=crop_advisories,
+        )
+
+    # Valid plant photo - Log diagnosis to user history
     save_disease_lookup(
         user_id=user_id,
         class_name=predicted_card["class_name"],
@@ -908,6 +1005,7 @@ def disease_upload_image():
         "disease/index.html",
         all_classes=all_classes,
         selected_disease=predicted_card,
+        invalid_image_result=None,
         search_results=[],
         query="",
         plant_filter="",
@@ -1226,10 +1324,30 @@ def market_page():
 
     user_id = session["user_id"]
     farms = get_user_farms(user_id)
+    user_profile = get_user_by_id(user_id)
+    sms_logs = get_user_message_logs(user_id, limit=20)
+    messaging_config = get_messaging_config()
+    custom_alerts = get_user_crop_price_alerts(user_id)
+
+    # Collect farmer crop names
+    farmer_crops = set()
+    for f in farms:
+        if f.get("current_crop"):
+            farmer_crops.add(f["current_crop"].strip())
+        if f.get("previous_crop"):
+            farmer_crops.add(f["previous_crop"].strip())
+    for ca in custom_alerts:
+        if ca.get("crop_name"):
+            farmer_crops.add(ca["crop_name"].strip())
 
     return render_template(
         "market/index.html",
         farms=farms,
+        user_profile=user_profile,
+        sms_logs=sms_logs,
+        messaging_config=messaging_config,
+        farmer_crops=sorted(list(farmer_crops)),
+        custom_alerts=custom_alerts,
         market_items=market_items,
         commodity_groups=commodity_groups,
         selected_group=selected_group,
@@ -1252,16 +1370,22 @@ def market_page():
 @app.route("/notifications", methods=["GET"])
 @login_required
 def notifications_page():
-    """Full notifications center showing high price alerts and disease advisories."""
+    """Full notifications center showing high price alerts, SMS logs, and disease advisories."""
     user_id = session["user_id"]
     notifications = get_user_notifications(user_id, limit=50)
     market_analyzer = get_market_analyzer()
     high_price_alerts = market_analyzer.get_high_price_alerts()
+    user_profile = get_user_by_id(user_id)
+    sms_logs = get_user_message_logs(user_id, limit=50)
+    messaging_config = get_messaging_config()
     
     return render_template(
         "notifications.html",
         notifications=notifications,
         high_price_alerts=high_price_alerts,
+        user_profile=user_profile,
+        sms_logs=sms_logs,
+        messaging_config=messaging_config,
     )
 
 
@@ -1305,6 +1429,161 @@ def mark_all_user_notifications_read():
 
 
 # ==========================================
+# DIRECT SMS & WHATSAPP PRICE SURGE ALERT ROUTES
+# ==========================================
+
+
+
+@app.route("/api/alerts/dispatch-crop-sms", methods=["GET", "POST"])
+@login_required
+def api_dispatch_crop_sms():
+    """
+    Checks user's crops for market price surges and dispatches instant SMS / WhatsApp alert.
+    Can be called from UI button, AJAX, or cron.
+    """
+    user_id = session["user_id"]
+    force = request.args.get("force") == "1" or request.form.get("force") == "1" or (request.is_json and request.get_json(silent=True) and request.get_json().get("force"))
+    min_surge = float(request.args.get("min_surge", 3.0))
+
+    result = check_and_dispatch_crop_price_alerts(user_id=user_id, force=force, min_surge_pct=min_surge)
+    
+    is_ajax = request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        return jsonify(result), (200 if result.get("success") else 400)
+
+    if result.get("success"):
+        if result.get("alerts_sent", 0) > 0:
+            flash(f"✅ {result.get('message')}", "success")
+        else:
+            flash(f"ℹ️ {result.get('message')}", "info")
+    else:
+        flash(f"⚠️ {result.get('message')}", "warning")
+
+    next_url = request.referrer or url_for("market_page")
+    return redirect(next_url)
+
+
+@app.route("/api/alerts/send-single-crop-sms", methods=["POST"])
+@login_required
+def api_send_single_crop_sms():
+    """Sends immediate SMS / WhatsApp alert for a specific crop chosen by farmer."""
+    user_id = session["user_id"]
+    user = get_user_by_id(user_id)
+    phone = user.get("phone", "")
+    if not phone:
+        phone = request.form.get("phone", "").strip() or (request.get_json(silent=True) or {}).get("phone", "").strip()
+        if phone:
+            update_user_phone_and_alert_settings(user_id, phone)
+
+    if not phone:
+        msg = "దయచేసి మీ మొబైల్ నంబర్ నమోదు చేయండి. (Please register your mobile number first.)"
+        if request.is_json:
+            return jsonify({"success": False, "message": msg}), 400
+        flash(msg, "warning")
+        return redirect(url_for("market_page"))
+
+    if request.is_json:
+        payload = request.get_json() or {}
+        crop_name = payload.get("crop_name", "Paddy").strip()
+    else:
+        crop_name = request.form.get("crop_name", "Paddy").strip()
+
+    analyzer = get_market_analyzer()
+    comm_data = analyzer.get_commodity_for_crop(crop_name)
+    if not comm_data:
+        comm_data = analyzer.filter_by_commodity(crop_name) or {}
+
+    current_price = float(comm_data.get("Price on 01 Oct, 2026") or 3000.0)
+    msp = float(comm_data.get("MSP (Rs./Quintal) 2026-27") or 0.0)
+    spread_pct = float(comm_data.get("msp_spread_pct") or 0.0)
+    change_3d = float(comm_data.get("price_change_pct_3d") or 0.0)
+
+    msgs = format_price_surge_message(
+        crop_name=comm_data.get("Commodity", crop_name),
+        market_price=current_price,
+        msp=msp if msp > 0 else None,
+        spread_pct=spread_pct if spread_pct > 0 else None,
+        change_3d_pct=change_3d,
+        lang="te",
+    )
+
+    sms_body = f"{msgs['te']}\n\n[English]:\n{msgs['en']}"
+
+    dispatch_res = send_direct_message(
+        phone_number=phone,
+        message_text=sms_body,
+        channel=user.get("preferred_channel", "sms"),
+        user_id=user_id,
+        crop_name=crop_name,
+        market_price=current_price,
+        msp_price=msp if msp > 0 else None,
+        change_pct=change_3d if change_3d > 0 else spread_pct,
+        message_text_te=msgs["te"],
+        message_text_hi=msgs["hi"],
+    )
+
+    # In-app notification
+    create_user_notification(
+        user_id=user_id,
+        title=f"Direct SMS: {msgs['crop_en']} at ₹{int(current_price):,}/Qtl",
+        title_te=f"SMS పంపబడింది: {msgs['crop_te']} మార్కెట్ ధర ₹{int(current_price):,}/క్వింటాల్",
+        message=f"SMS alert dispatched to {phone}. Mandi price is ₹{int(current_price):,}/Qtl.",
+        message_te=f"{msgs['crop_te']} మార్కెట్ ధర ₹{int(current_price):,}/క్వింటాల్ కి పెరిగింది. మీ ఫోన్ {phone} కు SMS పంపబడింది.",
+        category="market_price",
+        action_url="/market",
+        badge_type="high_price",
+    )
+
+    if request.is_json:
+        return jsonify({
+            "success": True,
+            "message": f"✅ {msgs['crop_te']} మార్కెట్ ధరల అలర్ట్ మీ మొబైల్ {phone} కు పంపబడింది!",
+            "phone": phone,
+            "crop_name": crop_name,
+            "price": current_price,
+            "whatsapp_url": dispatch_res.get("whatsapp_url"),
+            "status": dispatch_res.get("status"),
+        })
+
+    flash(f"✅ {msgs['crop_te']} మార్కెట్ ధరల అలర్ట్ SMS మీ మొబైల్ {phone} కు విజయవంతంగా పంపబడింది!", "success")
+    return redirect(request.referrer or url_for("market_page"))
+
+
+@app.route("/api/alerts/update-phone", methods=["POST"])
+@login_required
+def api_update_phone():
+    """Quick AJAX phone update endpoint."""
+    user_id = session["user_id"]
+    if request.is_json:
+        data = request.get_json() or {}
+        phone = data.get("phone", "").strip()
+        sms_enabled = bool(data.get("sms_alerts_enabled", True))
+        whatsapp_enabled = bool(data.get("whatsapp_alerts_enabled", True))
+        preferred_channel = data.get("preferred_channel", "sms")
+    else:
+        phone = request.form.get("phone", "").strip()
+        sms_enabled = request.form.get("sms_alerts_enabled") == "1"
+        whatsapp_enabled = request.form.get("whatsapp_alerts_enabled") == "1"
+        preferred_channel = request.form.get("preferred_channel", "sms")
+
+    if not phone:
+        return jsonify({"success": False, "message": "Mobile number is required."}), 400
+
+    update_user_phone_and_alert_settings(
+        user_id=user_id,
+        phone=phone,
+        sms_alerts_enabled=sms_enabled,
+        whatsapp_alerts_enabled=whatsapp_enabled,
+        preferred_channel=preferred_channel,
+    )
+    return jsonify({
+        "success": True,
+        "message": f"ఫోన్ నంబర్ {phone} విజయవంతంగా లింక్ చేయబడింది!",
+        "phone": phone,
+    })
+
+
+# ==========================================
 # AI AGRICULTURE ASSISTANT ROUTES (PHASE 6)
 # ==========================================
 
@@ -1340,6 +1619,7 @@ def ai_assistant_redirect():
 
 
 @app.route("/assistant/message", methods=["POST"])
+@app.route("/assistant/send", methods=["POST"])
 @login_required
 def assistant_send_message():
     """Processes user chat message and returns AI Agronomist response."""

@@ -42,9 +42,25 @@ def init_db(db_file: Optional[Path] = None) -> None:
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
+        phone TEXT,
+        sms_alerts_enabled INTEGER DEFAULT 1,
+        whatsapp_alerts_enabled INTEGER DEFAULT 1,
+        preferred_channel TEXT DEFAULT 'sms',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+
+    # Try adding new user columns if table was created in older schema
+    for col_def in [
+        "phone TEXT",
+        "sms_alerts_enabled INTEGER DEFAULT 1",
+        "whatsapp_alerts_enabled INTEGER DEFAULT 1",
+        "preferred_channel TEXT DEFAULT 'sms'",
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col_def};")
+        except Exception:
+            pass
 
     # 2. Farms Table
     cursor.execute("""
@@ -143,12 +159,64 @@ def init_db(db_file: Optional[Path] = None) -> None:
         user_id INTEGER NOT NULL,
         title TEXT NOT NULL,
         title_te TEXT,
+        title_ta TEXT,
         message TEXT NOT NULL,
         message_te TEXT,
+        message_ta TEXT,
         category TEXT DEFAULT 'market_price',
         action_url TEXT,
         badge_type TEXT DEFAULT 'high_price',
         is_read INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    """)
+
+    # Try adding title_ta / message_ta if table was created in older schema
+    try:
+        cursor.execute("ALTER TABLE notifications ADD COLUMN title_ta TEXT;")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE notifications ADD COLUMN message_ta TEXT;")
+    except Exception:
+        pass
+
+    # 8. Custom Crop Price Alerts & Real-Time Fluctuation Watchlist
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS crop_price_alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        crop_name TEXT NOT NULL,
+        alert_type TEXT DEFAULT 'both',
+        target_high_price REAL,
+        target_low_price REAL,
+        trigger_percentage REAL DEFAULT 5.0,
+        is_active INTEGER DEFAULT 1,
+        last_price REAL,
+        last_alert_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    """)
+
+    # 9. SMS & WhatsApp Message Logs Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sms_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        recipient_phone TEXT NOT NULL,
+        channel TEXT DEFAULT 'sms',
+        crop_name TEXT NOT NULL,
+        market_price REAL NOT NULL,
+        msp_price REAL,
+        price_change_pct REAL,
+        message_text TEXT NOT NULL,
+        message_text_te TEXT,
+        message_text_hi TEXT,
+        status TEXT DEFAULT 'sent',
+        provider TEXT DEFAULT 'simulation',
+        external_id TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
@@ -163,11 +231,12 @@ def init_db(db_file: Optional[Path] = None) -> None:
 # USER OPERATIONS
 # ==========================================
 
-def create_user(name: str, username: str, email: str, password: str) -> Dict[str, Any]:
-    """Hashes password and registers a new user."""
+def create_user(name: str, username: str, email: str, password: str, phone: Optional[str] = None) -> Dict[str, Any]:
+    """Hashes password and registers a new user with optional mobile number."""
     name = name.strip()
     username = username.strip().lower()
     email = email.strip().lower()
+    phone = phone.strip() if phone else None
 
     if not name or not username or not email or not password:
         raise ValueError("All registration fields are required.")
@@ -179,14 +248,14 @@ def create_user(name: str, username: str, email: str, password: str) -> Dict[str
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO users (name, username, email, password_hash)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO users (name, username, email, password_hash, phone)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (name, username, email, password_hash),
+            (name, username, email, password_hash, phone),
         )
         conn.commit()
         user_id = cursor.lastrowid
-        return {"id": user_id, "name": name, "username": username, "email": email}
+        return {"id": user_id, "name": name, "username": username, "email": email, "phone": phone}
     except sqlite3.IntegrityError as e:
         err_msg = str(e).lower()
         if "username" in err_msg:
@@ -219,19 +288,178 @@ def authenticate_user(login_id: str, password: str) -> Optional[Dict[str, Any]]:
             "name": row["name"],
             "username": row["username"],
             "email": row["email"],
+            "phone": row["phone"] if "phone" in row.keys() else None,
+            "sms_alerts_enabled": row["sms_alerts_enabled"] if "sms_alerts_enabled" in row.keys() else 1,
+            "whatsapp_alerts_enabled": row["whatsapp_alerts_enabled"] if "whatsapp_alerts_enabled" in row.keys() else 1,
+            "preferred_channel": row["preferred_channel"] if "preferred_channel" in row.keys() else "sms",
             "created_at": row["created_at"],
         }
     return None
 
 
 def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
-    """Retrieves user profile by ID."""
+    """Retrieves user profile by ID including phone number and alert preferences."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, username, email, created_at FROM users WHERE id = ?", (user_id,))
+    cursor.execute(
+        """
+        SELECT id, name, username, email, phone, sms_alerts_enabled, whatsapp_alerts_enabled, preferred_channel, created_at 
+        FROM users WHERE id = ?
+        """, 
+        (user_id,)
+    )
     row = cursor.fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    d = dict(row)
+    if "phone" not in d or d["phone"] is None:
+        d["phone"] = ""
+    if "sms_alerts_enabled" not in d or d["sms_alerts_enabled"] is None:
+        d["sms_alerts_enabled"] = 1
+    if "whatsapp_alerts_enabled" not in d or d["whatsapp_alerts_enabled"] is None:
+        d["whatsapp_alerts_enabled"] = 1
+    if "preferred_channel" not in d or not d["preferred_channel"]:
+        d["preferred_channel"] = "sms"
+    return d
+
+
+def update_user_phone_and_alert_settings(
+    user_id: int,
+    phone: Optional[str] = None,
+    sms_alerts_enabled: bool = True,
+    whatsapp_alerts_enabled: bool = True,
+    preferred_channel: str = "sms",
+) -> bool:
+    """Updates user phone number and SMS/WhatsApp alert notification preferences."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cleaned_phone = phone.strip() if phone and phone.strip() else None
+    cursor.execute(
+        """
+        UPDATE users 
+        SET phone = ?, sms_alerts_enabled = ?, whatsapp_alerts_enabled = ?, preferred_channel = ?
+        WHERE id = ?
+        """,
+        (cleaned_phone, 1 if sms_alerts_enabled else 0, 1 if whatsapp_alerts_enabled else 0, (preferred_channel or "sms").strip().lower(), user_id),
+    )
+    conn.commit()
+    updated = cursor.rowcount > 0
+    conn.close()
+    return updated
+
+
+def clear_user_phone_alerts(user_id: int) -> bool:
+    """Permanently clears the registered phone number and disables phone alerts for user."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE users 
+        SET phone = NULL, sms_alerts_enabled = 0, whatsapp_alerts_enabled = 0
+        WHERE id = ?
+        """,
+        (user_id,),
+    )
+    conn.commit()
+    updated = cursor.rowcount > 0
+    conn.close()
+    return updated
+
+
+
+def update_user_profile(
+    user_id: int,
+    name: str,
+    email: str,
+    phone: Optional[str] = None,
+) -> bool:
+    """Updates basic profile info (name, email, phone)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE users 
+        SET name = ?, email = ?, phone = ?
+        WHERE id = ?
+        """,
+        (name.strip(), email.strip().lower(), phone.strip() if phone else None, user_id),
+    )
+    conn.commit()
+    updated = cursor.rowcount > 0
+    conn.close()
+    return updated
+
+
+# ==========================================
+# SMS & WHATSAPP MESSAGE LOGGING
+# ==========================================
+
+def log_sent_message(
+    user_id: int,
+    recipient_phone: str,
+    channel: str,
+    crop_name: str,
+    market_price: float,
+    msp_price: Optional[float] = None,
+    price_change_pct: Optional[float] = None,
+    message_text: str = "",
+    message_text_te: Optional[str] = None,
+    message_text_hi: Optional[str] = None,
+    status: str = "sent",
+    provider: str = "simulation",
+    external_id: Optional[str] = None,
+) -> int:
+    """Logs sent SMS / WhatsApp alert message."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO sms_logs (
+            user_id, recipient_phone, channel, crop_name, market_price,
+            msp_price, price_change_pct, message_text, message_text_te, message_text_hi,
+            status, provider, external_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            recipient_phone.strip(),
+            channel.strip().lower(),
+            crop_name.strip(),
+            float(market_price),
+            float(msp_price) if msp_price is not None else None,
+            float(price_change_pct) if price_change_pct is not None else None,
+            message_text.strip(),
+            message_text_te.strip() if message_text_te else None,
+            message_text_hi.strip() if message_text_hi else None,
+            status.strip().lower(),
+            provider.strip(),
+            external_id,
+        ),
+    )
+    conn.commit()
+    log_id = cursor.lastrowid
+    conn.close()
+    return log_id
+
+
+def get_user_message_logs(user_id: int, limit: int = 50) -> List[Dict[str, Any]]:
+    """Retrieves all sent SMS & WhatsApp message logs for a user, newest first."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT * FROM sms_logs
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """,
+        (user_id, limit),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 # ==========================================
@@ -877,6 +1105,8 @@ def create_user_notification(
     message: str,
     title_te: Optional[str] = None,
     message_te: Optional[str] = None,
+    title_ta: Optional[str] = None,
+    message_ta: Optional[str] = None,
     category: str = "market_price",
     action_url: Optional[str] = None,
     badge_type: str = "high_price",
@@ -886,10 +1116,10 @@ def create_user_notification(
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO notifications (user_id, title, title_te, message, message_te, category, action_url, badge_type, is_read)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+        INSERT INTO notifications (user_id, title, title_te, title_ta, message, message_te, message_ta, category, action_url, badge_type, is_read)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
         """,
-        (user_id, title.strip(), title_te, message.strip(), message_te, category, action_url, badge_type),
+        (user_id, title.strip(), title_te, title_ta, message.strip(), message_te, message_ta, category, action_url, badge_type),
     )
     conn.commit()
     notif_id = cursor.lastrowid
@@ -991,6 +1221,87 @@ def delete_notification(notif_id: int, user_id: int) -> bool:
     deleted = cursor.rowcount > 0
     conn.close()
     return deleted
+
+
+# ==========================================
+# CUSTOM CROP PRICE WATCH & FLUCTUATION ALERTS
+# ==========================================
+
+def add_crop_price_alert(
+    user_id: int,
+    crop_name: str,
+    alert_type: str = "both",
+    target_high_price: Optional[float] = None,
+    target_low_price: Optional[float] = None,
+    trigger_percentage: float = 5.0,
+    last_price: Optional[float] = None,
+) -> int:
+    """Creates or updates a custom crop price watch trigger for a user."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO crop_price_alerts (user_id, crop_name, alert_type, target_high_price, target_low_price, trigger_percentage, is_active, last_price)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+        """,
+        (user_id, crop_name.strip(), alert_type, target_high_price, target_low_price, trigger_percentage, last_price),
+    )
+    conn.commit()
+    alert_id = cursor.lastrowid
+    conn.close()
+    return alert_id
+
+
+def get_user_crop_price_alerts(user_id: int) -> List[Dict[str, Any]]:
+    """Retrieves all active and inactive price watch alerts set by user."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT * FROM crop_price_alerts
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        """,
+        (user_id,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def delete_crop_price_alert(alert_id: int, user_id: int) -> bool:
+    """Deletes a custom crop price alert rule."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        DELETE FROM crop_price_alerts
+        WHERE id = ? AND user_id = ?
+        """,
+        (alert_id, user_id),
+    )
+    conn.commit()
+    deleted = cursor.rowcount > 0
+    conn.close()
+    return deleted
+
+
+def toggle_crop_price_alert(alert_id: int, user_id: int, is_active: bool) -> bool:
+    """Toggles active state of a crop price alert."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE crop_price_alerts SET is_active = ?
+        WHERE id = ? AND user_id = ?
+        """,
+        (1 if is_active else 0, alert_id, user_id),
+    )
+    conn.commit()
+    updated = cursor.rowcount > 0
+    conn.close()
+    return updated
+
 
 
 

@@ -2,10 +2,22 @@
 
 {% block title %}Smart Advisory Report — {{ result.recommended_crop|title }} — Agri Smart AI{% endblock %}
 {% block header_title %}
-    <span class="lang-text" data-en="Integrated Farm Advisory & Intelligence Report" data-te="సమగ్ర వ్యవసాయ సలహా & ఇంటెలిజెన్స్ నివేదిక" data-hi="एकीकृत कृषि परामर्श व इंटेलिजेंस रिपोर्ट">Integrated Farm Advisory & Intelligence Report</span>
+    <span class="lang-text" 
+          data-en="Integrated Farm Advisory & Intelligence Report" 
+          data-te="సమగ్ర వ్యవసాయ సలహా & ఇంటెలిజెన్స్ నివేదిక" 
+          data-hi="एकीकृत कृषि परामर्श व इंटेलिजेंस रिपोर्ट"
+          data-ta="ஒருங்கிணைந்த வேளாண் ஆலோசனை & நுண்ணறிவு அறிக்கை">
+        Integrated Farm Advisory & Intelligence Report
+    </span>
 {% endblock %}
 {% block header_subtitle %}
-    <span class="lang-text" data-en="Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health" data-te="స్లైడ్ల రూపంలో AI విశ్లేషణ: పంట సిఫార్సు, దిగుబడి, మార్కెట్ రాబడి, తెగుళ్లు, పురుగు మందులు, సాగునీరు & నేల ఆరోగ్యం" data-hi="स्लाइड-दर-स्लाइड AI विश्लेषण: फसल सिफारिश, पैदावार, मंडी भाव, रोग रोकथाम, कीटनाशक, सिंचाई व मिट्टी स्वास्थ्य">Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health</span>
+    <span class="lang-text" 
+          data-en="Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health" 
+          data-te="స్లైడ్ల రూపంలో AI విశ్లేషణ: పంట సిఫార్సు, దిగుబడి, మార్కెట్ రాబడి, తెగుళ్లు, పురుగు మందులు, సాగునీరు & నేల ఆరోగ్యం" 
+          data-hi="स्लाइड-दर-स्लाइड AI विश्लेषण: फसल सिफारिश, पैदावार, मंडी भाव, रोग रोकथाम, कीटनाशक, सिंचाई व मिट्टी स्वास्थ्य"
+          data-ta="பக்கவாரியான AI பகுப்பாய்வு: பயிர் பொருத்தம், மகசூல், சந்தை வருமானம், நோய் தடுப்பு, பூச்சி மருந்துகள், பாசனம் & மண் ஆரோக்கியம்">
+        Slide-by-Slide AI Analysis: Crop Suitability, Harvest Yield, Mandi Economics, Disease Precautions, Pesticides, Irrigation & Soil Health
+    </span>
 {% endblock %}
 
 {% block content %}
@@ -57,14 +69,18 @@
 
             <!-- Action Controls -->
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="btnDeckSpeak" class="btn btn-sm agri-speaker-btn" onclick="readActiveSlideAudio()" title="Listen to Current Slide in your language">
+                    <span class="speaker-icon">🔊</span>
+                    <span class="lang-text" data-en="Listen to Slide" data-te="స్లైడ్ వినండి" data-hi="स्लाइड सुनें" data-ta="ஸ்லைடை கேள்">Listen to Slide</span>
+                </button>
                 <button type="button" id="btnSlideMode" class="btn btn-primary btn-sm mode-toggle-btn" onclick="setPresentationMode('slide')" style="font-size: 12px; font-weight: 700; border-radius: 8px;">
-                    🖥️ <span class="lang-text" data-en="Slide Mode" data-te="స్లైడ్ విధానం" data-hi="स्लाइड मोड">Slide Mode</span>
+                    🖥️ <span class="lang-text" data-en="Slide Mode" data-te="స్లైడ్ విధానం" data-hi="स्लाइड मोड" data-ta="ஸ்லைடு முறை">Slide Mode</span>
                 </button>
                 <button type="button" id="btnAllMode" class="btn btn-secondary btn-sm mode-toggle-btn" onclick="setPresentationMode('all')" style="font-size: 12px; border-radius: 8px;">
-                    📄 <span class="lang-text" data-en="View All" data-te="మొత్తం చూడండి" data-hi="सभी देखें">View All</span>
+                    📄 <span class="lang-text" data-en="View All" data-te="మొత్తం చూడండి" data-hi="सभी देखें" data-ta="அனைத்தையும் காண்க">View All</span>
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="toggleDeckFullscreen()" title="Fullscreen Deck" style="font-size: 12px; border-radius: 8px; padding: 6px 10px;">
-                    ⛶ <span class="lang-text" data-en="Fullscreen" data-te="పూర్తి స్క్రీన్" data-hi="फुलस्क्रीन">Fullscreen</span>
+                    ⛶ <span class="lang-text" data-en="Fullscreen" data-te="పూర్తి స్క్రీన్" data-hi="फुलस्क्रीन" data-ta="முழுத்திரை">Fullscreen</span>
                 </button>
             </div>
         </div>
@@ -190,37 +206,36 @@
                 <div class="card-title" style="color: var(--forest);">
                     <span>🏆</span> <span data-i18n="pillar_crop">Multi-Class AI Crop Suitability Rankings</span>
                 </div>
-                <span class="badge-ready">
-                    <span class="lang-text" data-en="Random Forest Ensemble" data-te="ర్యాండమ్ ఫారెస్ట్ ML మోడల్" data-hi="रैंडम फॉरेस्ट मॉडल">Random Forest Ensemble</span>
-                </span>
             </div>
 
             <div style="padding: 18px 20px;">
-                <p style="margin: 0 0 16px 0; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5;">
-                    <span class="lang-text" 
-                          data-en="Machine Learning probability distribution evaluated across 22 major Indian agricultural crop varieties based on your soil N-P-K, pH, temperature, and moisture levels:" 
-                          data-te="మీ నేల N-P-K, pH, ఉష్ణోగ్రత మరియు వర్షపాతం ఆధారంగా 22 రకాల పంటల సంభావ్యత ర్యాంకింగ్స్:" 
-                          data-hi="आपकी मिट्टी और जलवायु डेटा के आधार पर 22 प्रमुख फसलों की मशीन लर्निंग संभाव्यता सूची:">
-                        Machine Learning probability distribution evaluated across 22 major Indian agricultural crop varieties based on your soil N-P-K, pH, temperature, and moisture levels:
-                    </span>
-                </p>
-
                 <!-- Ranked Suitability Cards Grid -->
                 <div class="suitability-arena-grid">
                     {% for item in advisory.crop_recommendation.top_3_recommendations %}
                     <div class="suitability-card {% if loop.first %}rank-1{% elif loop.index == 2 %}rank-2{% else %}rank-3{% endif %}">
-                        <div class="suitability-rank-badge">
-                            {% if loop.first %}🥇 Rank 1 (Top Pick){% elif loop.index == 2 %}🥈 Rank 2 (Alternative){% else %}🥉 Rank 3 (Alternative){% endif %}
-                        </div>
-                        <div class="suitability-crop-title">
-                            <span class="lang-text" data-en="{{ item.crop_en }}" data-te="{{ item.crop_te }}" data-hi="{{ item.crop_hi }}">{{ item.crop_en }}</span>
-                        </div>
-                        <div class="suitability-pct-row">
-                            <div class="suitability-bar-track">
-                                <div class="suitability-bar-fill {% if loop.first %}fill-primary{% else %}fill-muted{% endif %}" style="width: {{ item.confidence_pct }}%;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                            <div class="suitability-rank-badge">
+                                {% if loop.first %}🥇 Rank 1 (Top Pick){% elif loop.index == 2 %}🥈 Rank 2 (Companion Alternative){% else %}🥉 Rank 3 (Rotation Alternative){% endif %}
                             </div>
-                            <div class="suitability-score">{{ item.confidence_pct }}%</div>
+                            <span class="badge" style="font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700; {% if loop.first %}background: #dcfce7; color: #15803d;{% elif loop.index == 2 %}background: #ccfbf1; color: #0f766e;{% else %}background: #fef3c7; color: #b45309;{% endif %}">
+                                {{ item.suitability_level }}
+                            </span>
                         </div>
+                        <div class="suitability-crop-title" style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px;">
+                            <span class="lang-text" data-en="{{ item.crop_en }}" data-te="{{ item.crop_te }}" data-hi="{{ item.crop_hi }}" data-ta="{{ item.crop_ta }}">{{ item.crop_en }}</span>
+                            <span style="font-size: 13.5px; font-weight: 800; color: {% if loop.first %}#15803d{% elif loop.index == 2 %}#0f766e{% else %}#b45309{% endif %};">{{ item.confidence_pct }}% Compatibility</span>
+                        </div>
+                        <div class="suitability-pct-row" style="margin-top: 6px;">
+                            <div class="suitability-bar-track" style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100%;">
+                                <div class="suitability-bar-fill {% if loop.first %}fill-primary{% elif loop.index == 2 %}fill-teal{% else %}fill-amber{% endif %}" style="--fill-pct: {{ item.confidence_pct }}%; width: {{ item.confidence_pct }}%; height: 100%; border-radius: 4px; background: {% if loop.first %}linear-gradient(90deg, #22c55e, #15803d){% elif loop.index == 2 %}linear-gradient(90deg, #14b8a6, #0f766e){% else %}linear-gradient(90deg, #f59e0b, #d97706){% endif %};"></div>
+                            </div>
+                        </div>
+                        {% if item.match_rationale_en %}
+                        <div class="suitability-rationale" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); line-height: 1.45; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+                            💡 <strong class="lang-text" data-en="Agronomic Match:" data-te="నేల అనుకూలత:" data-hi="मिट्टी अनुकूलता:">Agronomic Match:</strong> 
+                            <span class="lang-text" data-en="{{ item.match_rationale_en }}" data-te="{{ item.match_rationale_te }}" data-hi="{{ item.match_rationale_hi }}" data-ta="{{ item.match_rationale_ta }}">{{ item.match_rationale_en }}</span>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -290,27 +305,6 @@
                     </div>
                     <div class="m-val">{{ advisory.season }}</div>
                     <div class="m-sub">{{ advisory.soil_suitability.registered_soil }} Soil</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Calibration Engine Details Card -->
-        <div class="card premium-card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <div class="card-title" style="color: #92400e;">
-                    <span>📐</span> <span class="lang-text" data-en="Yield Simulation Methodology & Confidence" data-te="దిగుబడి గణన పద్ధతి & విశ్వసనీయత" data-hi="पैदावार गणना विधि">Yield Simulation Methodology & Confidence</span>
-                </div>
-                <span class="badge-ready" style="background: #fef3c7; color: #92400e;">
-                    ICAR Calibrated
-                </span>
-            </div>
-            <div style="padding: 18px 20px;">
-                <div style="display: flex; align-items: center; gap: 14px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius-md); padding: 14px 18px;">
-                    <span style="font-size: 28px;">🌾</span>
-                    <div style="font-size: 13.5px; color: #78350f; line-height: 1.6;">
-                        <strong><span class="lang-text" data-en="Model Engine:" data-te="మోడల్ ఇంజిన్:" data-hi="मॉडल इंजन:">Model Engine:</span></strong> 
-                        {{ advisory.yield_forecast.yield_source }} calibrated with regional soil texture, water usage efficiency, and farm management practices.
-                    </div>
                 </div>
             </div>
         </div>
@@ -929,16 +923,63 @@
                     {% endif %}
                 </div>
 
-                <div class="soil-characteristics-box">
+                <div class="soil-characteristics-box" style="margin-bottom: 18px;">
                     <p style="margin: 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
                         <span class="lang-text" data-en="{{ advisory.soil_suitability.soil_profile.characteristics_en }}" data-te="{{ advisory.soil_suitability.soil_profile.characteristics_te }}" data-hi="{{ advisory.soil_suitability.soil_profile.characteristics_en }}">{{ advisory.soil_suitability.soil_profile.characteristics_en }}</span>
                     </p>
                 </div>
 
+                <!-- 4-Pillar Soil Management & Rotation Recommendations Grid -->
+                <div class="form-grid-2" style="gap: 16px; margin-bottom: 20px;">
+                    <!-- 1. Companion & Intercropping Strategy -->
+                    <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 14px; font-weight: 800; color: #15803d; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>🌿</span>
+                            <span class="lang-text" data-en="Recommended Companion & Intercropping Crops" data-te="అనుకూలమైన అంతర పంటలు & సహచర పైర్లు" data-hi="अनुशंसित सह-फसलें व अंतर-फसल योजना">Recommended Companion & Intercropping Crops</span>
+                        </div>
+                        <div style="font-size: 13px; color: #166534; line-height: 1.55;">
+                            <span class="lang-text" data-en="{{ advisory.soil_suitability.companion_intercrops_en }}" data-te="{{ advisory.soil_suitability.companion_intercrops_te or advisory.soil_suitability.companion_intercrops_en }}" data-hi="{{ advisory.soil_suitability.companion_intercrops_en }}">{{ advisory.soil_suitability.companion_intercrops_en }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Soil-Specific Fertilizer & Nutrient Schedule -->
+                    <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 14px; font-weight: 800; color: #1d4ed8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>🧪</span>
+                            <span class="lang-text" data-en="Nutrient & Drip Fertigation Schedule" data-te="ఎరువుల మోతాదు & డ్రిప్ ఫెర్టిగేషన్ ప్రణాళిక" data-hi="उर्वरक व ड्रिप फर्टिगेशन प्रबंधन">Nutrient & Drip Fertigation Schedule</span>
+                        </div>
+                        <div style="font-size: 13px; color: #1e40af; line-height: 1.55;">
+                            <span class="lang-text" data-en="{{ advisory.soil_suitability.fertilizer_plan_en }}" data-te="{{ advisory.soil_suitability.fertilizer_plan_te or advisory.soil_suitability.fertilizer_plan_en }}" data-hi="{{ advisory.soil_suitability.fertilizer_plan_en }}">{{ advisory.soil_suitability.fertilizer_plan_en }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Soil Moisture & Mulching Conservation -->
+                    <div style="background: #fdf4ff; border: 1.5px solid #f5d0fe; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 14px; font-weight: 800; color: #a21caf; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>💧</span>
+                            <span class="lang-text" data-en="Moisture Retention & Plastic Mulching" data-te="తేమ నిల్వ & ప్లాస్టిక్ మల్చింగ్ సాంకేతికత" data-hi="नमी संरक्षण व मल्चिंग तकनीक">Moisture Retention & Plastic Mulching</span>
+                        </div>
+                        <div style="font-size: 13px; color: #86198f; line-height: 1.55;">
+                            <span class="lang-text" data-en="{{ advisory.soil_suitability.moisture_mulching_en }}" data-te="{{ advisory.soil_suitability.moisture_mulching_te or advisory.soil_suitability.moisture_mulching_en }}" data-hi="{{ advisory.soil_suitability.moisture_mulching_en }}">{{ advisory.soil_suitability.moisture_mulching_en }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Multi-Season Crop Rotation Roadmap -->
+                    <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius-md, 12px); padding: 14px 16px;">
+                        <div style="font-size: 14px; font-weight: 800; color: #b45309; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>🔄</span>
+                            <span class="lang-text" data-en="Multi-Season Crop Rotation Roadmap" data-te="బహుళ కాలాల పంట మార్పిడి ప్రణాళిక" data-hi="बहु-फसली चक्र योजना">Multi-Season Crop Rotation Roadmap</span>
+                        </div>
+                        <div style="font-size: 13px; color: #92400e; line-height: 1.55;">
+                            <span class="lang-text" data-en="{{ advisory.soil_suitability.crop_rotation_plan_en }}" data-te="{{ advisory.soil_suitability.crop_rotation_plan_te or advisory.soil_suitability.crop_rotation_plan_en }}" data-hi="{{ advisory.soil_suitability.crop_rotation_plan_en }}">{{ advisory.soil_suitability.crop_rotation_plan_en }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Soil Health Boost Tips -->
                 <div class="soil-action-checklist">
                     <div class="checklist-header">
-                        🌱 <span class="lang-text" data-en="Agronomic Soil Health & Nutrient Improvement Actions" data-te="మీ నేల ఆరోగ్యం & సారం పెంచడానికి రైతుకు సూచనలు" data-hi="मिट्टी स्वास्थ्य व उर्वरता सुधारने के सुझाव">Agronomic Soil Health & Nutrient Improvement Actions</span>
+                        🌱 <span class="lang-text" data-en="Agronomic Soil Health & Organic Carbon Boosting Actions" data-te="మీ నేల ఆరోగ్యం & సేంద్రీయ కర్బనం పెంచడానికి రైతుకు సూచనలు" data-hi="मिट्टी स्वास्थ्य व जैविक कार्बन सुधारने के सुझाव">Agronomic Soil Health & Organic Carbon Boosting Actions</span>
                     </div>
                     <div style="font-size: 13.5px; color: #78350f; line-height: 1.6;">
                         <span class="lang-text" data-en="{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}" data-te="{{ advisory.soil_suitability.soil_profile.soil_health_tips_te }}" data-hi="{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}">{{ advisory.soil_suitability.soil_profile.soil_health_tips_en }}</span>
@@ -2074,8 +2115,24 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+function readActiveSlideAudio() {
+    const btn = document.getElementById('btnDeckSpeak');
+    const targetSlide = document.getElementById('slide-' + currentSlide);
+    if (!targetSlide) return;
+
+    if (btn && btn.classList.contains('is-speaking')) {
+        AgriSpeaker.stop();
+        return;
+    }
+
+    const title = slideTitles[currentSlide - 1] || 'Slide Advisory';
+    const slideText = targetSlide.innerText;
+    AgriSpeaker.speak(slideText, btn, null, title);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     goToSlide(1);
 });
 </script>
 {% endblock %}
+

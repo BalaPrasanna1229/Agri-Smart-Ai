@@ -70,3 +70,7 @@ desktop.ini
 *.log
 logs/
 .system_generated/
+
+# Uploaded test files
+static/uploads/*
+!static/uploads/.gitkeep
